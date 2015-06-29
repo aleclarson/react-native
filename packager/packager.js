@@ -79,7 +79,8 @@ if (options.projectRoots) {
     // packager is running from node_modules of another project
     options.projectRoots = [path.resolve(__dirname, '../../..')];
   } else {
-    options.projectRoots = [path.resolve(__dirname, '..')];
+    options.projectRoots = [process.cwd()];
+    // options.assetRoots = [path.resolve(__dirname, '..')];
   }
 }
 
@@ -106,7 +107,8 @@ if (options.assetRoots) {
   } else if (__dirname.match(/Pods\/React\/packager$/)) {
     options.assetRoots = [path.resolve(__dirname, '../../..')];
   } else {
-    options.assetRoots = [path.resolve(__dirname, '..')];
+    options.assetRoots = [process.cwd()];
+    // options.assetRoots = [path.resolve(__dirname, '..')];
   }
 }
 
