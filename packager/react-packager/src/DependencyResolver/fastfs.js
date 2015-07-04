@@ -11,6 +11,7 @@ const path = require('path');
 const readFile = Q.denodeify(fs.readFile);
 const stat = Q.denodeify(fs.stat);
 
+const isDescendant = require('../lib/isDescendant');
 const hasOwn = Object.prototype.hasOwnProperty;
 
 const NOT_FOUND_IN_ROOTS = 'NotFoundInRootsError';
@@ -298,10 +299,6 @@ class File {
 
     delete this.parent.children[path.basename(this.path)];
   }
-}
-
-function isDescendant(root, child) {
-  return path.relative(root, child).indexOf('..') !== 0;
 }
 
 function escapeRegExp(str) {

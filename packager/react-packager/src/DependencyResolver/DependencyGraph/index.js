@@ -14,6 +14,7 @@ const ModuleCache = require('../ModuleCache');
 const Q = require('q');
 const crawl = require('../crawlers');
 const declareOpts = require('../../lib/declareOpts');
+const isDescendant = require('../../lib/isDescendant');
 const getPontentialPlatformExt = require('../../lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
 const path = require('path');
