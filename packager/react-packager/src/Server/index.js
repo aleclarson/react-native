@@ -24,6 +24,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  internalRoots: {
+    type: 'array',
+    default: [],
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },

@@ -44,6 +44,18 @@ class Helpers {
   extname(name) {
     return path.extname(name).replace(/^\./, '');
   }
+
+  mergeArrays(arrays) {
+    const result = [];
+    arrays.forEach((array) => {
+      if (!Array.isArray(array)) {
+        return;
+      }
+      array.forEach((item) =>
+        result.push(item));
+    });
+    return result;
+  }
 }
 
 module.exports = Helpers;

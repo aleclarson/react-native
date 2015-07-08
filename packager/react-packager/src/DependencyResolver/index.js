@@ -20,6 +20,10 @@ var validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  internalRoots: {
+    type: 'array',
+    required: false,
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
@@ -54,6 +58,7 @@ function HasteDependencyResolver(options) {
 
   this._depGraph = new DependencyGraph({
     roots: opts.projectRoots,
+    internalRoots: opts.internalRoots,
     assetRoots_DEPRECATED: opts.assetRoots,
     assetExts: opts.assetExts,
     ignoreFilePath: function(filepath) {

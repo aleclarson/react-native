@@ -31,6 +31,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  internalRoots: {
+    type: 'array',
+    required: false,
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
@@ -96,6 +100,7 @@ class Bundler {
 
     this._resolver = new DependencyResolver({
       projectRoots: opts.projectRoots,
+      internalRoots: opts.internalRoots,
       blacklistRE: opts.blacklistRE,
       polyfillModuleNames: opts.polyfillModuleNames,
       moduleFormat: opts.moduleFormat,

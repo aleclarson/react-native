@@ -46,17 +46,9 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
-  providesModuleNodeModules: {
+  internalRoots: {
     type: 'array',
-    default: [
-      'react-tools',
-      'react-native',
-      // Parse requires AsyncStorage. They will
-      // change that to require('react-native') which
-      // should work after this release and we can
-      // remove it from here.
-      'parse',
-    ],
+    default: [],
   },
   platforms: {
     type: 'array',
@@ -87,17 +79,30 @@ class DependencyGraph {
 
     const depGraphActivity = Activity.startEvent('Building Dependency Graph');
     const crawlActivity = Activity.startEvent('Crawling File System');
-    const allRoots = this._opts.roots.concat(this._opts.assetRoots_DEPRECATED);
-    this._crawling = crawl(allRoots, {
+
+    var roots = this._helpers.mergeArrays([
+      this._opts.roots,
+      this._opts.assetRoots_DEPRECATED,
+      this._opts.internalRoots,
+    ]);
+
+    this._crawling = crawl(roots, {
       ignore: this._opts.ignoreFilePath,
       exts: ['js', 'json'].concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
     });
-    this._crawling.then((files) => Activity.endEvent(crawlActivity));
+
+    this._crawling.then((files) =>
+      Activity.endEvent(crawlActivity));
+
+    roots = this._helpers.mergeArrays([
+      this._opts.roots,
+      this._opts.internalRoots,
+    ]);
 
     this._fastfs = new Fastfs(
       'JavaScript',
-      this._opts.roots,
+      roots,
       this._opts.fileWatcher,
       {
         ignore: this._opts.ignoreFilePath,

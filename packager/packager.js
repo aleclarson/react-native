@@ -176,6 +176,7 @@ function getAppMiddleware(options) {
     blacklistRE: blacklist(),
     cacheVersion: '3',
     transformModulePath: transformerPath,
+    internalRoots: options.internalRoots,
     assetRoots: options.assetRoots,
     assetExts: ['png', 'jpeg', 'jpg'],
     resetCache: options.resetCache || options['reset-cache'],
