@@ -185,7 +185,7 @@ RCT_EXPORT_METHOD(createTimer:(nonnull NSNumber *)callbackID
 
   NSTimeInterval jsSchedulingOverhead = -jsSchedulingTime.timeIntervalSinceNow;
   if (jsSchedulingOverhead < 0) {
-    RCTLogWarn(@"jsSchedulingOverhead (%ims) should be positive", (int)(jsSchedulingOverhead * 1000));
+    // RCTLogWarn(@"jsSchedulingOverhead (%ims) should be positive", (int)(jsSchedulingOverhead * 1000));
 
     /**
      * Probably debugging on device, set to 0 so we don't ignore the interval
