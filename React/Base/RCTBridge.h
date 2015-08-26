@@ -160,4 +160,6 @@ RCT_EXTERN NSString *RCTBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)reload;
 
+- (void)reloadWithCallback:(RCTResponseSenderBlock)callback;
+
 @end

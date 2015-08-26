@@ -52,6 +52,8 @@
  */
 - (void)reload;
 
+- (void)reloadWithCallback:(RCTResponseSenderBlock)callback;
+
 /**
  * Deprecated. Use the `-addItem:` method instead.
  */

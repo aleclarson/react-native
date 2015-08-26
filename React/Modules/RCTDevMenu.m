@@ -500,9 +500,14 @@ RCT_EXPORT_METHOD(show)
 
 RCT_EXPORT_METHOD(reload)
 {
+  [self reloadWithCallback:nil];
+}
+
+RCT_EXPORT_METHOD(reloadWithCallback:(RCTResponseSenderBlock)callback)
+{
   _jsLoaded = NO;
   _liveReloadURL = nil;
-  [_bridge reload];
+  [_bridge reloadWithCallback:callback];
 }
 
 - (void)setShakeToShow:(BOOL)shakeToShow
@@ -612,6 +617,7 @@ RCT_EXPORT_METHOD(reload)
 
 - (void)show {}
 - (void)reload {}
+- (void)reloadWithCallback:(RCTResponseSenderBlock)callback {}
 - (void)addItem:(NSString *)title handler:(dispatch_block_t)handler {}
 - (void)addItem:(RCTDevMenu *)item {}
 

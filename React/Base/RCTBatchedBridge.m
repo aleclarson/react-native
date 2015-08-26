@@ -434,6 +434,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
   [_parentBridge reload];
 }
 
+- (void)reloadWithCallback:(RCTResponseSenderBlock)callback
+{
+  [_parentBridge reloadWithCallback:callback];
+}
+
 - (Class)executorClass
 {
   return _parentBridge.executorClass ?: [RCTContextExecutor class];

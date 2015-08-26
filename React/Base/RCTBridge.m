@@ -236,12 +236,18 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (void)reload
 {
+  [self reloadWithCallback:nil];
+}
+
+- (void)reloadWithCallback:(RCTResponseSenderBlock)callback
+{
   /**
    * AnyThread
    */
   dispatch_async(dispatch_get_main_queue(), ^{
     [self invalidate];
     [self setUp];
+    if (callback) callback(nil);
   });
 }
 
