@@ -42,11 +42,10 @@ class HasteMap {
       /*eslint no-labels: 0 */
       if (type === 'delete' || type === 'change') {
         loop: for (let name in this._map) {
-          const modulesMap = this._map[name];
-          for (let platform in modulesMap) {
-            const module = modulesMap[platform];
-            if (module.path === absPath) {
-              delete modulesMap[platform];
+          let modules = this._map[name];
+          for (var i = 0; i < modules.length; i++) {
+            if (modules[i].path === absPath) {
+              modules.splice(i, 1);
               break loop;
             }
           }
