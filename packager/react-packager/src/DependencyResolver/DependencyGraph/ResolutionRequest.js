@@ -77,9 +77,7 @@ class ResolutionRequest {
       return null;
     };
 
-    if (!this._helpers.isNodeModulesDir(fromModule.path)
-        && toModuleName[0] !== '.' &&
-        toModuleName[0] !== '/') {
+    if (toModuleName[0] !== '.' && toModuleName[0] !== '/') {
       return this._tryResolve(
         () => this._resolveHasteDependency(fromModule, toModuleName),
         () => this._resolveNodeDependency(fromModule, toModuleName)

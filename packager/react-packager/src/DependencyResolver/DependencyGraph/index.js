@@ -86,8 +86,12 @@ class DependencyGraph {
       this._opts.internalRoots,
     ]);
 
+    var ignorePath = (filepath) =>
+      this._opts.ignoreFilePath(filepath) ||
+        !this._helpers.shouldCrawlDir(filepath);
+
     this._crawling = crawl(roots, {
-      ignore: this._opts.ignoreFilePath,
+      ignore: ignorePath,
       exts: ['js', 'json'].concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
     });
@@ -105,7 +109,7 @@ class DependencyGraph {
       roots,
       this._opts.fileWatcher,
       {
-        ignore: this._opts.ignoreFilePath,
+        ignore: ignorePath,
         crawling: this._crawling,
       }
     );
@@ -126,7 +130,7 @@ class DependencyGraph {
       roots: this._opts.assetRoots_DEPRECATED,
       helpers: this._helpers,
       fileWatcher: this._opts.fileWatcher,
-      ignoreFilePath: this._opts.ignoreFilePath,
+      ignoreFilePath: ignorePath,
       assetExts: this._opts.assetExts,
     });
 
@@ -203,7 +207,7 @@ class DependencyGraph {
     const absPath = path.join(root, filePath);
     if (fstat && fstat.isDirectory() ||
         this._opts.ignoreFilePath(absPath) ||
-        this._helpers.isNodeModulesDir(absPath)) {
+        !this._helpers.shouldCrawlDir(absPath)) {
       return;
     }
 

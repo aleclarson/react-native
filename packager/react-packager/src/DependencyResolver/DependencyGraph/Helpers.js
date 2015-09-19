@@ -10,30 +10,21 @@
 
 const path = require('path');
 
+const isDescendant = require('../../lib/isDescendant');
+
 class Helpers {
-  constructor({ providesModuleNodeModules, assetExts }) {
-    this._providesModuleNodeModules = providesModuleNodeModules;
-    this._assetExts = assetExts;
+  constructor(options) {
+    this._assetExts = options.assetExts;
+    this._internalRoots = options.internalRoots;
   }
 
-  isNodeModulesDir(file) {
-    let parts = path.normalize(file).split(path.sep);
-    const indexOfNodeModules = parts.lastIndexOf('node_modules');
-
-    if (indexOfNodeModules === -1) {
-      return false;
-    }
-
-    parts = parts.slice(indexOfNodeModules + 1);
-
-    const dirs = this._providesModuleNodeModules;
-
-    for (let i = 0; i < dirs.length; i++) {
-      if (parts.indexOf(dirs[i]) > -1) {
-        return false;
+  shouldCrawlDir(filePath) {
+    const internalRoots = this._internalRoots;
+    for (let i = 0; i < internalRoots.length; i++) {
+      if (isDescendant(internalRoots[i], filePath)) {
+        filePath = path.relative(internalRoots[i], filePath);
       }
     }
-
     return true;
   }
 

@@ -8,6 +8,7 @@
  */
 'use strict';
 
+const Q = require ('q');
 const path = require('path');
 const getPlatformExtension = require('../../lib/getPlatformExtension');
 const Q = require('q');
@@ -25,14 +26,8 @@ class HasteMap {
     this._map = Object.create(null);
 
     let promises = this._fastfs.findFilesByExt('js', {
-      ignore: (file) => this._helpers.isNodeModulesDir(file)
+      ignore: (file) => !this._helpers.shouldCrawlDir(filePath)
     }).map(file => this._processHasteModule(file));
-
-    promises = promises.concat(
-      this._fastfs.findFilesByName('package.json', {
-        ignore: (file) => this._helpers.isNodeModulesDir(file)
-      }).map(file => this._processHastePackage(file))
-    );
 
     return Q.all(promises);
   }
