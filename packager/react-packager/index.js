@@ -8,6 +8,7 @@
  */
 'use strict';
 
+require('lotus');
 require('../babelRegisterOnly')([/react-packager\/src/]);
 
 useGracefulFs();
