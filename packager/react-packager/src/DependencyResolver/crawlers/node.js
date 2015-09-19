@@ -1,12 +1,12 @@
 'use strict';
 
-const Promise = require('promise');
+const Q = require('q');
 const debug = require('debug')('ReactNativePackager:DependencyGraph');
 const fs = require('fs');
 const path = require('path');
 
-const readDir = Promise.denodeify(fs.readdir);
-const stat = Promise.denodeify(fs.stat);
+const readDir = Q.denodeify(fs.readdir);
+const stat = Q.denodeify(fs.stat);
 
 function nodeRecReadDir(roots, {ignore, exts}) {
   const queue = roots.slice();
@@ -18,13 +18,13 @@ function nodeRecReadDir(roots, {ignore, exts}) {
   function search() {
     const currDir = queue.shift();
     if (!currDir) {
-      return Promise.resolve();
+      return Q();
     }
 
     return readDir(currDir)
       .then(files => files.map(f => path.join(currDir, f)))
-      .then(files => Promise.all(
-        files.map(f => stat(f).catch(handleBrokenLink))
+      .then(files => Q.all(
+        files.map(f => stat(f).fail(handleBrokenLink))
       ).then(stats => [
         // Remove broken links.
         files.filter((file, i) => !!stats[i]),
@@ -55,7 +55,7 @@ function nodeRecReadDir(roots, {ignore, exts}) {
 
 function handleBrokenLink(e) {
   debug('WARNING: error stating, possibly broken symlink', e.message);
-  return Promise.resolve();
+  return Q();
 }
 
 module.exports = nodeRecReadDir;

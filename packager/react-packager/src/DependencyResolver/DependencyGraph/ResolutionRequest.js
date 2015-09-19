@@ -13,7 +13,7 @@ const util = require('util');
 const path = require('path');
 const isAbsolutePath = require('absolute-path');
 const getAssetDataFromName = require('../../lib/getAssetDataFromName');
-const Promise = require('promise');
+const Q = require('q');
 
 class ResolutionRequest {
   constructor({
@@ -36,7 +36,7 @@ class ResolutionRequest {
   }
 
   _tryResolve(action, secondaryAction) {
-    return action().catch((error) => {
+    return action().fail((error) => {
       if (error.type !== 'UnableToResolveError') {
         throw error;
       }
@@ -48,7 +48,7 @@ class ResolutionRequest {
     const resHash = resolutionHash(fromModule.path, toModuleName);
 
     if (this._immediateResolutionCache[resHash]) {
-      return Promise.resolve(this._immediateResolutionCache[resHash]);
+      return Q(this._immediateResolutionCache[resHash]);
     }
 
     const asset_DEPRECATED = this._deprecatedAssetMap.resolve(
@@ -56,7 +56,7 @@ class ResolutionRequest {
       toModuleName
     );
     if (asset_DEPRECATED) {
-      return Promise.resolve(asset_DEPRECATED);
+      return Q(asset_DEPRECATED);
     }
 
     const cacheResult = (result) => {
@@ -97,7 +97,7 @@ class ResolutionRequest {
   }
 
   getOrderedDependencies(response) {
-    return Promise.resolve().then(() => {
+    return Q().then(() => {
       const entry = this._moduleCache.getModule(this._entryPath);
       const visited = Object.create(null);
       visited[entry.hash()] = true;
@@ -105,11 +105,11 @@ class ResolutionRequest {
       const collect = (mod) => {
         response.pushDependency(mod);
         return mod.getDependencies().then(
-          depNames => Promise.all(
+          depNames => Q.all(
             depNames.map(name => this.resolveDependency(mod, name))
           ).then((dependencies) => [depNames, dependencies])
         ).then(([depNames, dependencies]) => {
-          let p = Promise.resolve();
+          let p = Q();
 
           const filteredPairs = [];
 
@@ -146,16 +146,15 @@ class ResolutionRequest {
   }
 
   getAsyncDependencies(response) {
-    return Promise.resolve().then(() => {
+    return Q().then(() => {
       const mod = this._moduleCache.getModule(this._entryPath);
       return mod.getAsyncDependencies().then(bundles =>
-        Promise
-          .all(bundles.map(bundle =>
-            Promise.all(bundle.map(
-              dep => this.resolveDependency(mod, dep)
-            ))
+        Q.all(bundles.map(bundle =>
+          Q.all(bundle.map(
+            dep => this.resolveDependency(mod, dep)
           ))
-          .then(bs => bs.map(bundle => bundle.map(dep => dep.path)))
+        ))
+        .then(bs => bs.map(bundle => bundle.map(dep => dep.path)))
       );
     }).then(asyncDependencies => asyncDependencies.forEach(
       (dependency) => response.pushAsyncDependency(dependency)
@@ -169,7 +168,7 @@ class ResolutionRequest {
     if (p) {
       p = p.redirectRequire(toModuleName);
     } else {
-      p = Promise.resolve(toModuleName);
+      p = Q(toModuleName);
     }
 
     return p.then((realModuleName) => {
@@ -203,7 +202,7 @@ class ResolutionRequest {
   }
 
   _redirectRequire(fromModule, modulePath) {
-    return Promise.resolve(fromModule.getPackage()).then(p => {
+    return Q(fromModule.getPackage()).then(p => {
       if (p) {
         return p.redirectRequire(modulePath);
       }
@@ -234,7 +233,7 @@ class ResolutionRequest {
             );
           }
 
-          let p = Promise.reject(new UnableToResolveError('Node module not found'));
+          let p = Q.reject(new UnableToResolveError('Node module not found'));
           searchQueue.forEach(potentialModulePath => {
             p = this._tryResolve(
               () => this._tryResolve(
@@ -251,7 +250,7 @@ class ResolutionRequest {
   }
 
   _loadAsFile(potentialModulePath) {
-    return Promise.resolve().then(() => {
+    return Q().then(() => {
       if (this._helpers.isAssetFile(potentialModulePath)) {
         const dirname = path.dirname(potentialModulePath);
         if (!this._fastfs.dirExists(dirname)) {
@@ -297,7 +296,7 @@ class ResolutionRequest {
   }
 
   _loadAsDir(potentialDirPath) {
-    return Promise.resolve().then(() => {
+    return Q().then(() => {
       if (!this._fastfs.dirExists(potentialDirPath)) {
         throw new UnableToResolveError(`Invalid directory ${potentialDirPath}`);
       }

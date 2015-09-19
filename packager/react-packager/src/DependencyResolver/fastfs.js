@@ -1,15 +1,15 @@
 'use strict';
 
 const Activity = require('../Activity');
-const Promise = require('promise');
+const Q = require('q');
 const {EventEmitter} = require('events');
 
 const _ = require('underscore');
 const fs = require('fs');
 const path = require('path');
 
-const readFile = Promise.denodeify(fs.readFile);
-const stat = Promise.denodeify(fs.stat);
+const readFile = Q.denodeify(fs.readFile);
+const stat = Q.denodeify(fs.stat);
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
@@ -55,7 +55,7 @@ class Fastfs extends EventEmitter {
   }
 
   stat(filePath) {
-    return Promise.resolve().then(() => {
+    return Q().then(() => {
       const file = this._getFile(filePath);
       return file.stat();
     });

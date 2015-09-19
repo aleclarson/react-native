@@ -11,6 +11,7 @@
  */
 'use strict';
 
+var Q = require('q');
 var Map = require('Map');
 var NativeModules = require('NativeModules');
 var Platform = require('Platform');
@@ -181,8 +182,8 @@ var NetInfo = {
     _subscriptions.delete(handler);
   },
 
-  fetch: function(): Promise {
-    return new Promise((resolve, reject) => {
+  fetch: function(): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTNetInfo.getCurrentReachability(
         function(resp) {
           resolve(resp.network_info);
@@ -219,7 +220,7 @@ var NetInfo = {
       _isConnectedSubscriptions.delete(handler);
     },
 
-    fetch: function(): Promise {
+    fetch: function(): Q.Promise {
       return NetInfo.fetch().then(
         (connection) => _isConnected(connection)
       );

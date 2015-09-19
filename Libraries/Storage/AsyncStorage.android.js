@@ -31,7 +31,7 @@ var AsyncStorage = {
     key: string,
     callback?: ?(error: ?Error, result: ?string) => void
   ) {
-    return new Promise((resolve, reject) => {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiGet([key], function(error, result) {
         var value = (result && result[0] && result[0][1]) ? result[0][1] : null;
         callback && callback((error && convertError(error)) || null, value);
@@ -51,8 +51,8 @@ var AsyncStorage = {
     key: string,
     value: string,
     callback?: ?(error: ?Error) => void
-  ): Promise {
-    return new Promise((resolve, reject) => {
+  ): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiSet([[key,value]], function(error) {
         callback && callback((error && convertError(error)) || null);
         if (error) {
@@ -69,8 +69,8 @@ var AsyncStorage = {
   removeItem: function(
     key: string,
     callback?: ?(error: ?Error) => void
-  ): Promise {
-    return new Promise((resolve, reject) => {
+  ): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiRemove([key], function(error) {
         callback && callback((error && convertError(error)) || null);
         if (error) {
@@ -89,8 +89,8 @@ var AsyncStorage = {
     key: string,
     value: string,
     callback?: ?(error: ?Error) => void
-  ): Promise {
-    return new Promise((resolve, reject) => {
+  ): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiMerge([[key,value]], function(error) {
         callback && callback((error && convertError(error)) || null);
         if (error) {
@@ -106,8 +106,8 @@ var AsyncStorage = {
    * don't want to call this - use removeItem or multiRemove to clear only your
    * own keys instead. Returns a `Promise` object.
    */
-  clear: function(callback?: ?(error: ?Error) => void): Promise {
-    return new Promise((resolve, reject) => {
+  clear: function(callback?: ?(error: ?Error) => void): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.clear(function(error) {
         callback && callback(convertError(error) || null);
         if (error) {
@@ -121,8 +121,8 @@ var AsyncStorage = {
   /**
    * Gets *all* keys known to the app, for all callers, libraries, etc. Returns a `Promise` object.
    */
-  getAllKeys: function(callback?: ?(error: ?Error, keys: ?Array<string>) => void): Promise {
-    return new Promise((resolve, reject) => {
+  getAllKeys: function(callback?: ?(error: ?Error, keys: ?Array<string>) => void): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.getAllKeys(function(error, keys) {
         callback && callback((error && convertError(error)) || null, keys);
         if (error) {
@@ -150,8 +150,8 @@ var AsyncStorage = {
   multiGet: function(
     keys: Array<string>,
     callback?: ?(errors: ?Array<Error>, result: ?Array<Array<string>>) => void
-  ): Promise {
-    return new Promise((resolve, reject) => {
+  ): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiGet(keys, function(error, result) {
         callback && callback((error && convertError(error)) || null, result);
         if (error) {
@@ -171,8 +171,8 @@ var AsyncStorage = {
   multiSet: function(
     keyValuePairs: Array<Array<string>>,
     callback?: ?(errors: ?Array<Error>) => void
-  ): Promise {
-    return new Promise((resolve, reject) => {
+  ): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiSet(keyValuePairs, function(error) {
         callback && callback((error && convertError(error)) || null);
         if (error) {
@@ -189,8 +189,8 @@ var AsyncStorage = {
   multiRemove: function(
     keys: Array<string>,
     callback?: ?(errors: ?Array<Error>) => void
-  ): Promise {
-    return new Promise((resolve, reject) => {
+  ): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiRemove(keys, function(error) {
         callback && callback((error && convertError(error)) || null);
         if (error) {
@@ -208,8 +208,8 @@ var AsyncStorage = {
   multiMerge: function(
     keyValuePairs: Array<Array<string>>,
     callback?: ?(errors: ?Array<Error>) => void
-  ): Promise {
-    return new Promise((resolve, reject) => {
+  ): Q.Promise {
+    return Q.promise((resolve, reject) => {
       RCTAsyncStorage.multiMerge(keyValuePairs, function(error) {
         callback && callback((error && convertError(error)) || null);
         if (error) {

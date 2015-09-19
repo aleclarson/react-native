@@ -35,7 +35,7 @@ function saveBundleAndMap(
 
   if (!assetsDest) {
     console.warn('Assets destination folder is not set, skipping...');
-    return Promise.resolve();
+    return Q.resolve();
   }
 
   const getAssetDestPath = platform === 'android'
@@ -59,11 +59,11 @@ function saveBundleAndMap(
 function copyAll(filesToCopy) {
   const queue = Object.keys(filesToCopy);
   if (queue.length === 0) {
-    return Promise.resolve();
+    return Q.resolve();
   }
 
   log('Copying ' + queue.length + ' asset files');
-  return new Promise((resolve, reject) => {
+  return Q.promise((resolve, reject) => {
     const copyNext = (error) => {
       if (error) {
         return reject(error);

@@ -13,7 +13,7 @@ jest
   .mock('../../Cache')
   .mock('../../Activity');
 
-const Promise = require('promise');
+const Q = require('q');
 const path = require('path');
 
 jest.mock('fs');
@@ -41,7 +41,7 @@ describe('BundlesLayout', () => {
   beforeEach(() => {
     fileWatcher = {
       on: () => this,
-      isWatchman: () => Promise.resolve(false)
+      isWatchman: () => Q(false)
     };
   });
 
@@ -63,7 +63,7 @@ describe('BundlesLayout', () => {
     }
 
     function stripPolyfills(bundle) {
-      return Promise
+      return Q
         .all(bundle.children.map(childModule => stripPolyfills(childModule)))
         .then(children => {
           const modules = bundle.modules

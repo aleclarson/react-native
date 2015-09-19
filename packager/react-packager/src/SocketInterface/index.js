@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Promise = require('promise');
+const Q = require('q');
 const SocketClient = require('./SocketClient');
 const SocketServer = require('./SocketServer');
 const _ = require('underscore');
@@ -24,7 +24,7 @@ const CREATE_SERVER_TIMEOUT = 5 * 60 * 1000;
 
 const SocketInterface = {
   getOrCreateSocketFor(options) {
-    return new Promise((resolve, reject) => {
+    return Q.promise((resolve, reject) => {
       const hash = crypto.createHash('md5');
       Object.keys(options).sort().forEach(key => {
         if (options[key] && typeof options[key] !== 'string') {

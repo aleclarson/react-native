@@ -130,7 +130,7 @@ function setUpAlert() {
 function setUpPromise() {
   // The native Promise implementation throws the following error:
   // ERROR: Event loop not supported.
-  GLOBAL.Promise = require('Promise');
+  GLOBAL.Promise = require('q').Promise;
 }
 
 function setUpXHR() {

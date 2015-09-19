@@ -11,7 +11,7 @@
 jest.dontMock('../index')
     .mock('fs');
 
-var Promise = require('promise');
+var Q = require('q');
 var BundlesLayout = require('../index');
 var DependencyResolver = require('../../DependencyResolver');
 var loadCacheSync = require('../../lib/loadCacheSync');
@@ -41,12 +41,12 @@ describe('BundlesLayout', () => {
         DependencyResolver.prototype.getDependencies.mockImpl((path) => {
           switch (path) {
             case '/root/index.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/index.js'), dep('/root/a.js')],
                 asyncDependencies: [],
               });
             case '/root/a.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/a.js')],
                 asyncDependencies: [],
               });
@@ -70,12 +70,12 @@ describe('BundlesLayout', () => {
         DependencyResolver.prototype.getDependencies.mockImpl((path) => {
           switch (path) {
             case '/root/index.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/index.js')],
                 asyncDependencies: [['/root/a.js']],
               });
             case '/root/a.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/a.js')],
                 asyncDependencies: [],
               });
@@ -103,17 +103,17 @@ describe('BundlesLayout', () => {
         DependencyResolver.prototype.getDependencies.mockImpl((path) => {
           switch (path) {
             case '/root/index.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/index.js')],
                 asyncDependencies: [['/root/a.js']],
               });
             case '/root/a.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/a.js')],
                 asyncDependencies: [['/root/b.js']],
               });
             case '/root/b.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/b.js')],
                 asyncDependencies: [],
               });
@@ -145,17 +145,17 @@ describe('BundlesLayout', () => {
         DependencyResolver.prototype.getDependencies.mockImpl((path) => {
           switch (path) {
             case '/root/index.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/index.js')],
                 asyncDependencies: [['/root/a.js']],
               });
             case '/root/a.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/a.js'), dep('/root/b.js')],
                 asyncDependencies: [],
               });
             case '/root/b.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/b.js')],
                 asyncDependencies: [],
               });
@@ -183,17 +183,17 @@ describe('BundlesLayout', () => {
         DependencyResolver.prototype.getDependencies.mockImpl((path) => {
           switch (path) {
             case '/root/index.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/index.js'), dep('/root/a.js')],
                 asyncDependencies: [],
               });
             case '/root/a.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/a.js')],
                 asyncDependencies: [['/root/b.js']],
               });
             case '/root/b.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/b.js')],
                 asyncDependencies: [],
               });
@@ -221,27 +221,27 @@ describe('BundlesLayout', () => {
         DependencyResolver.prototype.getDependencies.mockImpl((path) => {
           switch (path) {
             case '/root/index.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/index.js'), dep('/root/a.js')],
                 asyncDependencies: [['/root/b.js'], ['/root/c.js']],
               });
             case '/root/a.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/a.js')],
                 asyncDependencies: [],
               });
             case '/root/b.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/b.js')],
                 asyncDependencies: [['/root/d.js']],
               });
             case '/root/c.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/c.js')],
                 asyncDependencies: [],
               });
             case '/root/d.js':
-              return Promise.resolve({
+              return Q.resolve({
                 dependencies: [dep('/root/d.js')],
                 asyncDependencies: [],
               });
@@ -285,7 +285,7 @@ describe('BundlesLayout', () => {
     pit('should load layouts', () => {
       const layout = newBundlesLayout({ resetCache: false });
 
-      return Promise
+      return Q
         .all([
           layout.getLayout('/root/index.js'),
           layout.getLayout('/root/b.js'),

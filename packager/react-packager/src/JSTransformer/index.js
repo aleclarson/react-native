@@ -9,14 +9,14 @@
 'use strict';
 
 const ModuleTransport = require('../lib/ModuleTransport');
-const Promise = require('promise');
+const Q = require('q');
 const declareOpts = require('../lib/declareOpts');
 const fs = require('fs');
 const util = require('util');
 const workerFarm = require('worker-farm');
 const debug = require('debug')('ReactNativePackager:JStransformer');
 
-const readFile = Promise.denodeify(fs.readFile);
+const readFile = Q.denodeify(fs.readFile);
 
 // Avoid memory leaks caused in workers. This number seems to be a good enough number
 // to avoid any memory leak while not slowing down initial builds.
@@ -70,7 +70,7 @@ class Transformer {
         maxRetries: MAX_RETRIES,
       }, opts.transformModulePath);
 
-      this._transform = Promise.denodeify(this._workers);
+      this._transform = Q.denodeify(this._workers);
     }
   }
 
@@ -84,7 +84,7 @@ class Transformer {
 
   loadFileAndTransform(filePath) {
     if (this._transform == null) {
-      return Promise.reject(new Error('No transfrom module'));
+      return Q.reject(new Error('No transfrom module'));
     }
 
     debug('transforming file', filePath);
@@ -118,7 +118,7 @@ class Transformer {
               sourcePath: filePath,
               sourceCode: sourceCode,
             });
-          }).catch(err => {
+          }).fail(err => {
             if (err.type === 'TimeoutError') {
               const timeoutErr = new Error(
                 `TimeoutError: transforming ${filePath} took longer than ` +

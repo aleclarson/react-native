@@ -12,7 +12,7 @@
 
 'use strict';
 
-var Promise = require('Promise');
+var Q = require('q');
 var NativeModules = require('NativeModules');
 var SourceMapConsumer = require('SourceMap').SourceMapConsumer;
 var SourceMapURL = require('./source-map-url');
@@ -20,32 +20,32 @@ var SourceMapURL = require('./source-map-url');
 var RCTSourceCode = NativeModules.SourceCode;
 var RCTNetworking = NativeModules.Networking;
 
-function loadSourceMap(): Promise {
+function loadSourceMap(): Q.Promise {
   return fetchSourceMap()
     .then(map => new SourceMapConsumer(map));
 }
 
-function fetchSourceMap(): Promise {
+function fetchSourceMap(): Q.Promise {
   if (global.RAW_SOURCE_MAP) {
-    return Promise.resolve(global.RAW_SOURCE_MAP);
+    return Q(global.RAW_SOURCE_MAP);
   }
 
   if (!RCTSourceCode) {
-    return Promise.reject(new Error('RCTSourceCode module is not available'));
+    return Q.reject(new Error('RCTSourceCode module is not available'));
   }
 
   if (!RCTNetworking) {
     // Used internally by fetch
-    return Promise.reject(new Error('RCTNetworking module is not available'));
+    return Q.reject(new Error('RCTNetworking module is not available'));
   }
 
-  return new Promise(RCTSourceCode.getScriptText)
+  return Q.promise(RCTSourceCode.getScriptText)
     .then(extractSourceMapURL)
     .then((url) => {
       if (url === null) {
-        return Promise.reject(new Error('No source map URL found. May be running from bundled file.'));
+        return Q.reject(new Error('No source map URL found. May be running from bundled file.'));
       }
-      return Promise.resolve(url);
+      return Q(url);
     })
     .then(fetch)
     .then(response => response.text())

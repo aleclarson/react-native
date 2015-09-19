@@ -11,7 +11,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const Promise = require('promise');
+const Q = require('q');
 const ProgressBar = require('progress');
 const BundlesLayout = require('../BundlesLayout');
 const Cache = require('../Cache');
@@ -23,8 +23,8 @@ const ModuleTransport = require('../lib/ModuleTransport');
 const declareOpts = require('../lib/declareOpts');
 const imageSize = require('image-size');
 
-const sizeOf = Promise.denodeify(imageSize);
-const readFile = Promise.denodeify(fs.readFile);
+const sizeOf = Q.denodeify(imageSize);
+const readFile = Q.denodeify(fs.readFile);
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -152,7 +152,7 @@ class Bundler {
       }
 
       bundle.setMainModuleId(response.mainModuleId);
-      return Promise.all(
+      return Q.all(
         response.dependencies.map(
           module => this._transformModule(
             bundle,
@@ -208,7 +208,7 @@ class Bundler {
           }
         });
 
-        return Promise.all(promises).then(assetsData => {
+        return Q.all(promises).then(assetsData => {
           assetsData.forEach(({ files }) => {
             const index = ret.indexOf(placeHolder);
             ret.splice(index, 1, ...files);
@@ -257,7 +257,7 @@ class Bundler {
   }
 
   generateAssetModule_DEPRECATED(bundle, module) {
-    return Promise.all([
+    return Q.all([
       sizeOf(module.path),
       module.getName(),
     ]).then(([dimensions, id]) => {
@@ -287,7 +287,7 @@ class Bundler {
   generateAssetModule(bundle, module, platform = null) {
     const relPath = getPathRelativeToRoot(this._projectRoots, module.path);
 
-    return Promise.all([
+    return Q.all([
       sizeOf(module.path),
       this._assetServer.getAssetData(relPath, platform),
     ]).then(function(res) {

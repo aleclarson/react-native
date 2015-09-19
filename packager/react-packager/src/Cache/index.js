@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Promise = require('promise');
+const Q = require('q');
 const _ = require('underscore');
 const declareOpts = require('../lib/declareOpts');
 const fs = require('fs');
@@ -95,9 +95,9 @@ class Cache {
     }
 
     record.data[field] = loaderPromise
-      .then(data => Promise.all([
+      .then(data => Q.all([
         data,
-        Promise.denodeify(fs.stat)(filepath),
+        Q.denodeify(fs.stat)(filepath),
       ]))
       .then(([data, stat]) => {
         this._persistEventually();
@@ -129,7 +129,7 @@ class Cache {
         var fieldNames = Object.keys(record.data);
         var fieldValues = _.values(record.data);
 
-        return Promise
+        return Q
           .all(fieldValues)
           .then(ref => {
             var ret = Object.create(null);
@@ -144,7 +144,7 @@ class Cache {
       }
     );
 
-    this._persisting = Promise.all(allPromises)
+    this._persisting = Q.all(allPromises)
       .then(values => {
         var json = Object.create(null);
         Object.keys(data).forEach((key, i) => {
@@ -152,7 +152,7 @@ class Cache {
           json[key].metadata = data[key].metadata;
           json[key].data = values[i].data;
         });
-        return Promise.denodeify(fs.writeFile)(cacheFilepath, JSON.stringify(json));
+        return Q.denodeify(fs.writeFile)(cacheFilepath, JSON.stringify(json));
       })
       .then(() => {
         this._persisting = null;
@@ -180,7 +180,7 @@ class Cache {
         ret[key].metadata.mtime = record.metadata.mtime;
 
         Object.keys(record.data).forEach(field => {
-          ret[key].data[field] = Promise.resolve(record.data[field]);
+          ret[key].data[field] = Q(record.data[field]);
         });
       }
     });

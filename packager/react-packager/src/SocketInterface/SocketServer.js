@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Promise = require('promise');
+const Q = require('q');
 const Server = require('../Server');
 const bser = require('bser');
 const debug = require('debug')('ReactNativePackager:SocketServer');
@@ -22,7 +22,7 @@ class SocketServer {
   constructor(sockPath, options) {
     this._server = net.createServer();
     this._server.listen(sockPath);
-    this._ready = new Promise((resolve, reject) => {
+    this._ready = Q.promise((resolve, reject) => {
       this._server.once('error', (e) => reject(e));
       this._server.once('listening', () => {
         // Remove error listener so we make sure errors propagate.

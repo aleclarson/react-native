@@ -38,7 +38,7 @@ function reportException(e: Error, isFatal: bool, stack?: any) {
           var prettyStack = parseErrorStack(e, map);
           RCTExceptionsManager.updateExceptionMessage(e.message, prettyStack, currentExceptionID);
         })
-        .catch(error => {
+        .fail(error => {
           // This can happen in a variety of normal situations, such as
           // Network module not being available, or when running locally
           console.warn('Unable to load source map: ' + error.message);

@@ -12,14 +12,14 @@ const fs = require('fs');
 const log = require('../util/log').out('dependencies');
 const parseCommandLine = require('../../../packager/parseCommandLine');
 const path = require('path');
-const Promise = require('promise');
+const Q = require('q');
 const ReactPackager = require('../../../packager/react-packager');
 
 /**
  * Returns the dependencies an entry path has.
  */
 function dependencies(argv, config) {
-  return new Promise((resolve, reject) => {
+  return Q.promise((resolve, reject) => {
     _dependencies(argv, config, resolve, reject);
   });
 }

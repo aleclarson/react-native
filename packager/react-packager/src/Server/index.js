@@ -12,7 +12,7 @@ const Activity = require('../Activity');
 const AssetServer = require('../AssetServer');
 const FileWatcher = require('../FileWatcher');
 const Bundler = require('../Bundler');
-const Promise = require('promise');
+const Q = require('q');
 
 const _ = require('underscore');
 const declareOpts = require('../lib/declareOpts');
@@ -165,14 +165,14 @@ class Server {
   }
 
   end() {
-    Promise.all([
+    Q.all([
       this._fileWatcher.end(),
       this._bundler.kill(),
     ]);
   }
 
   buildBundle(options) {
-    return Promise.resolve().then(() => {
+    return Q.resolve().then(() => {
       const opts = bundleOpts(options);
       return this._bundler.bundle(
         opts.entryFile,
@@ -190,7 +190,7 @@ class Server {
   }
 
   getDependencies(options) {
-    return Promise.resolve().then(() => {
+    return Q.resolve().then(() => {
       const opts = dependencyOpts(options);
       return this._bundler.getDependencies(
         opts.entryFile,
@@ -201,7 +201,7 @@ class Server {
   }
 
   getOrderedDependencyPaths(options) {
-    return Promise.resolve().then(() => {
+    return Q.resolve().then(() => {
       const opts = dependencyOpts(options);
       return this._bundler.getOrderedDependencyPaths(opts);
     });
@@ -222,7 +222,7 @@ class Server {
     Object.keys(bundles).forEach(function(optionsJson) {
       const options = JSON.parse(optionsJson);
       // Wait for a previous build (if exists) to finish.
-      bundles[optionsJson] = (bundles[optionsJson] || Promise.resolve()).finally(function() {
+      bundles[optionsJson] = (bundles[optionsJson] || Q()).always(function() {
         // With finally promise callback we can't change the state of the promise
         // so we need to reassign the promise.
         bundles[optionsJson] = buildBundle(options).then(function(p) {
@@ -262,7 +262,7 @@ class Server {
       res.end(ret);
     } else if (parts[1] === 'bundles') {
       ret += '<h1> Cached Bundles </h1>';
-      Promise.all(Object.keys(this._bundles).map(optionsJson =>
+      Q.all(Object.keys(this._bundles).map(optionsJson =>
         this._bundles[optionsJson].then(p => {
           ret += '<div><h2>' + optionsJson + '</h2>';
           ret += p.getDebugInfo();

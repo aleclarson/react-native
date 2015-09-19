@@ -75,7 +75,7 @@ describe('Transformer', function() {
     });
 
     return new Transformer(options).loadFileAndTransform('foo-file.js')
-      .catch(function(error) {
+      .fail(function(error) {
         expect(error.type).toEqual('TransformError');
         expect(error.message).toBe('SyntaxError ' + message);
         expect(error.lineNumber).toBe(2);

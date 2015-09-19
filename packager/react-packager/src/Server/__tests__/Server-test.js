@@ -16,7 +16,7 @@ jest.setMock('worker-farm', function() { return () => {}; })
     .setMock('uglify-js')
     .dontMock('../');
 
-const Promise = require('promise');
+const Q = require('q');
 
 var Bundler = require('../../Bundler');
 var FileWatcher = require('../../FileWatcher');
@@ -34,7 +34,7 @@ describe('processRequest', () => {
      polyfillModuleNames: null
   };
 
-  const makeRequest = (reqHandler, requrl) => new Promise(resolve =>
+  const makeRequest = (reqHandler, requrl) => Q.promise(resolve =>
     reqHandler(
       { url: requrl },
       {
@@ -52,7 +52,7 @@ describe('processRequest', () => {
 
   beforeEach(() => {
     Bundler.prototype.bundle = jest.genMockFunction().mockImpl(() =>
-      Promise.resolve({
+      Q({
         getSource: () => 'this is the source',
         getSourceMap: () => 'this is the source map',
       })
@@ -158,13 +158,13 @@ describe('processRequest', () => {
       const bundleFunc = jest.genMockFunction();
       bundleFunc
         .mockReturnValueOnce(
-          Promise.resolve({
+          Q({
             getSource: () => 'this is the first source',
             getSourceMap: () => {},
           })
         )
         .mockReturnValue(
-          Promise.resolve({
+          Q({
             getSource: () => 'this is the rebuilt source',
             getSourceMap: () => {},
           })
@@ -235,7 +235,7 @@ describe('processRequest', () => {
       const req = {url: '/assets/imgs/a.png'};
       const res = {end: jest.genMockFn()};
 
-      AssetServer.prototype.get.mockImpl(() => Promise.resolve('i am image'));
+      AssetServer.prototype.get.mockImpl(() => Q('i am image'));
 
       server.processRequest(req, res);
       jest.runAllTimers();
@@ -246,7 +246,7 @@ describe('processRequest', () => {
       const req = {url: '/assets/imgs/a.png?platform=ios'};
       const res = {end: jest.genMockFn()};
 
-      AssetServer.prototype.get.mockImpl(() => Promise.resolve('i am image'));
+      AssetServer.prototype.get.mockImpl(() => Q('i am image'));
 
       server.processRequest(req, res);
       jest.runAllTimers();

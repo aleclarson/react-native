@@ -9,7 +9,7 @@ jest
   .mock('crypto')
   .mock('fs');
 
-const Promise = require('promise');
+const Q = require('q');
 
 var AssetServer = require('../');
 var crypto = require('crypto');
@@ -32,7 +32,7 @@ describe('AssetServer', () => {
         }
       });
 
-      return Promise.all([
+      return Q.all([
         server.get('imgs/b.png'),
         server.get('imgs/b@1x.png'),
       ]).then(resp =>
@@ -59,7 +59,7 @@ describe('AssetServer', () => {
         }
       });
 
-      return Promise.all([
+      return Q.all([
         server.get('imgs/b.png', 'ios').then(
           data => expect(data).toBe('b ios image')
         ),
@@ -94,7 +94,7 @@ describe('AssetServer', () => {
         }
       });
 
-      return Promise.all([
+      return Q.all([
         server.get('imgs/b.jpg'),
         server.get('imgs/b.png'),
       ]).then(data =>
@@ -148,7 +148,7 @@ describe('AssetServer', () => {
         }
       });
 
-      return Promise.all([
+      return Q.all([
         server.get('imgs/b@3x.png').then(data =>
           expect(data).toBe('b4 image')
         ),

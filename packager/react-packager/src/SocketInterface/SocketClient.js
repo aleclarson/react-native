@@ -9,7 +9,7 @@
 'use strict';
 
 const Bundle = require('../Bundler/Bundle');
-const Promise = require('promise');
+const Q = require('q');
 const bser = require('bser');
 const debug = require('debug')('ReactNativePackager:SocketClient');
 const fs = require('fs');
@@ -28,7 +28,7 @@ class SocketClient {
     debug('connecting to', sockPath);
 
     this._sock = net.connect(sockPath);
-    this._ready = new Promise((resolve, reject) => {
+    this._ready = Q.promise((resolve, reject) => {
       this._sock.on('connect', () => {
         this._sock.removeAllListeners('error');
         process.on('uncaughtException', (error) => {
@@ -103,7 +103,7 @@ class SocketClient {
   _send(message) {
     message.id = uid();
     this._sock.write(bser.dumpToBuffer(message));
-    return new Promise((resolve, reject) => {
+    return Q.promise((resolve, reject) => {
       this._resolvers[message.id] = {resolve, reject};
     });
   }

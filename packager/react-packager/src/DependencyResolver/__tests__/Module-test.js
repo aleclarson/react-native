@@ -22,7 +22,7 @@ jest
 var Fastfs = require('../fastfs');
 var Module = require('../Module');
 var ModuleCache = require('../ModuleCache');
-var Promise = require('promise');
+var Q = require('q');
 var fs = require('fs');
 var FileWatcher = require('../../FileWatcher');
 
@@ -35,7 +35,7 @@ describe('Module', () => {
         'test',
         ['/root'],
         fileWatcher,
-        {crawling: Promise.resolve(['/root/index.js']), ignore: []},
+        {crawling: Q(['/root/index.js']), ignore: []},
       );
 
       return fastfs.build().then(() => {

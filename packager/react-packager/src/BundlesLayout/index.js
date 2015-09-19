@@ -145,7 +145,7 @@ class BundlesLayout {
     // TODO: create single-module bundles for unexistent modules
     // TODO: remove modules that no longer exist
     Object.keys(cacheOnDisk).forEach(entryPath => {
-      this._layouts[entryPath] = Promise.resolve(cacheOnDisk[entryPath]);
+      this._layouts[entryPath] = Q.resolve(cacheOnDisk[entryPath]);
       this._fillModuleToBundleMap(cacheOnDisk[entryPath]);
     });
 
@@ -169,7 +169,7 @@ class BundlesLayout {
       return this._persisting;
     }
 
-    this._persisting = Promise
+    this._persisting = Q
       .all(_.values(this._layouts))
       .then(bundlesLayout => {
         var json = Object.create(null);
@@ -177,7 +177,7 @@ class BundlesLayout {
           json[p] = bundlesLayout[i]
         );
 
-        return Promise.denodeify(fs.writeFile)(
+        return Q.denodeify(fs.writeFile)(
           this._cacheFilepath,
           JSON.stringify(json),
         );
@@ -206,7 +206,7 @@ function promiseWhile(condition, result, body) {
 
 function _promiseWhile(condition, result, body, index) {
   if (!condition()) {
-    return Promise.resolve(result());
+    return Q(result());
   }
 
   return body(index).then(() =>

@@ -10,7 +10,7 @@
 
 jest.autoMockOff();
 
-const Promise = require('promise');
+const Q = require('q');
 
 jest
   .mock('fs')
@@ -28,7 +28,7 @@ describe('DependencyGraph', function() {
   function getOrderedDependenciesAsJSON(dgraph, entry, platform) {
     return dgraph.getDependencies(entry, platform)
       .then(response => response.finalize())
-      .then(({ dependencies }) => Promise.all(dependencies.map(dep => Promise.all([
+      .then(({ dependencies }) => Q.all(dependencies.map(dep => Q.all([
         dep.getName(),
         dep.getDependencies(),
       ]).then(([name, moduleDependencies]) => ({
@@ -49,7 +49,7 @@ describe('DependencyGraph', function() {
       on: function() {
         return this;
       },
-      isWatchman: () => Promise.resolve(false)
+      isWatchman: () => Q(false)
     };
 
     cache = new Cache();
@@ -1149,7 +1149,7 @@ describe('DependencyGraph', function() {
         cache: cache,
       });
 
-      return dgraph.load().catch(() => {
+      return dgraph.load().fail(() => {
         expect(process.exit).toBeCalledWith(1);
         expect(console.error).toBeCalled();
         process.exit = _exit;
@@ -2772,7 +2772,7 @@ describe('DependencyGraph', function() {
           callbacks.push(callback);
           return this;
         },
-        isWatchman: () => Promise.resolve(false),
+        isWatchman: () => Q(false),
       };
     });
 

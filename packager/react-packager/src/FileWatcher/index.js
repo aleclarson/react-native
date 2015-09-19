@@ -10,14 +10,14 @@
 
 const EventEmitter  = require('events').EventEmitter;
 const sane = require('sane');
-const Promise = require('promise');
+const Q = require('q');
 const exec = require('child_process').exec;
 const _ = require('underscore');
 
 const MAX_WAIT_TIME = 25000;
 
 // TODO(amasad): can we use watchman version command instead?r
-const detectingWatcherClass = new Promise(function(resolve) {
+const detectingWatcherClass = Q.promise(function(resolve) {
   exec('which watchman', function(err, out) {
     if (err || out.length === 0) {
       resolve(sane.NodeWatcher);
@@ -40,7 +40,7 @@ class FileWatcher extends EventEmitter {
     super();
     this._watcherByRoot = Object.create(null);
 
-    this._loading = Promise.all(
+    this._loading = Q.all(
       rootConfigs.map(createWatcher)
     ).then(watchers => {
       watchers.forEach((watcher, i) => {
@@ -74,7 +74,7 @@ class FileWatcher extends EventEmitter {
   end() {
     return this._loading.then(
       (watchers) => watchers.map(
-        watcher => Promise.denodeify(watcher.close).call(watcher)
+        watcher => Q.denodeify(watcher.close).call(watcher)
       )
     );
   }
@@ -82,8 +82,8 @@ class FileWatcher extends EventEmitter {
   static createDummyWatcher() {
     const ev = new EventEmitter();
     _.extend(ev, {
-      isWatchman: () => Promise.resolve(false),
-      end: () => Promise.resolve(),
+      isWatchman: () => Q(false),
+      end: () => Q(),
     });
 
     return ev;
@@ -97,7 +97,7 @@ function createWatcher(rootConfig) {
       dot: false,
     });
 
-    return new Promise(function(resolve, reject) {
+    return Q.promise(function(resolve, reject) {
       const rejectTimeout = setTimeout(function() {
         reject(new Error([
           'Watcher took too long to load',

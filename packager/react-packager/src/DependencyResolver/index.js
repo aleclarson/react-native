@@ -13,7 +13,7 @@ var DependencyGraph = require('./DependencyGraph');
 var replacePatterns = require('./replacePatterns');
 var Polyfill = require('./Polyfill');
 var declareOpts = require('../lib/declareOpts');
-var Promise = require('promise');
+var Q = require('q');
 
 var validateOpts = declareOpts({
   projectRoots: {
@@ -117,15 +117,15 @@ HasteDependencyResolver.prototype._getPolyfillDependencies = function(isDev) {
 };
 
 HasteDependencyResolver.prototype.wrapModule = function(resolutionResponse, module, code) {
-  return Promise.resolve().then(() => {
+  return Q().then(() => {
     if (module.isPolyfill()) {
-      return Promise.resolve(code);
+      return Q(code);
     }
 
     const resolvedDeps = Object.create(null);
     const resolvedDepsArr = [];
 
-    return Promise.all(
+    return Q.all(
       resolutionResponse.getResolvedDependencyPairs(module).map(
         ([depName, depModule]) => {
           if (depModule) {

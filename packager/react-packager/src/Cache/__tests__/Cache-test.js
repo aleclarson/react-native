@@ -19,7 +19,7 @@ jest
   .mock('os')
   .mock('fs');
 
-var Promise = require('promise');
+var Q = require('q');
 var fs = require('fs');
 var os = require('os');
 var _ = require('underscore');
@@ -45,7 +45,7 @@ describe('JSTransformer Cache', () => {
         projectRoots: ['/rootDir'],
         transformModulePath: 'x.js',
       });
-      var loaderCb = jest.genMockFn().mockImpl(() => Promise.resolve());
+      var loaderCb = jest.genMockFn().mockImpl(() => Q());
 
       return cache
         .get('/rootDir/someFile', 'field', loaderCb)
@@ -69,7 +69,7 @@ describe('JSTransformer Cache', () => {
       });
       var index = 0;
       var loaderCb = jest.genMockFn().mockImpl(() =>
-        Promise.resolve(index++)
+        Q(index++)
       );
 
       return cache
@@ -96,7 +96,7 @@ describe('JSTransformer Cache', () => {
         transformModulePath: 'x.js',
       });
       var loaderCb = jest.genMockFn().mockImpl(() =>
-        Promise.resolve('lol')
+        Q('lol')
       );
 
       return cache
@@ -118,7 +118,7 @@ describe('JSTransformer Cache', () => {
         transformModulePath: 'x.js',
       });
       var loaderCb = jest.genMockFn().mockImpl(() =>
-        Promise.resolve('lol')
+        Q('lol')
       );
 
       return cache
@@ -148,7 +148,7 @@ describe('JSTransformer Cache', () => {
         transformModulePath: 'x.js',
       });
       var loaderCb = jest.genMockFn().mockImpl(() =>
-        Promise.resolve('lol' + mtime)
+        Q('lol' + mtime)
       );
 
       return cache
@@ -234,7 +234,7 @@ describe('JSTransformer Cache', () => {
         transformModulePath: 'x.js',
       });
       var loaderCb = jest.genMockFn().mockImpl(() =>
-        Promise.resolve('new value')
+        Q('new value')
       );
 
       return cache
@@ -280,13 +280,13 @@ describe('JSTransformer Cache', () => {
       });
 
       cache.get('/rootDir/bar', 'field', () =>
-        Promise.resolve('bar value')
+        Q('bar value')
       );
       cache.get('/rootDir/foo', 'field', () =>
-        Promise.resolve('foo value')
+        Q('foo value')
       );
       cache.get('/rootDir/baz', 'field', () =>
-        Promise.resolve('baz value')
+        Q('baz value')
       );
 
       jest.runAllTicks();

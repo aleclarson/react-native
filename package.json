@@ -68,7 +68,7 @@
     "module-deps": "^3.9.1",
     "optimist": "^0.6.1",
     "progress": "^1.1.8",
-    "promise": "^7.0.4",
+    "q": "aleclarson/q#1.0.0",
     "react-timer-mixin": "^0.13.2",
     "react-tools": "git://github.com/facebook/react#b4e74e38e43ac53af8acd62c78c9213be0194245",
     "rebound": "^0.0.13",

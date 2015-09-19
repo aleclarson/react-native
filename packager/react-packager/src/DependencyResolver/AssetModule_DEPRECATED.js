@@ -1,7 +1,7 @@
 'use strict';
 
 const Module = require('./Module');
-const Promise = require('promise');
+const Q = require('q');
 const getAssetDataFromName = require('../lib/getAssetDataFromName');
 
 class AssetModule_DEPRECATED extends Module {
@@ -13,19 +13,19 @@ class AssetModule_DEPRECATED extends Module {
   }
 
   isHaste() {
-    return Promise.resolve(false);
+    return Q(false);
   }
 
   getName() {
-    return Promise.resolve(`image!${this.name}`);
+    return Q(`image!${this.name}`);
   }
 
   getDependencies() {
-    return Promise.resolve([]);
+    return Q([]);
   }
 
   getAsyncDependencies() {
-    return Promise.resolve([]);
+    return Q([]);
   }
 
   hash() {

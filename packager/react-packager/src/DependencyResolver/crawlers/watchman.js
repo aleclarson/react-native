@@ -1,11 +1,11 @@
 'use strict';
 
-const Promise = require('promise');
+const Q = require('q');
 const path = require('path');
 
 function watchmanRecReadDir(roots, {ignore, fileWatcher, exts}) {
   const files = [];
-  return Promise.all(
+  return Q.all(
     roots.map(
       root => fileWatcher.getWatcherForRoot(root)
     )
@@ -23,7 +23,7 @@ function watchmanRecReadDir(roots, {ignore, fileWatcher, exts}) {
         (watcher, i) => watchmanRoots.indexOf(watcher.watchProjectInfo.root) === i
       );
 
-      return Promise.all(
+      return Q.all(
         uniqueWatchers.map(watcher => {
           const watchedRoot = watcher.watchProjectInfo.root;
 
@@ -36,7 +36,7 @@ function watchmanRecReadDir(roots, {ignore, fileWatcher, exts}) {
             }
           }
 
-          const cmd = Promise.denodeify(watcher.client.command.bind(watcher.client));
+          const cmd = Q.denodeify(watcher.client.command.bind(watcher.client));
           return cmd(['query', watchedRoot, {
             'suffix': exts,
             'expression': ['allof', ['type', 'f'], 'exists', dirExpr],

@@ -236,7 +236,7 @@ class MessageQueue {
     let self = this;
     if (type === MethodTypes.remoteAsync) {
       fn = function(...args) {
-        return new Promise((resolve, reject) => {
+        return Q.promise((resolve, reject) => {
           self.__nativeCall(module, method, args, resolve, (errorData) => {
             var error = createErrorFromErrorData(errorData);
             reject(error);

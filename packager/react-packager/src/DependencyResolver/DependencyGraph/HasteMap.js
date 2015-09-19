@@ -10,7 +10,7 @@
 
 const path = require('path');
 const getPlatformExtension = require('../../lib/getPlatformExtension');
-const Promise = require('promise');
+const Q = require('q');
 
 const GENERIC_PLATFORM = 'generic';
 
@@ -34,11 +34,11 @@ class HasteMap {
       }).map(file => this._processHastePackage(file))
     );
 
-    return Promise.all(promises);
+    return Q.all(promises);
   }
 
   processFileChange(type, absPath) {
-    return Promise.resolve().then(() => {
+    return Q().then(() => {
       /*eslint no-labels: 0 */
       if (type === 'delete' || type === 'change') {
         loop: for (let name in this._map) {
@@ -101,7 +101,7 @@ class HasteMap {
     return p.isHaste()
       .then(isHaste => isHaste && p.getName()
             .then(name => this._updateHasteMap(name, p)))
-      .catch(e => {
+      .fail(e => {
         if (e instanceof SyntaxError) {
           // Malformed package.json.
           return;

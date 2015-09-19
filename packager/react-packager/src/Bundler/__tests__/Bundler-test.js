@@ -22,6 +22,7 @@ var JSTransformer = require('../../JSTransformer');
 var DependencyResolver = require('../../DependencyResolver');
 var sizeOf = require('image-size');
 var fs = require('fs');
+var Q = require('q');
 
 describe('Bundler', function() {
 
@@ -37,8 +38,8 @@ describe('Bundler', function() {
     return {
       path,
       resolution,
-      getDependencies() { return Promise.resolve(dependencies); },
-      getName() { return Promise.resolve(id); },
+      getDependencies() { return Q.resolve(dependencies); },
+      getName() { return Q.resolve(id); },
       isJSON() { return isJSON; },
       isAsset() { return isAsset; },
       isAsset_DEPRECATED() { return isAsset_DEPRECATED; },
@@ -80,6 +81,26 @@ describe('Bundler', function() {
       assetServer: assetServer,
     });
 
+    function createModule({
+      path,
+      id,
+      dependencies,
+      isAsset,
+      isAsset_DEPRECATED,
+      isJSON,
+      resolution,
+    }) {
+      return {
+        path,
+        resolution,
+        getDependencies() { return Q(dependencies); },
+        getName() { return Q(id); },
+        isJSON() { return isJSON; },
+        isAsset() { return isAsset; },
+        isAsset_DEPRECATED() { return isAsset_DEPRECATED; },
+      };
+    }
+
     modules = [
       createModule({id: 'foo', path: '/root/foo.js', dependencies: []}),
       createModule({id: 'bar', path: '/root/bar.js', dependencies: []}),
@@ -106,7 +127,7 @@ describe('Bundler', function() {
     ];
 
     getDependencies.mockImpl(function() {
-      return Promise.resolve({
+      return Q({
         mainModuleId: 'foo',
         dependencies: modules
       });
@@ -114,7 +135,7 @@ describe('Bundler', function() {
 
     JSTransformer.prototype.loadFileAndTransform
       .mockImpl(function(path) {
-        return Promise.resolve({
+        return Q({
           code: 'transformed ' + path,
           map: 'sourcemap ' + path,
           sourceCode: 'source ' + path,
@@ -123,7 +144,7 @@ describe('Bundler', function() {
       });
 
     wrapModule.mockImpl(function(response, module, code) {
-      return Promise.resolve('lol ' + code + ' lol');
+      return Q('lol ' + code + ' lol');
     });
 
     sizeOf.mockImpl(function(path, cb) {

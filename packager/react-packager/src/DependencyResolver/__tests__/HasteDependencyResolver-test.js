@@ -14,7 +14,7 @@ jest.dontMock('../')
 
 jest.mock('path');
 
-var Promise = require('promise');
+var Q = require('q');
 var HasteDependencyResolver = require('../');
 var Module = require('../Module');
 var Polyfill = require('../Polyfill');
@@ -44,14 +44,14 @@ describe('HasteDependencyResolver', function() {
     }
 
     finalize() {
-      return Promise.resolve(this);
+      return Q(this);
     }
   }
 
   function createModule(id, dependencies) {
     var module = new Module();
-    module.getName.mockImpl(() => Promise.resolve(id));
-    module.getDependencies.mockImpl(() => Promise.resolve(dependencies));
+    module.getName.mockImpl(() => Q(id));
+    module.getDependencies.mockImpl(() => Q(dependencies));
     return module;
   }
 
@@ -67,7 +67,7 @@ describe('HasteDependencyResolver', function() {
       // Is there a better way? How can I mock the prototype instead?
       var depGraph = depResolver._depGraph;
       depGraph.getDependencies.mockImpl(function() {
-        return Promise.resolve(new ResolutionResponseMock({
+        return Q(new ResolutionResponseMock({
           dependencies: deps,
           mainModuleId: 'index',
           asyncDependencies: [],
@@ -150,7 +150,7 @@ describe('HasteDependencyResolver', function() {
 
       var depGraph = depResolver._depGraph;
       depGraph.getDependencies.mockImpl(function() {
-        return Promise.resolve(new ResolutionResponseMock({
+        return Q(new ResolutionResponseMock({
           dependencies: deps,
           mainModuleId: 'index',
           asyncDependencies: [],
@@ -178,7 +178,7 @@ describe('HasteDependencyResolver', function() {
 
       var depGraph = depResolver._depGraph;
       depGraph.getDependencies.mockImpl(function() {
-        return Promise.resolve(new ResolutionResponseMock({
+        return Q(new ResolutionResponseMock({
           dependencies: deps,
           mainModuleId: 'index',
           asyncDependencies: [],

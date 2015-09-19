@@ -1,6 +1,6 @@
 'use strict';
 
-const Promise = require('promise');
+const Q = require('q');
 const Module = require('./Module');
 
 class Polyfill extends Module {
@@ -11,11 +11,11 @@ class Polyfill extends Module {
   }
 
   isHaste() {
-    return Promise.resolve(false);
+    return Q(false);
   }
 
   getName() {
-    return Promise.resolve(this._id);
+    return Q(this._id);
   }
 
   getPackage() {
@@ -23,7 +23,7 @@ class Polyfill extends Module {
   }
 
   getDependencies() {
-    return Promise.resolve(this._dependencies);
+    return Q(this._dependencies);
   }
 
   isJSON() {

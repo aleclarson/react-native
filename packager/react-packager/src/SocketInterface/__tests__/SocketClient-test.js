@@ -108,6 +108,6 @@ describe('SocketClient', () => {
       data: 'some error'
     });
 
-    return promise.catch(m => expect(m.message).toContain('some error'));
+    return promise.fail(m => expect(m.message).toContain('some error'));
   });
 });

@@ -122,13 +122,13 @@ var self = {};
 
   function consumed(body) {
     if (body.bodyUsed) {
-      return Promise.reject(new TypeError('Already read'))
+      return Q.reject(new TypeError('Already read'))
     }
     body.bodyUsed = true
   }
 
   function fileReaderReady(reader) {
-    return new Promise(function(resolve, reject) {
+    return Q.promise(function(resolve, reject) {
       reader.onload = function() {
         resolve(reader.result)
       }
@@ -189,11 +189,11 @@ var self = {};
         }
 
         if (this._bodyBlob) {
-          return Promise.resolve(this._bodyBlob)
+          return Q(this._bodyBlob)
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as blob')
         } else {
-          return Promise.resolve(new Blob([this._bodyText]))
+          return Q(new Blob([this._bodyText]))
         }
       }
 
@@ -212,13 +212,13 @@ var self = {};
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as text')
         } else {
-          return Promise.resolve(this._bodyText)
+          return Q(this._bodyText)
         }
       }
     } else {
       this.text = function() {
         var rejected = consumed(this)
-        return rejected ? rejected : Promise.resolve(this._bodyText)
+        return rejected ? rejected : Q(this._bodyText)
       }
     }
 
@@ -335,7 +335,7 @@ var self = {};
       request = new Request(input, init)
     }
 
-    return new Promise(function(resolve, reject) {
+    return Q.promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest()
 
       function responseURL() {

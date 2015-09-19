@@ -50,13 +50,13 @@ describe('SocketServer', () => {
       const sock = { on: jest.genMockFn(), write: jest.genMockFn() };
       netServer.emit('connection', sock);
       PackagerServer.prototype.getDependencies.mockImpl(
-        () => Promise.resolve({ dependencies: ['a', 'b', 'c'] })
+        () => Q({ dependencies: ['a', 'b', 'c'] })
       );
       bunser.emit('value', { type: 'getDependencies', id: 1, data: '/main' });
       expect(PackagerServer.prototype.getDependencies).toBeCalledWith('/main');
 
       // Run pending promises.
-      return Promise.resolve().then(() => {
+      return Q().then(() => {
         expect(sock.write).toBeCalledWith(
           { id: 1, type: 'result', data: ['a', 'b', 'c']}
         );
@@ -71,7 +71,7 @@ describe('SocketServer', () => {
       const sock = { on: jest.genMockFn(), write: jest.genMockFn() };
       netServer.emit('connection', sock);
       PackagerServer.prototype.buildBundle.mockImpl(
-        () => Promise.resolve({ bundle: 'foo' })
+        () => Q({ bundle: 'foo' })
       );
       bunser.emit(
         'value',
@@ -82,7 +82,7 @@ describe('SocketServer', () => {
       );
 
       // Run pending promises.
-      return Promise.resolve().then(() => {
+      return Q().then(() => {
         expect(sock.write).toBeCalledWith(
           { id: 1, type: 'result', data: { bundle: 'foo' }}
         );
