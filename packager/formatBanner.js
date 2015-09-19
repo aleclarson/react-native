@@ -10,6 +10,7 @@
 
 var _ = require('underscore');
 var wordwrap = require('wordwrap');
+var repeatString = require('repeat-string');
 
 var HORIZONTAL_LINE = '\u2500';
 var VERTICAL_LINE = '\u2502';
@@ -93,10 +94,6 @@ function formatBanner(message, options) {
 
 function spaces(number) {
   return repeatString(' ', number);
-}
-
-function repeatString(string, number) {
-  return new Array(number + 1).join(string);
 }
 
 function arrayOf(value, number) {
