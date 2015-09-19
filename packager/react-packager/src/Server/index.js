@@ -417,22 +417,9 @@ class Server {
 
     const pathname = decodeURIComponent(urlObj.pathname);
 
-    // Backwards compatibility. Options used to be as added as '.' to the
-    // entry module name. We can safely remove these options.
-    const entryFile = pathname.replace(/^\//, '').split('.').filter(part => {
-      if (part === 'includeRequire' || part === 'runModule' ||
-          part === 'bundle' || part === 'map' || part === 'assets') {
-        return false;
-      }
-      return true;
-    }).join('.') + '.js';
-
-    const sourceMapUrlObj = _.clone(urlObj);
-    sourceMapUrlObj.pathname = pathname.replace(/\.bundle$/, '.map');
-
     return {
-      sourceMapUrl: url.format(sourceMapUrlObj),
-      entryFile: entryFile,
+      sourceMapUrl: pathname.replace(/\.bundle$/, '.map'),
+      entryFile: pathname.replace(/\.bundle$/, '.js'),
       dev: this._getBoolOptionFromQuery(urlObj.query, 'dev', true),
       minify: this._getBoolOptionFromQuery(urlObj.query, 'minify'),
       runModule: this._getBoolOptionFromQuery(urlObj.query, 'runModule', true),
