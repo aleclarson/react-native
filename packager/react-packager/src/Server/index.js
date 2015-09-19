@@ -417,9 +417,11 @@ class Server {
 
     const pathname = decodeURIComponent(urlObj.pathname);
 
+    const extensionRegex = /\.(bundle|map)$/;
+
     return {
-      sourceMapUrl: pathname.replace(/\.bundle$/, '.map'),
-      entryFile: pathname.replace(/\.bundle$/, '.js'),
+      sourceMapUrl: pathname.replace(extensionRegex, '.map'),
+      entryFile: 'js/src' + pathname.replace(extensionRegex, '.js'),
       dev: this._getBoolOptionFromQuery(urlObj.query, 'dev', true),
       minify: this._getBoolOptionFromQuery(urlObj.query, 'minify'),
       runModule: this._getBoolOptionFromQuery(urlObj.query, 'runModule', true),
