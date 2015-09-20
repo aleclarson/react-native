@@ -24,6 +24,7 @@ class Fastfs extends EventEmitter {
     this._name = name;
     this._fileWatcher = fileWatcher;
     this._ignore = ignore;
+    this._detachedRoots = [];
     this._roots = roots.map(root => new File(root, { isDir: true }));
     this._fastPaths = Object.create(null);
     this._crawling = crawling;
@@ -153,10 +154,15 @@ class Fastfs extends EventEmitter {
   }
 
   _getRoot(filePath) {
-    for (let i = 0; i < this._roots.length; i++) {
-      let possibleRoot = this._roots[i];
-      if (isDescendant(possibleRoot.path, filePath)) {
-        return possibleRoot;
+    return this._getRootFromRoots(filePath, this._roots) ||
+           this._getRootFromRoots(filePath, this._detachedRoots);
+  }
+
+  _getRootFromRoots(filePath, roots) {
+    for (let i = 0; i < roots.length; i++) {
+      let root = roots[i];
+      if (isDescendant(root.path, filePath)) {
+        return root;
       }
     }
     return null;

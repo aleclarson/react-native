@@ -115,6 +115,8 @@ class DependencyGraph {
       }
     );
 
+    this._fastfs._detachedRoots.push(lotus.file);
+
     this._fastfs.on('change', this._processFileChange.bind(this));
 
     this._moduleCache = new ModuleCache(this._fastfs, this._cache);
