@@ -28,6 +28,7 @@ class Fastfs extends EventEmitter {
     this._roots = roots.map(root => new File(root, { isDir: true }));
     this._fastPaths = Object.create(null);
     this._crawling = crawling;
+    this._resetCaches();
   }
 
   build() {
@@ -191,6 +192,37 @@ class Fastfs extends EventEmitter {
     this._getAndAssertRoot(file.path).addChild(file);
   }
 
+  _cacheResult(fromModule, result, resHash) {
+    this._resolved[resHash] = result;
+    this._addToNestedCache(this._dependers, result.path, resHash);
+    this._addToNestedCache(this._dependencies, fromModule.path, resHash);
+  }
+
+  _resetCaches() {
+    this._resolved = Object.create(null);
+    this._dependers = Object.create(null);
+    this._dependencies = Object.create(null);
+  }
+
+  _addToNestedCache(obj, key, item) {
+    const cache = obj[key];
+    if (cache) {
+      cache.push(item);
+    } else {
+      obj[key] = [item];
+    }
+  }
+
+  _removeFromNestedCache(obj, key) {
+    const cache = obj[key];
+    delete obj[key];
+    if (cache) {
+      cache.forEach(resHash => {
+        delete this._resolved[resHash];
+      });
+    }
+  }
+
   _processFileChange(type, filePath, root, fstat) {
     const absPath = path.join(root, filePath);
     if (this._ignore(absPath) || (fstat && fstat.isDirectory())) {
@@ -201,6 +233,17 @@ class Fastfs extends EventEmitter {
     if (!this._getRoot(absPath)) {
       return;
     }
+
+    // Clear this file's dependers. This causes an error to be
+    // thrown if this file is deleted and another file still
+    // depends on it. This allows you to catch dependency errors
+    // before running the program.
+    this._removeFromNestedCache(this._dependers, absPath);
+
+    // Clear this file's dependencies. This file will have
+    // its dependencies parsed in order to find new dependencies
+    // and remove old dependencies from the resolution cache.
+    this._removeFromNestedCache(this._dependencies, absPath);
 
     if (type === 'delete' || type === 'change') {
       const file = this._getFile(absPath);

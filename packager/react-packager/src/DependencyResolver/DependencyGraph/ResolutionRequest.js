@@ -32,7 +32,6 @@ class ResolutionRequest {
     this._helpers = helpers;
     this._moduleCache = moduleCache;
     this._fastfs = fastfs;
-    this._resetResolutionCache();
   }
 
   _tryResolve(action, secondaryAction) {
@@ -46,9 +45,9 @@ class ResolutionRequest {
 
   resolveDependency(fromModule, toModuleName) {
     const resHash = resolutionHash(fromModule.path, toModuleName);
-
-    if (this._immediateResolutionCache[resHash]) {
-      return Q(this._immediateResolutionCache[resHash]);
+    const resolved = this._fastfs._resolved[resHash];
+    if (resolved) {
+      return Q(resolved);
     }
 
     const asset_DEPRECATED = this._deprecatedAssetMap.resolve(
@@ -60,7 +59,7 @@ class ResolutionRequest {
     }
 
     const cacheResult = (result) => {
-      this._immediateResolutionCache[resHash] = result;
+      this._fastfs._cacheResult(fromModule, result, resHash);
       return result;
     };
 
@@ -312,10 +311,6 @@ class ResolutionRequest {
 
       return this._loadAsFile(path.join(potentialDirPath, 'index'));
     });
-  }
-
-  _resetResolutionCache() {
-    this._immediateResolutionCache = Object.create(null);
   }
 }
 
