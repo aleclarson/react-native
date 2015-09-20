@@ -224,8 +224,13 @@ class Fastfs extends EventEmitter {
   }
 
   _processFileChange(type, filePath, root, fstat) {
+
+    if (fstat && fstat.isDirectory()) {
+      return;
+    }
+
     const absPath = path.join(root, filePath);
-    if (this._ignore(absPath) || (fstat && fstat.isDirectory())) {
+    if (this._ignore(absPath)) {
       return;
     }
 

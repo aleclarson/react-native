@@ -208,9 +208,7 @@ class DependencyGraph {
 
   _processFileChange(type, filePath, root, fstat) {
     const absPath = path.join(root, filePath);
-    if (fstat && fstat.isDirectory() ||
-        this._opts.ignoreFilePath(absPath) ||
-        !this._helpers.shouldCrawlDir(absPath)) {
+    if (!this._helpers.shouldCrawlDir(absPath)) {
       return;
     }
 
