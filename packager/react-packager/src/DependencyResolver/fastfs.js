@@ -4,6 +4,7 @@ const Activity = require('../Activity');
 const Q = require('q');
 const {EventEmitter} = require('events');
 
+const mm = require('micromatch');
 const _ = require('underscore');
 const fs = require('fs');
 const path = require('path');
@@ -32,24 +33,21 @@ class Fastfs extends EventEmitter {
   }
 
   build() {
-    const rootsPattern = new RegExp(
-      '^(' + this._roots.map(root => escapeRegExp(root.path)).join('|') + ')'
-    );
-
+    const rootsPattern = '(' + this._roots.map(file => file.path).join('|') + ')/**';
     return this._crawling.then(files => {
       const fastfsActivity = Activity.startEvent('Building in-memory fs for ' + this._name);
-      files.forEach(filePath => {
-        if (filePath.match(rootsPattern)) {
-          const newFile = new File(filePath, { isDir: false });
-          const parent = this._fastPaths[path.dirname(filePath)];
-          if (parent) {
-            parent.addChild(newFile);
-          } else {
-            this._add(newFile);
-            for (let file = newFile; file; file = file.parent) {
-              if (!this._fastPaths[file.path]) {
-                this._fastPaths[file.path] = file;
-              }
+      files.filter(filePath =>
+        mm.isMatch(filePath, rootsPattern, { dot: true }))
+      .forEach(filePath => {
+        const newFile = new File(filePath, { isDir: false });
+        const parent = this._fastPaths[path.dirname(filePath)];
+        if (parent) {
+          parent.addChild(newFile);
+        } else {
+          this._add(newFile);
+          for (let file = newFile; file; file = file.parent) {
+            if (!this._fastPaths[file.path]) {
+              this._fastPaths[file.path] = file;
             }
           }
         }
