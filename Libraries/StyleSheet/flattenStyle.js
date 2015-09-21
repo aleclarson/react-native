@@ -33,20 +33,42 @@ function flattenStyle(style: ?StyleObj): ?Object {
     return getStyle(style);
   }
 
+function mergeStyles(style: Array<?Atom>) {
   var result = {};
   for (var i = 0; i < style.length; ++i) {
     var computedStyle = flattenStyle(style[i]);
     if (computedStyle) {
       for (var key in computedStyle) {
-        result[key] = computedStyle[key];
-
-        if (__DEV__) {
-          var value = computedStyle[key];
+        var computedValue = computedStyle[key];
+        if (computedValue != null) {
+          result[key] = computedValue;
         }
       }
     }
   }
   return result;
+}
+
+function flattenStyle(style: ?StyleObj): ?Object {
+  if (style == null) {
+    return;
+  }
+
+  if (typeof style === 'function') {
+    style = style();
+  }
+
+  invariant(style !== true, 'style may be false but not true');
+
+  if (Array.isArray(style)) {
+    return mergeStyles(style);
+  }
+
+  if (typeof style === 'number') {
+    return StyleSheetRegistry.getStyleByID(style);
+  }
+
+  return style;
 }
 
 module.exports = flattenStyle;

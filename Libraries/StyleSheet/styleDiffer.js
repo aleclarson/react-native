@@ -18,16 +18,24 @@ function styleDiffer(a: any, b: any): bool {
 }
 
 function styleEqual(a: any, b: any): bool {
+
   if (!a) {
     return !b;
   }
+
   if (!b) {
     return !a;
   }
+
   if (typeof a !== typeof b) {
     return false;
   }
+
   if (typeof a === 'number') {
+    return a === b;
+  }
+
+  if (typeof a === 'function') {
     return a === b;
   }
 

@@ -235,7 +235,10 @@ var View = React.createClass({
       'box-only',
       'auto',
     ]),
-    style: stylePropType,
+    style: PropTypes.oneOfType([
+      PropTypes.func,
+      stylePropType,
+    ]),
 
     /**
      * This is a special performance property exposed by RCTView and is useful

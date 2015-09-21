@@ -14,6 +14,8 @@
 var StyleSheetRegistry = require('StyleSheetRegistry');
 var StyleSheetValidation = require('StyleSheetValidation');
 
+var slice = Array.prototype.slice;
+
 /**
  * A StyleSheet is an abstraction similar to CSS StyleSheets
  *
@@ -60,12 +62,14 @@ var StyleSheetValidation = require('StyleSheetValidation');
  */
 class StyleSheet {
   static create(obj: {[key: string]: any}): {[key: string]: number} {
-    var result = {};
-    for (var key in obj) {
+    return Object.keys(obj).reduce(function(result, key) {
       StyleSheetValidation.validateStyle(key, obj);
-      result[key] = StyleSheetRegistry.registerStyle(obj[key]);
-    }
-    return result;
+      var id = StyleSheetRegistry.registerStyle(obj[key]);
+      result[key] = function() {
+        return arguments.length ? [id].concat(slice.call(arguments)) : id;
+      };
+      return result;
+    }, {});
   }
 }
 
