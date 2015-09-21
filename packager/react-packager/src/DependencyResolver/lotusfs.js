@@ -11,6 +11,7 @@ Object.defineProperty(lotus, 'file', {
     var file = LOTUS_FILE;
     if (file) { return file }
     file = new File(lotus.path, { isDir: true });
+    file.isDetached = true;
     file.getFileFromPath = getFileFromPath;
     return LOTUS_FILE = file;
   }
