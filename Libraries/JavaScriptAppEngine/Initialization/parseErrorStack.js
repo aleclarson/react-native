@@ -11,21 +11,7 @@
 'use strict';
 
 var stacktraceParser = require('stacktrace-parser');
-
-function resolveSourceMaps(sourceMapInstance, stackFrame) {
-  try {
-    var orig = sourceMapInstance.originalPositionFor({
-      line: stackFrame.lineNumber,
-      column: stackFrame.column,
-    });
-    if (orig) {
-      stackFrame.file = orig.source;
-      stackFrame.lineNumber = orig.line;
-      stackFrame.column = orig.column;
-    }
-  } catch (innerEx) {
-  }
-}
+var resolveSourceMaps = require('resolveSourceMaps');
 
 function parseErrorStack(e, sourceMapInstance) {
   if (!e || !e.stack) {
