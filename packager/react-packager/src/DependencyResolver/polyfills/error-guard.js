@@ -75,16 +75,11 @@
    * when loading a module.
    */
   function setupErrorGuard() {
-    var onError = function(e) {
-      global.console.error(
-        'Error: ' +
-        '\n stack: ' + e.stack +
-        '\n line: ' + e.line +
-        '\n message: ' + e.message,
-        e
-      );
-    };
-    global.ErrorUtils.setGlobalHandler(onError);
+    global.ErrorUtils.setGlobalHandler(function(error) {
+      if (console.reportErrorsAsExceptions) {
+        console.reportException(error);
+      }
+    });
   }
 
   setupErrorGuard();
