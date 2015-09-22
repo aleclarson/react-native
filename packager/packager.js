@@ -8,6 +8,7 @@
  */
 'use strict';
 
+<<<<<<< HEAD
 require('./babelRegisterOnly')([
   /packager\/[^\/]*/
 ]);
@@ -32,19 +33,42 @@ const ReactPackager = require('./react-packager');
 const statusPageMiddleware = require('./statusPageMiddleware.js');
 const systraceProfileMiddleware = require('./systraceProfileMiddleware.js');
 const webSocketProxy = require('./webSocketProxy.js');
+=======
+var fs = require('fs');
+var has = require('has');
+var path = require('path');
+var sync = require('io').sync;
+var execFile = require('child_process').execFile;
+var http = require('http');
+var isAbsolutePath = require('absolute-path');
+
+var getFlowTypeCheckMiddleware = require('./getFlowTypeCheckMiddleware');
+
+if (!fs.existsSync(path.resolve(__dirname, '..', 'node_modules'))) {
+  console.log(
+    '\n' +
+    'Could not find dependencies.\n' +
+    'Ensure dependencies are installed - ' +
+    'run \'npm install\' from project root.\n'
+  );
+  process.exit();
+}
+
+var chalk = require('chalk');
+var connect = require('connect');
+var ReactPackager = require('./react-packager');
+var blacklist = require('./blacklist.js');
+var checkNodeVersion = require('./checkNodeVersion');
+var formatBanner = require('./formatBanner');
+var launchEditor = require('./launchEditor.js');
+var parseCommandLine = require('./parseCommandLine.js');
+var webSocketProxy = require('./webSocketProxy.js');
+>>>>>>> [Packager] Rework root resolution in 'packager.js'
 
 var options = parseCommandLine([{
   command: 'port',
   default: 8081,
   type: 'string',
-}, {
-  command: 'root',
-  type: 'string',
-  description: 'add another root(s) to be used by the packager in this project',
-}, {
-  command: 'assetRoots',
-  type: 'string',
-  description: 'specify the root directories of app assets'
 }, {
   command: 'skipflow',
   description: 'Disable flow checks'
@@ -66,52 +90,6 @@ var options = parseCommandLine([{
   default: false,
 }]);
 
-if (options.projectRoots) {
-  if (!Array.isArray(options.projectRoots)) {
-    options.projectRoots = options.projectRoots.split(',');
-  }
-} else {
-  // match on either path separator
-  if (__dirname.match(/node_modules[\/\\]react-native[\/\\]packager$/)) {
-     // packager is running from node_modules of another project
-    options.projectRoots = [path.resolve(__dirname, '../../..')];
-  } else if (__dirname.match(/Pods\/React\/packager$/)) {
-    // packager is running from node_modules of another project
-    options.projectRoots = [path.resolve(__dirname, '../../..')];
-  } else {
-    options.projectRoots = [process.cwd()];
-    // options.assetRoots = [path.resolve(__dirname, '..')];
-  }
-}
-
-if (options.root) {
-  if (!Array.isArray(options.root)) {
-    options.root = options.root.split(',');
-  }
-
-  options.root.forEach(function(root) {
-    options.projectRoots.push(path.resolve(root));
-  });
-}
-
-if (options.assetRoots) {
-  if (!Array.isArray(options.assetRoots)) {
-    options.assetRoots = options.assetRoots.split(',').map(function (dir) {
-      return path.resolve(process.cwd(), dir);
-    });
-  }
-} else {
-  // match on either path separator
-  if (__dirname.match(/node_modules[\/\\]react-native[\/\\]packager$/)) {
-    options.assetRoots = [path.resolve(__dirname, '../../..')];
-  } else if (__dirname.match(/Pods\/React\/packager$/)) {
-    options.assetRoots = [path.resolve(__dirname, '../../..')];
-  } else {
-    options.assetRoots = [process.cwd()];
-    // options.assetRoots = [path.resolve(__dirname, '..')];
-  }
-}
-
 checkNodeVersion();
 
 console.log(formatBanner(
@@ -125,12 +103,6 @@ console.log(formatBanner(
     marginRight: 1,
     paddingBottom: 1,
   })
-);
-
-console.log(
-  'Looking for JS files in\n  ',
-  chalk.dim(options.projectRoots.join('\n   ')),
-  '\n'
 );
 
 process.on('uncaughtException', function(e) {
@@ -158,9 +130,31 @@ process.on('uncaughtException', function(e) {
   process.exit(1);
 });
 
-var server = runServer(options, function() {
-  console.log('\nReact packager ready.\n');
+//
+// Initialize directories to start crawling from.
+//
+
+var projectRoots = [
+  process.cwd()
+];
+
+var assetRoots = [
+  process.cwd()
+];
+
+var internalRoots = sync.map([
+  'Libraries',
+  'node_modules/react-tools',
+  'node_modules/react-timer-mixin',
+], function(internalPath) {
+  return path.resolve(__dirname, '../' + internalPath);
 });
+
+//
+// Start the server.
+//
+
+var server = runServer(options);
 
 webSocketProxy.attachToServer(server, '/debugger-proxy');
 
@@ -172,12 +166,12 @@ function getAppMiddleware(options) {
 
   return ReactPackager.middleware({
     nonPersistent: options.nonPersistent,
-    projectRoots: options.projectRoots,
+    projectRoots: projectRoots,
+    internalRoots: internalRoots,
     blacklistRE: blacklist(),
     cacheVersion: '3',
     transformModulePath: transformerPath,
-    internalRoots: options.internalRoots,
-    assetRoots: options.assetRoots,
+    assetRoots: assetRoots,
     assetExts: ['png', 'jpeg', 'jpg'],
     resetCache: options.resetCache || options['reset-cache'],
     polyfillModuleNames: [
@@ -203,7 +197,7 @@ function runServer(
     //.use(getFlowTypeCheckMiddleware(options))
     .use(getAppMiddleware(options));
 
-  options.projectRoots.forEach(function(root) {
+  sync.each(projectRoots, function(root) {
     app.use(connect.static(root));
   });
 
@@ -211,5 +205,7 @@ function runServer(
     .use(connect.compress())
     .use(connect.errorHandler());
 
-  return http.createServer(app).listen(options.port, '::', readyCallback);
+  return http.createServer(app).listen(options.port, '::', function() {
+    log.it('Server started: ', color.yellow('http://localhost:' + options.port));
+  });
 }
