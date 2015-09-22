@@ -18,6 +18,7 @@ module.exports = {
   '*.map': readMap,
   '*.assets': readAssets,
   'assets/**': readSpecificAsset,
+  'watcher/**': processFileEvent,
   'onchange': onFileChange,
   'profile': dumpProfileInfo,
   'debug': debug,
@@ -82,6 +83,28 @@ function readSpecificAsset(req, res) {
         res.end('Asset not found');
       }
     ).done(() => Activity.endEvent(assetEvent));
+}
+
+function processFileEvent(req, res) {
+  const fs = this._bundler._resolver._depGraph._fastfs;
+  const urlObj = url.parse(req.url, true);
+  const type = urlObj.query.event;
+  var filePath = urlObj.pathname.replace(/^\/watcher/, '');
+  var root;
+  var fstat;
+
+  // Ensure the 'filePath' cached in the virtual filesystem.
+  if (fs._fastPaths[filePath]) {
+    root = fs._getRoot(filePath).path;
+    // Ensure the 'root' is not known by the packager's file watcher.
+    if (this._fileWatcher._watcherByRoot[root] == null) {
+      fstat = sync.stats(filePath);
+      filePath = path.relative(root, filePath);
+      this._fileWatcher.emit('all', type, filePath, root, fstat);
+    }
+  }
+
+  res.end();
 }
 
 function onFileChange(req, res) {
