@@ -17,6 +17,7 @@ module.exports = {
   '*.bundle': readBundle,
   '*.map': readMap,
   '*.assets': readAssets,
+  'read/**': readSpecificFile,
   'assets/**': readSpecificAsset,
   'watcher/**': processFileEvent,
   'onchange': onFileChange,
@@ -67,6 +68,21 @@ function readAssets(req, res) {
   .fail(error => {
     const {bundleID} = this._getBundleOptions(req);
     this._handleError(res, bundleID, error);
+  });
+}
+
+function readSpecificFile(req, res) {
+  const urlObj = url.parse(req.url, true);
+  const filePath = urlObj.pathname.replace(/^\/read/, '');
+  async.read(filePath)
+  .then(contents => res.end(contents))
+  .fail(error => {
+    res.writeHead(500);
+    if (error.code === 'ENOENT') {
+      res.end('"' + filePath + '" doesnt exist.');
+    } else {
+      res.end(error.message);
+    }
   });
 }
 
