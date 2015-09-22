@@ -20,13 +20,6 @@
 var sessionID = window.localStorage.getItem('sessionID');
 window.localStorage.removeItem('sessionID');
 
-window.onbeforeunload = function() {
-  if (sessionID) {
-    return 'If you reload this page, it is going to break the debugging session. ' +
-      'You should press ⌘R in simulator to reload.';
-  }
-};
-
 window.addEventListener('load', function () {
   if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'undefined') {
     document.getElementById('devtools-banner').style.display = 'block';
@@ -55,7 +48,6 @@ var messageHandlers = {
   // This message also needs to be handled outside of the worker, since the worker
   // doesn't have access to local storage.
   'prepareJSRuntime': function(message) {
-    window.onbeforeunload = undefined;
     window.localStorage.setItem('sessionID', message.id);
     window.location.reload();
   },
