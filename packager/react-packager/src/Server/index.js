@@ -92,6 +92,10 @@ const bundleOpts = declareOpts({
     type: 'boolean',
     default: false,
   },
+  refresh: {
+    type: 'boolean',
+    default: false,
+  },
   runModule: {
     type: 'boolean',
     default: true,
@@ -218,17 +222,28 @@ class Server {
   }
 
   _getBundle(req) {
-    const {bundleID, options} = this._getBundleOptions(req);
+    const {bundleID, refresh, options} = this._getBundleOptions(req);
+    if (refresh) {
+      return this._refreshBundle(bundleID, options);
+    }
     return this._bundles[bundleID] ||
       (this._bundles[bundleID] = this.buildBundle(options));
   }
 
   _getBundleOptions(req) {
     const options = this._getOptionsFromUrl(req.url);
+    const refresh = steal(options, 'refresh');
     return {
       bundleID: JSON.stringify(options),
+      refresh: refresh,
       options: options,
     };
+  }
+
+  _refreshBundle(bundleID, options) {
+    const depGraph = this._bundler._resolver._depGraph;
+    return this._bundles[bundleID] = depGraph.refreshModuleCache()
+      .then(() => this.buildBundle(options));
   }
 
   _onFileChange(type, filepath, root) {
@@ -344,6 +359,7 @@ class Server {
       entryFile: 'js/src' + pathname.replace(extensionRegex, '.js'),
       dev: this._getBoolOptionFromQuery(urlObj.query, 'dev', true),
       minify: this._getBoolOptionFromQuery(urlObj.query, 'minify'),
+      refresh: urlObj.query.refresh === '',
       runModule: this._getBoolOptionFromQuery(urlObj.query, 'runModule', true),
       inlineSourceMap: this._getBoolOptionFromQuery(
         urlObj.query,

@@ -17,6 +17,7 @@ const declareOpts = require('../../lib/declareOpts');
 const isDescendant = require('../../lib/isDescendant');
 const getPontentialPlatformExt = require('../../lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
+const {async} = require('io');
 const path = require('path');
 const util = require('util');
 const Helpers = require('./Helpers');
@@ -171,6 +172,37 @@ class DependencyGraph {
         req.getOrderedDependencies(response),
         req.getAsyncDependencies(response),
       ]).then(() => response);
+    });
+  }
+
+  // Forces all modules to reload their contents on the next bundle request.
+  refreshModuleCache() {
+    log.moat(1);
+    log.yellow('Refreshing the module cache...');
+    log.moat(1);
+    this._cache.reset();
+    const cache = this._moduleCache._moduleCache;
+    const modules = Object.keys(cache).map((key) => cache[key]);
+    return async.each(modules, (mod) => this._refreshModule(mod));
+  }
+
+  _refreshModule(mod) {
+    if (!mod._reading) {
+      return;
+    }
+    const reading = mod._reading;
+    mod._reading = null;
+
+    const file = this._fastfs._fastPaths[mod.path];
+    file._read = null;
+
+    return reading.then(data => {
+      const cache = this._resolved;
+      async.each(data.dependencies, name => {
+        const hash = this._helpers.resolutionHash(mod.path, name);
+        const dep = cache[hash];
+        this._refreshModule(dep);
+      });
     });
   }
 
