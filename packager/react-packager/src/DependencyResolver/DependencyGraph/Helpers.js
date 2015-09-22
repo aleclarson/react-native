@@ -47,6 +47,10 @@ class Helpers {
     });
     return result;
   }
+
+  resolutionHash(modulePath, depName) {
+    return `${path.resolve(modulePath)}:${depName}`;
+  }
 }
 
 module.exports = Helpers;

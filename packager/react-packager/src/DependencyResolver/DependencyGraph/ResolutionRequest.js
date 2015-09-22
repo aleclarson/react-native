@@ -45,7 +45,7 @@ class ResolutionRequest {
   }
 
   resolveDependency(fromModule, toModuleName) {
-    const resHash = resolutionHash(fromModule.path, toModuleName);
+    const resHash = this._helpers.resolutionHash(fromModule.path, toModuleName);
     const resolved = this._fastfs._resolved[resHash];
     if (resolved) {
       return Q(resolved);
@@ -375,11 +375,6 @@ class ResolutionRequest {
     const error = new Error('Failed to resolve "' + toModuleName + '" from "' + fromModule.path + '"');
     log.error(error, { simple: true, exit: false });
   }
-}
-
-
-function resolutionHash(modulePath, depName) {
-  return `${path.resolve(modulePath)}:${depName}`;
 }
 
 
