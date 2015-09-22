@@ -14,10 +14,16 @@ const FileWatcher = require('../FileWatcher');
 const Bundler = require('../Bundler');
 const Q = require('q');
 
+const has = require('has');
+const steal = require ('steal');
+const {sync} = require('io');
+const mm = require('micromatch');
 const _ = require('underscore');
 const declareOpts = require('../lib/declareOpts');
 const path = require('path');
 const url = require('url');
+
+const SERVER_API = require('./api');
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -211,6 +217,20 @@ class Server {
     });
   }
 
+  _getBundle(req) {
+    const {bundleID, options} = this._getBundleOptions(req);
+    return this._bundles[bundleID] ||
+      (this._bundles[bundleID] = this.buildBundle(options));
+  }
+
+  _getBundleOptions(req) {
+    const options = this._getOptionsFromUrl(req.url);
+    return {
+      bundleID: JSON.stringify(options),
+      options: options,
+    };
+  }
+
   _onFileChange(type, filepath, root) {
     const absPath = path.join(root, filepath);
     this._bundler.invalidateFile(absPath);
@@ -256,135 +276,31 @@ class Server {
     this._changeWatchers = [];
   }
 
-  _processDebugRequest(reqUrl, res) {
-    var ret = '<!doctype html>';
-    const pathname = url.parse(reqUrl).pathname;
-    const parts = pathname.split('/').filter(Boolean);
-    if (parts.length === 1) {
-      ret += '<div><a href="/debug/bundles">Cached Bundles</a></div>';
-      ret += '<div><a href="/debug/graph">Dependency Graph</a></div>';
-      res.end(ret);
-    } else if (parts[1] === 'bundles') {
-      ret += '<h1> Cached Bundles </h1>';
-      Q.all(Object.keys(this._bundles).map(optionsJson =>
-        this._bundles[optionsJson].then(p => {
-          ret += '<div><h2>' + optionsJson + '</h2>';
-          ret += p.getDebugInfo();
-        })
-      )).then(
-        () => res.end(ret),
-        e => {
-          res.writeHead(500);
-          res.end('Internal Error');
-          console.log(e.stack);
-        }
-      );
-    } else if (parts[1] === 'graph'){
-      ret += '<h1> Dependency Graph </h2>';
-      ret += this._bundler.getGraphDebugInfo();
-      res.end(ret);
-    } else {
-      res.writeHead('404');
-      res.end('Invalid debug request');
-      return;
-    }
-  }
-
-  _processOnChangeRequest(req, res) {
-    const watchers = this._changeWatchers;
-
-    watchers.push({
-      req: req,
-      res: res,
-    });
-
-    req.on('close', () => {
-      for (let i = 0; i < watchers.length; i++) {
-        if (watchers[i] && watchers[i].req === req) {
-          watchers.splice(i, 1);
-          break;
-        }
-      }
-    });
-  }
-
-  _processAssetsRequest(req, res) {
-    const urlObj = url.parse(req.url, true);
-    const assetPath = urlObj.pathname.match(/^\/assets\/(.+)$/);
-    const assetEvent = Activity.startEvent(`processing asset request ${assetPath[1]}`);
-    this._assetServer.get(assetPath[1], urlObj.query.platform)
-      .then(
-        data => res.end(data),
-        error => {
-          console.error(error.stack);
-          res.writeHead('404');
-          res.end('Asset not found');
-        }
-      ).done(() => Activity.endEvent(assetEvent));
-  }
-
   processRequest(req, res, next) {
     const urlObj = url.parse(req.url, true);
-    var pathname = urlObj.pathname;
+    var pathname = urlObj.pathname.slice(1);
 
-    var requestType;
-    if (pathname.match(/\.bundle$/)) {
-      requestType = 'bundle';
-    } else if (pathname.match(/\.map$/)) {
-      requestType = 'map';
-    } else if (pathname.match(/\.assets$/)) {
-      requestType = 'assets';
-    } else if (pathname.match(/^\/debug/)) {
-      this._processDebugRequest(req.url, res);
-      return;
-    } else if (pathname.match(/^\/onchange\/?$/)) {
-      this._processOnChangeRequest(req, res);
-      return;
-    } else if (pathname.match(/^\/assets\//)) {
-      this._processAssetsRequest(req, res);
-      return;
+    var endpoint = null;
+    sync.each(SERVER_API, (handler, pattern) => {
+      if (!endpoint && mm.isMatch(pathname, pattern)) {
+        endpoint = handler;
+      }
+    })
+
+    if (endpoint) {
+      const requestEvent = Activity.startEvent('request:' + req.url);
+      const finishResponse = res.end;
+      res.end = (body) => {
+        if (body == null) {
+          body = '';
+        }
+        finishResponse.call(res, body);
+        Activity.endEvent(requestEvent);
+      };
+      endpoint.call(this, req, res);
     } else {
       next();
-      return;
     }
-
-    const startReqEventId = Activity.startEvent('request:' + req.url);
-    const options = this._getOptionsFromUrl(req.url);
-    const optionsJson = JSON.stringify(options);
-    const building = this._bundles[optionsJson] || this.buildBundle(options);
-
-    this._bundles[optionsJson] = building;
-    building.then(
-      p => {
-        if (requestType === 'bundle') {
-          var bundleSource = p.getSource({
-            inlineSourceMap: options.inlineSourceMap,
-            minify: options.minify,
-          });
-          res.setHeader('Content-Type', 'application/javascript');
-          res.end(bundleSource);
-          Activity.endEvent(startReqEventId);
-        } else if (requestType === 'map') {
-          var sourceMap = p.getSourceMap({
-            minify: options.minify,
-          });
-
-          if (typeof sourceMap !== 'string') {
-            sourceMap = JSON.stringify(sourceMap);
-          }
-
-          res.setHeader('Content-Type', 'application/json');
-          res.end(sourceMap);
-          Activity.endEvent(startReqEventId);
-        } else if (requestType === 'assets') {
-          var assetsList = JSON.stringify(p.getAssets());
-          res.setHeader('Content-Type', 'application/json');
-          res.end(assetsList);
-          Activity.endEvent(startReqEventId);
-        }
-      },
-      this._handleError.bind(this, res, optionsJson)
-    ).done();
   }
 
   _handleError(res, bundleID, error) {
