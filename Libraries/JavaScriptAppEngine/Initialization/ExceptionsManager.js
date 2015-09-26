@@ -13,7 +13,8 @@
 
 var RCTExceptionsManager = require('NativeModules').ExceptionsManager;
 
-var loadSourceMap = require('loadSourceMap');
+var { loadSourceMapForBundle, loadSourceMapForFile } = require('loadSourceMap');
+var resolveSourceMaps = require('resolveSourceMaps');
 var parseErrorStack = require('parseErrorStack');
 var stringifySafe = require('stringifySafe');
 
@@ -33,16 +34,45 @@ function reportException(e: Error, isFatal: bool, stack?: any) {
       RCTExceptionsManager.reportSoftException(e.message, stack, currentExceptionID);
     }
     if (__DEV__) {
-      (sourceMapPromise = sourceMapPromise || loadSourceMap())
-        .then(map => {
-          var prettyStack = parseErrorStack(e, map);
-          RCTExceptionsManager.updateExceptionMessage(e.message, prettyStack, currentExceptionID);
+
+      log.moat(1);
+      log.yellow('Loading source maps!');
+      log.moat(1);
+
+      if (sourceMapPromise == null) {
+        sourceMapPromise = loadSourceMapForBundle();
+      }
+
+      sourceMapPromise.then(map => {
+
+        // Map the bundle to the original JS files.
+        var stack = parseErrorStack(e, map);
+        RCTExceptionsManager.updateExceptionMessage(e.message, stack);
+
+        // Map the JS files to any original dialects.
+        Q.all(
+          stack.map(frame =>
+            loadSourceMapForFile(frame.file)
+              .fail(() => null)))
+
+        .then(sourceMaps => {
+          stack.forEach((frame, index) => {
+            var sourceMap = sourceMaps[index];
+            if (!sourceMap) { return }
+            resolveSourceMaps(sourceMap, frame);
+          });
+          RCTExceptionsManager.updateExceptionMessage(e.message, stack);
         })
-        .fail(error => {
-          // This can happen in a variety of normal situations, such as
-          // Network module not being available, or when running locally
-          console.warn('Unable to load source map: ' + error.message);
+      })
+
+      .fail(error => {
+        // This can happen in a variety of normal situations, such as
+        // Network module not being available, or when running locally
+        log.error(Error('Unable to load source map: ' + error.message), {
+          simple: true,
+          exit: false,
         });
+      });
     }
   }
 }

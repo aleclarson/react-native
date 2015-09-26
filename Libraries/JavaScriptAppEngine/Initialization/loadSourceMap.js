@@ -13,6 +13,7 @@
 'use strict';
 
 var Q = require('q');
+var Path = require('path');
 var NativeModules = require('NativeModules');
 var SourceMapConsumer = require('SourceMap').SourceMapConsumer;
 var SourceMapURL = require('./source-map-url');
@@ -20,12 +21,9 @@ var SourceMapURL = require('./source-map-url');
 var RCTSourceCode = NativeModules.SourceCode;
 var RCTNetworking = NativeModules.Networking;
 
-function loadSourceMap(): Q.Promise {
-  return fetchSourceMap()
-    .then(map => new SourceMapConsumer(map));
-}
+var fetching = Object.create(null);
 
-function fetchSourceMap(): Q.Promise {
+function loadSourceMapForBundle(): Q.Promise {
   if (global.RAW_SOURCE_MAP) {
     return Q(global.RAW_SOURCE_MAP);
   }
@@ -39,28 +37,79 @@ function fetchSourceMap(): Q.Promise {
     return Q.reject(new Error('RCTNetworking module is not available'));
   }
 
-  return Q.promise(RCTSourceCode.getScriptText)
-    .then(extractSourceMapURL)
-    .then((url) => {
-      if (url === null) {
-        return Q.reject(new Error('No source map URL found. May be running from bundled file.'));
-      }
-      return Q(url);
-    })
-    .then(fetch)
-    .then(response => response.text())
+  return Q.promise((resolve, reject) =>
+    RCTSourceCode.getScriptText(resolve, reject))
+
+  .then(extractSourceMapURL)
+
+  .then(({ fullURL, baseURL, mapURL }) => {
+    if (fullURL) { return fullURL }
+    if (mapURL) { return baseURL + mapURL }
+    throw Error('No source map URL found.');
+  })
+
+  .then(loadSourceMap);
 }
 
-function extractSourceMapURL({url, text, fullSourceMappingURL}): ?string {
-  if (fullSourceMappingURL) {
-    return fullSourceMappingURL;
+function loadSourceMapForFile(filePath): Q.Promise {
+
+  if (filePath[0] !== '/') {
+    return Q.reject(Error('"filePath" must start with a "/".'));
   }
-  var mapURL = SourceMapURL.getFrom(text);
-  if (!mapURL) {
-    return null;
+
+  var dirPath = filePath.slice(0, filePath.lastIndexOf('/'));
+
+  var url = 'http://192.168.0.2:8081/read' + filePath;
+
+  var promise = fetching[url];
+
+  if (!promise) {
+    promise = fetching[url] = fetch(url);
+    promise.always(() => delete fetching[url]);
   }
-  var baseURL = url.match(/(.+:\/\/.*?)\//)[1];
-  return baseURL + mapURL;
+
+  return promise
+
+  .then(res => ({ url: url, text: res._bodyText }))
+
+  .then(extractSourceMapURL)
+
+  .then(({ baseURL, mapURL }) => {
+    if (mapURL) {
+      return baseURL + '/read' + Path.resolve(dirPath + '/' + mapURL);
+    }
+    throw Error('No source map URL found.');
+  })
+
+  .then(loadSourceMap);
 }
 
-module.exports = loadSourceMap;
+function loadSourceMap(url): Q.Promise {
+
+  return fetch(url)
+
+  .then(res => res.text())
+
+  .then(map => new SourceMapConsumer(map))
+
+  .fail(error => {
+    log.moat(1);
+    log('Failed to load source map: ', url);
+    log.moat(1);
+    throw error;
+  });
+}
+
+function extractSourceMapURL({ url, text, fullSourceMappingURL }): ?string {
+  return {
+    fullURL: fullSourceMappingURL || null,
+    baseURL: url ? url.match(/(.+:\/\/.*?)\//)[1] : null,
+    mapURL: SourceMapURL.getFrom(text) || null,
+  };
+}
+
+module.exports = {
+  loadSourceMap: loadSourceMap,
+  loadSourceMapForBundle: loadSourceMapForBundle,
+  loadSourceMapForFile: loadSourceMapForFile,
+};
