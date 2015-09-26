@@ -242,6 +242,9 @@ class ResolutionRequest {
       for (let currDir = path.dirname(fromModule.path);
            currDir !== '/';
            currDir = path.dirname(currDir)) {
+        if (/node_modules$/.test(currDir)) {
+          continue;
+        }
         searchQueue.push(
           path.join(currDir, 'node_modules', toModuleName)
         );
