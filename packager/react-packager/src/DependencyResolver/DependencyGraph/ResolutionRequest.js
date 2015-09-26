@@ -17,6 +17,7 @@ const {sync} = require('io');
 const Q = require('q');
 
 const Module = require('../Module');
+const globalConfig = require('../../GlobalConfig');
 
 class ResolutionRequest {
   constructor({
@@ -70,6 +71,15 @@ class ResolutionRequest {
 
       if (toModuleName === null) {
         return this._getNullModule(oldModuleName);
+      }
+
+      if (globalConfig.redirect[toModuleName] !== undefined) {
+        let oldModuleName = toModuleName;
+        toModuleName = globalConfig.redirect[toModuleName];
+        if (toModuleName === false) {
+          return this._getNullModule(oldModuleName);
+        }
+        toModuleName = globalConfig.resolve(toModuleName);
       }
 
       var promise = Q.reject();
