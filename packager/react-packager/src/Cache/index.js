@@ -161,6 +161,7 @@ class Cache {
       })
       .then(() => {
         this._persisting = null;
+        log.it('Cache located at: ' + color.cyan(this._cacheFilePath));
         return true;
       });
 
