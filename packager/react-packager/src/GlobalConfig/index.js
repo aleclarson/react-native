@@ -45,7 +45,7 @@ GlobalConfig.prototype = {
       json = {};
     }
 
-    // TODO: Set properties here with values taken from `json`
+    this.assetExts = json.assetExts || ['png', 'jpeg', 'jpg'];
 
     log.moat(1);
     log.format(this, { label: 'Global config: ', unlimited: true });

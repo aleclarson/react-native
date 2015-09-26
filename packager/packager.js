@@ -23,6 +23,7 @@ const checkNodeVersion = require('./checkNodeVersion');
 const cpuProfilerMiddleware = require('./cpuProfilerMiddleware');
 const connect = require('connect');
 const formatBanner = require('./formatBanner');
+const globalConfig = require('./react-packager/src/GlobalConfig');
 const getDevToolsMiddleware = require('./getDevToolsMiddleware');
 const loadRawBodyMiddleware = require('./loadRawBodyMiddleware');
 const openStackFrameInEditorMiddleware = require('./openStackFrameInEditorMiddleware');
@@ -134,13 +135,19 @@ function getAppMiddleware(options) {
   return ReactPackager.middleware({
     nonPersistent: options.nonPersistent,
     projectRoots: projectRoots,
+    projectExts: globalConfig.projectExts,
+    assetRoots: projectRoots.concat(globalConfig.assetRoots),
+    assetExts: globalConfig.assetExts,
     internalRoots: internalRoots,
     blacklistRE: blacklist(),
     cacheVersion: '3',
     transformModulePath: transformerPath,
+<<<<<<< HEAD
     assetRoots: assetRoots,
     assetExts: ['png', 'jpeg', 'jpg'],
     resetCache: options.resetCache || options['reset-cache'],
+=======
+>>>>>>> [Packager] Add 'assetExts' to GlobalConfig
     polyfillModuleNames: [
       require.resolve(
         '../Libraries/JavaScriptAppEngine/polyfills/document.js'

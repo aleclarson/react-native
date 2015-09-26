@@ -30,6 +30,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  assetExts: {
+    type: 'array',
+    required: true,
+  },
   internalRoots: {
     type: 'array',
     default: [],
@@ -64,10 +68,6 @@ const validateOpts = declareOpts({
   assetRoots: {
     type: 'array',
     required: false,
-  },
-  assetExts: {
-    type: 'array',
-    default: ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'webp'],
   },
   transformTimeoutInterval: {
     type: 'number',
