@@ -10,6 +10,7 @@
 
 const path = require('path');
 
+const globalConfig = require('../../GlobalConfig');
 const isDescendant = require('../../lib/isDescendant');
 
 class Helpers {
@@ -24,6 +25,10 @@ class Helpers {
       if (isDescendant(internalRoots[i], filePath)) {
         filePath = path.relative(internalRoots[i], filePath);
       }
+    }
+    const ignoredPatterns = globalConfig.ignoredPatterns;
+    if (ignoredPatterns && ignoredPatterns.test(filePath)) {
+      return false;
     }
     return true;
   }

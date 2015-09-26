@@ -47,6 +47,10 @@ GlobalConfig.prototype = {
 
     this.assetExts = json.assetExts || ['png', 'jpeg', 'jpg'];
 
+    if (json.ignoredPatterns) {
+      this.ignoredPatterns = new RegExp('(^|\/)(' + json.ignoredPatterns.join('|') + ')(\/|$)');
+    }
+
     log.moat(1);
     log.format(this, { label: 'Global config: ', unlimited: true });
     log.moat(1);
