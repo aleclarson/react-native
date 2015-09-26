@@ -170,7 +170,7 @@ class Fastfs extends EventEmitter {
   _getAndAssertRoot(filePath) {
     const root = this._getRoot(filePath);
     if (!root) {
-      const error = new Error(`File ${filePath} not found in any of the roots`);
+      const error = new Error(`File '${filePath}' not found in any of the roots`);
       error.type = NOT_FOUND_IN_ROOTS;
       throw error;
     }
