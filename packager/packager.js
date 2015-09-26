@@ -106,10 +106,6 @@ var projectRoots = [
   process.cwd()
 ];
 
-var assetRoots = [
-  process.cwd()
-];
-
 var internalRoots = sync.map([
   'Libraries',
   'node_modules/react-tools',
@@ -142,12 +138,7 @@ function getAppMiddleware(options) {
     blacklistRE: blacklist(),
     cacheVersion: '3',
     transformModulePath: transformerPath,
-<<<<<<< HEAD
-    assetRoots: assetRoots,
-    assetExts: ['png', 'jpeg', 'jpg'],
     resetCache: options.resetCache || options['reset-cache'],
-=======
->>>>>>> [Packager] Add 'assetExts' to GlobalConfig
     polyfillModuleNames: [
       require.resolve(
         '../Libraries/JavaScriptAppEngine/polyfills/document.js'
