@@ -69,7 +69,10 @@ class Package {
       const redirect = browser[relPath] ||
               browser[relPath + '.js'] ||
               browser[relPath + '.json'];
-      if (redirect) {
+      if (redirect === false) {
+        return null;
+      }
+      if (typeof redirect === 'string') {
         return path.join(
           this.root,
           redirect

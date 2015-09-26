@@ -225,6 +225,19 @@ class Bundler {
   }
 
   _transformModule(bundle, response, module, platform = null) {
+
+    if (module.isNull) {
+      return this._resolver
+        .wrapModule(response, module)
+        .then(function(code) {
+          return new ModuleTransport({
+            code: code,
+            sourceCode: module.code,
+            sourcePath: module.path,
+          });
+        });
+    }
+
     let transform;
 
     if (module.isAsset_DEPRECATED()) {

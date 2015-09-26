@@ -126,6 +126,14 @@ HasteDependencyResolver.prototype.wrapModule = function(resolutionResponse, modu
       return Q(code);
     }
 
+    if (module.isNull) {
+      return defineModuleCode({
+        moduleName: module.path,
+        deps: [],
+        code: module.code,
+      });
+    }
+
     const resolvedDeps = Object.create(null);
     const resolvedDepsArr = [];
 

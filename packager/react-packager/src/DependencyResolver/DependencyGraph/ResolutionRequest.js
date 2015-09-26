@@ -16,6 +16,8 @@ const getAssetDataFromName = require('../../lib/getAssetDataFromName');
 const {sync} = require('io');
 const Q = require('q');
 
+const Module = require('../Module');
+
 class ResolutionRequest {
   constructor({
     platform,
@@ -59,9 +61,16 @@ class ResolutionRequest {
       return Q(asset_DEPRECATED);
     }
 
-    return this._redirectRequire(fromModule, toModuleName)
+    return Q.all([
+      toModuleName,
+      this._redirectRequire(fromModule, toModuleName)
+    ])
 
-    .then((toModuleName) => {
+    .then(([oldModuleName, toModuleName]) => {
+
+      if (toModuleName === null) {
+        return this._getNullModule(oldModuleName);
+      }
 
       var promise = Q.reject();
 
@@ -375,8 +384,33 @@ class ResolutionRequest {
       }
     }
 
-    const error = new Error('Failed to resolve "' + toModuleName + '" from "' + fromModule.path + '"');
-    log.error(error, { simple: true, exit: false });
+    throw new UnableToResolveError();
+  }
+
+  _getNullModule(modulePath) {
+    if (typeof modulePath !== 'string') {
+      throw TypeError('Expected "modulePath" to be a String');
+    }
+
+    var module = this._moduleCache._moduleCache[modulePath];
+    if (!module) {
+      module = new Module(
+        modulePath,
+        this._fastfs,
+        this._moduleCache,
+        this._moduleCache._cache
+      );
+      module.path = modulePath;
+      module.isNull = true;
+      module.code = 'module.exports = null;';
+      module.isHaste = () => false;
+      module.isPolyfill = () => false;
+      module.getName = () => Q(modulePath);
+      module.getPackage = () => null;
+      module.getDependencies = () => Q([]);
+      this._moduleCache._moduleCache[modulePath] = module;
+    }
+    return module;
   }
 }
 
