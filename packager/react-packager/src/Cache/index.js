@@ -80,6 +80,11 @@ class Cache {
     return this._persistCache();
   }
 
+  reset() {
+    this._data = Object.create(null);
+    this._persistEventually();
+  }
+
   _has(filepath, field) {
     return Object.prototype.hasOwnProperty.call(this._data, filepath) &&
       (!field || Object.prototype.hasOwnProperty.call(this._data[filepath].data, field));
