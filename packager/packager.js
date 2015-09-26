@@ -8,13 +8,11 @@
  */
 'use strict';
 
-<<<<<<< HEAD
-require('./babelRegisterOnly')([
-  /packager\/[^\/]*/
-]);
+require('./dev');
 
 const fs = require('fs');
 const path = require('path');
+const sync = require('io').sync;
 const childProcess = require('child_process');
 const http = require('http');
 const isAbsolutePath = require('absolute-path');
@@ -33,37 +31,6 @@ const ReactPackager = require('./react-packager');
 const statusPageMiddleware = require('./statusPageMiddleware.js');
 const systraceProfileMiddleware = require('./systraceProfileMiddleware.js');
 const webSocketProxy = require('./webSocketProxy.js');
-=======
-var fs = require('fs');
-var has = require('has');
-var path = require('path');
-var sync = require('io').sync;
-var execFile = require('child_process').execFile;
-var http = require('http');
-var isAbsolutePath = require('absolute-path');
-
-var getFlowTypeCheckMiddleware = require('./getFlowTypeCheckMiddleware');
-
-if (!fs.existsSync(path.resolve(__dirname, '..', 'node_modules'))) {
-  console.log(
-    '\n' +
-    'Could not find dependencies.\n' +
-    'Ensure dependencies are installed - ' +
-    'run \'npm install\' from project root.\n'
-  );
-  process.exit();
-}
-
-var chalk = require('chalk');
-var connect = require('connect');
-var ReactPackager = require('./react-packager');
-var blacklist = require('./blacklist.js');
-var checkNodeVersion = require('./checkNodeVersion');
-var formatBanner = require('./formatBanner');
-var launchEditor = require('./launchEditor.js');
-var parseCommandLine = require('./parseCommandLine.js');
-var webSocketProxy = require('./webSocketProxy.js');
->>>>>>> [Packager] Rework root resolution in 'packager.js'
 
 var options = parseCommandLine([{
   command: 'port',
