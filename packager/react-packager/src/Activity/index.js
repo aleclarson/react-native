@@ -71,22 +71,22 @@ function _writeAction(action) {
 
   switch (action.action) {
     case 'startEvent':
-      console.log(chalk.dim(
-        '[' + fmtTime + '] ' +
-        '<START> ' + action.eventName +
-        data
-      ));
+      log.moat(1);
+      log.gray('[', fmtTime, '] <START> ');
+      log.green(action.eventName);
+      log.gray(data);
+      log.moat(1);
       break;
 
     case 'endEvent':
       const startAction = _eventStarts[action.eventId];
       const startData = startAction.data ? ': ' + JSON.stringify(startAction.data) : '';
-      console.log(chalk.dim(
-        '[' + fmtTime + '] ' +
-        '<END>   ' + startAction.eventName +
-        ' (' + (action.tstamp - startAction.tstamp) + 'ms)' +
-        startData
-      ));
+      log.moat(1);
+      log.gray('[', fmtTime, '] <END> ');
+      log.green.dim(startAction.eventName);
+      log.gray(' (', (action.tstamp - startAction.tstamp), 'ms)');
+      log.gray(startData);
+      log.moat(1);
       delete _eventStarts[action.eventId];
       break;
 
