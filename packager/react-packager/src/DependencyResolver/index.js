@@ -152,10 +152,10 @@ HasteDependencyResolver.prototype.wrapModule = function(resolutionResponse, modu
 
       return module.getName().then(
         name => defineModuleCode({
+          moduleName: name,
+          deps: resolvedDepsArr,
           code: code.replace(replacePatterns.IMPORT_RE, relativizeCode)
                     .replace(replacePatterns.REQUIRE_RE, relativizeCode),
-          deps: JSON.stringify(resolvedDepsArr),
-          moduleName: name,
         })
       );
     });
@@ -166,14 +166,30 @@ HasteDependencyResolver.prototype.getDebugInfo = function() {
   return this._depGraph.getDebugInfo();
 };
 
+var moduleArgNames = ['global', 'require', 'module', 'exports'].join (', ');
+
+var quoteWrap = function(string) { return '\'' + string + '\'' };
+
 function defineModuleCode({moduleName, code, deps}) {
+
+  // Wrap each dependency name in single quotes.
+  deps = '[' + deps.map(quoteWrap).join(', ') + ']';
+
+  // Indent each line in the code block.
+  code = code.split(log.ln).map(function(code) { return '  ' + code }).join(log.ln);
+
   return [
-    `__d(`,
-    `'${moduleName}',`,
-    `${deps},`,
-    'function(global, require, module, exports) {',
-    `  ${code}`,
-    '\n});',
+    '__d(',
+    quoteWrap(moduleName),
+    ', ',
+    deps,
+    ', function(',
+    moduleArgNames,
+    ') {',
+    '\n',
+    code,
+    '\n',
+    '});',
   ].join('');
 }
 
