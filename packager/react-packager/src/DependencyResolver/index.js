@@ -62,8 +62,7 @@ function HasteDependencyResolver(options) {
     assetRoots_DEPRECATED: opts.assetRoots,
     assetExts: opts.assetExts,
     ignoreFilePath: function(filepath) {
-      return filepath.indexOf('__tests__') !== -1 ||
-        (opts.blacklistRE && opts.blacklistRE.test(filepath));
+      return opts.blacklistRE && opts.blacklistRE.test(filepath);
     },
     fileWatcher: opts.fileWatcher,
     cache: opts.cache,
