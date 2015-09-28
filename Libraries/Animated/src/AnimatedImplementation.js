@@ -1500,10 +1500,26 @@ module.exports = {
    * `new Animated.Value(0);`
    */
   Value: AnimatedValue,
+
   /**
    * 2D value class for driving 2D animations, such as pan gestures.
    */
   ValueXY: AnimatedValueXY,
+
+  /**
+   * Standard transform class for driving animations.
+   */
+  Transform: AnimatedTransform,
+
+  /**
+   * Standard style class for driving animations.
+   */
+  Style: AnimatedStyle,
+
+  /**
+   * Standard props class for driving animations.
+   */
+  Props: AnimatedProps,
 
   /**
    * Animates a value from an initial velocity to zero based on a decay
