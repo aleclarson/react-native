@@ -16,6 +16,7 @@ var RCTExceptionsManager = require('NativeModules').ExceptionsManager;
 var { loadSourceMapForBundle, loadSourceMapForFile } = require('loadSourceMap');
 var resolveSourceMaps = require('resolveSourceMaps');
 var parseErrorStack = require('parseErrorStack');
+var printErrorStack = require('printErrorStack');
 var stringifySafe = require('stringifySafe');
 
 var sourceMapPromise;
@@ -61,6 +62,7 @@ function reportException(e: Error, isFatal: bool, stack?: any) {
             if (!sourceMap) { return }
             resolveSourceMaps(sourceMap, frame);
           });
+          printErrorStack(error, stack);
           RCTExceptionsManager.updateExceptionMessage(e.message, stack);
         })
       })
