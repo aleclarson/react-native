@@ -20,6 +20,9 @@ function onResolve(item, dest) {
 }
 
 function resolveSourceMaps(sourceMapInstance, stackFrame) {
+  if (!(stackFrame instanceof Object)) {
+    return;
+  }
   try {
     var orig = sourceMapInstance.originalPositionFor({
       line: stackFrame.lineNumber,
