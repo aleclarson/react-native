@@ -38,7 +38,7 @@ if (typeof window === 'undefined') {
 
 function handleError(e, isFatal) {
   try {
-    require('ExceptionsManager').handleException(e, isFatal);
+    require('ExceptionsManager').reportException(e, isFatal);
   } catch(ee) {
     console.log('Failed to print error: ', ee.message);
   }

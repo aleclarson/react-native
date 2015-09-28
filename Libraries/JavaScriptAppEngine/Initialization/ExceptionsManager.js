@@ -79,29 +79,6 @@ function reportException(e: Error, isFatal: bool, stack?: any) {
   }
 }
 
-function handleException(e: Error, isFatal: boolean) {
-  // Workaround for reporting errors caused by `throw 'some string'`
-  // Unfortunately there is no way to figure out the stacktrace in this
-  // case, so if you ended up here trying to trace an error, look for
-  // `throw '<error message>'` somewhere in your codebase.
-  if (!e.message) {
-    e = new Error(e);
-  }
-  var stack = parseErrorStack(e);
-  var msg =
-    'Error: ' + e.message +
-    '\n stack: \n' + stackToString(stack) +
-    '\n URL: ' + (e: any).sourceURL +
-    '\n line: ' + (e: any).line +
-    '\n message: ' + e.message;
-  if (console.errorOriginal) {
-    console.errorOriginal(msg);
-  } else {
-    console.error(msg);
-  }
-  reportException(e, isFatal, stack);
-}
-
 /**
  * Shows a redbox with stacktrace for all console.error messages.  Disable by
  * setting `console.reportErrorsAsExceptions = false;` in your app.
@@ -136,25 +113,4 @@ function installConsoleErrorReporter() {
   }
 }
 
-function stackToString(stack) {
-  var maxLength = Math.max.apply(null, stack.map(frame => frame.methodName.length));
-  return stack.map(frame => stackFrameToString(frame, maxLength)).join('\n');
-}
-
-function stackFrameToString(stackFrame, maxLength) {
-  var fileNameParts = stackFrame.file.split('/');
-  var fileName = fileNameParts[fileNameParts.length - 1];
-
-  if (fileName.length > 18) {
-    fileName = fileName.substr(0, 17) + '\u2026' /* ... */;
-  }
-
-  var spaces = fillSpaces(maxLength - stackFrame.methodName.length);
-  return '  ' + stackFrame.methodName + spaces + '  ' + fileName + ':' + stackFrame.lineNumber;
-}
-
-function fillSpaces(n) {
-  return new Array(n + 1).join(' ');
-}
-
-module.exports = { handleException, installConsoleErrorReporter };
+module.exports = { reportException, installConsoleErrorReporter };
