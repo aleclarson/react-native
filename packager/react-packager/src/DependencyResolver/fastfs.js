@@ -250,6 +250,10 @@ class Fastfs extends EventEmitter {
       return;
     }
 
+    log.moat(1);
+    log.yellow.bold(type, ' ')(filePath);
+    log.moat(1);
+
     // Clear this file's dependers. This causes an error to be
     // thrown if this file is deleted and another file still
     // depends on it. This allows you to catch dependency errors
