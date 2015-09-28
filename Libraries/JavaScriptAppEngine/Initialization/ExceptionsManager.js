@@ -47,6 +47,13 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
     ),
   };
 
+  if (error.computation) {
+    stack = stack.concat(
+      '--- Below is the stack trace of an invalidated Tracker.Computation ---',
+      error.computation.stack
+    );
+  }
+
   if (isFatal) {
     global._fatalException = error;
     RCTExceptionsManager.reportFatalException(error.message, stack, currentExceptionID);
