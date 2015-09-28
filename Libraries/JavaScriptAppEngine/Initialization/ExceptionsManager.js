@@ -18,64 +18,102 @@ var resolveSourceMaps = require('resolveSourceMaps');
 var parseErrorStack = require('parseErrorStack');
 var printErrorStack = require('printErrorStack');
 var stringifySafe = require('stringifySafe');
+var { fetch } = require('fetch');
+var Q = require ('q');
 
 var sourceMapPromise;
 
 var exceptionID = 0;
 
-function reportException(e: Error, isFatal: bool, stack?: any) {
+global._fatalException = null;
+
+function reportException(error: Exception, isFatal: bool, stack?: any) {
+
+  if (!__DEV__ || !RCTExceptionsManager || global._fatalException){
+    return;
+  }
+
+  if (!stack) {
+    stack = parseErrorStack(error);
+  }
+
   var currentExceptionID = ++exceptionID;
-  if (RCTExceptionsManager) {
-    if (!stack) {
-      stack = parseErrorStack(e);
+
+  error = {
+    message: error.message,
+    framesToPop: error.framesToPop,
+    stack: stack.filter(frame =>
+      typeof frame !== 'string'
+    ),
+  };
+
+  if (isFatal) {
+    global._fatalException = error;
+    RCTExceptionsManager.reportFatalException(error.message, stack, currentExceptionID);
+  } else {
+    RCTExceptionsManager.reportSoftException(error.message, stack);
+  }
+
+  if (__DEV__ && isFatal) {
+
+    if (sourceMapPromise == null) {
+      sourceMapPromise = loadSourceMapForBundle();
     }
-    if (isFatal) {
-      RCTExceptionsManager.reportFatalException(e.message, stack, currentExceptionID);
-    } else {
-      RCTExceptionsManager.reportSoftException(e.message, stack, currentExceptionID);
-    }
-    if (__DEV__) {
 
-      log.moat(1);
-      log.yellow('Loading source maps!');
-      log.moat(1);
+    sourceMapPromise.then(bundleSourceMap => {
 
-      if (sourceMapPromise == null) {
-        sourceMapPromise = loadSourceMapForBundle();
-      }
+      // Map the bundle to the original JS files.
+      parseErrorStack(error, bundleSourceMap);
 
-      sourceMapPromise.then(map => {
+      // Filter out frames without an original JS file.
+      stack = stack.filter(frame =>
+        typeof frame === 'string' ||
+        frame.file.indexOf('/http:/') !== 0
+      );
 
-        // Map the bundle to the original JS files.
-        var stack = parseErrorStack(e, map);
-        RCTExceptionsManager.updateExceptionMessage(e.message, stack);
+      // Keep `error.stack` in sync with `stack`.
+      error.stack = stack.filter(frame =>
+        typeof frame !== 'string'
+      );
 
-        // Map the JS files to any original dialects.
-        Q.all(
-          stack.map(frame =>
-            loadSourceMapForFile(frame.file)
-              .fail(() => null)))
+      RCTExceptionsManager.updateExceptionMessage(
+        error.message,
+        error.stack,
+        currentExceptionID
+      );
 
-        .then(sourceMaps => {
-          stack.forEach((frame, index) => {
-            var sourceMap = sourceMaps[index];
-            if (!sourceMap) { return }
+      // Map the JS files to any original dialects.
+      Q.all(
+        error.stack.map(frame =>
+          loadSourceMapForFile(frame.file)
+            // Ignore file-specific loading failures.
+            .fail(() => null)
+        )
+      )
+
+      .then(sourceMaps => {
+        error.stack.forEach((frame, index) => {
+          var sourceMap = sourceMaps[index];
+          if (sourceMap) {
             resolveSourceMaps(sourceMap, frame);
-          });
-          printErrorStack(error, stack);
-          RCTExceptionsManager.updateExceptionMessage(e.message, stack);
-        })
+          }
+        });
+
+        printErrorStack(error, stack);
+
+        RCTExceptionsManager.updateExceptionMessage(
+          error.message,
+          error.stack,
+          currentExceptionID
+        );
       })
 
-      .fail(error => {
-        // This can happen in a variety of normal situations, such as
-        // Network module not being available, or when running locally
-        log.error(Error('Unable to load source map: ' + error.message), {
-          simple: true,
-          exit: false,
-        });
-      });
-    }
+      .done();
+    })
+
+    .fail(error => {
+      printErrorStack(error, parseErrorStack(error));
+    });
   }
 }
 
