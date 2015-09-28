@@ -11,6 +11,8 @@
 const debug = require('debug')('ReactNativePackager:DependencyGraph');
 const util = require('util');
 const path = require('path');
+const inArray = require ('in-array');
+const NODE_PATHS = require('node-paths');
 const isAbsolutePath = require('absolute-path');
 const getAssetDataFromName = require('../../lib/getAssetDataFromName');
 const {sync} = require('io');
@@ -80,6 +82,11 @@ class ResolutionRequest {
           return this._getNullModule(oldModuleName);
         }
         toModuleName = globalConfig.resolve(toModuleName);
+      }
+
+      if (inArray(NODE_PATHS, toModuleName)
+          && !this._hasteMap._map[toModuleName]) {
+        return this._getNullModule(toModuleName);
       }
 
       var promise = Q.reject();
