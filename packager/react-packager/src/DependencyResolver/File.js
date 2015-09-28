@@ -1,7 +1,7 @@
 
 const _ = require('underscore');
 const path = require('path');
-const {async} = require('io');
+const {sync, async} = require('io');
 
 class File {
   constructor(filePath, { isDir }) {
@@ -48,26 +48,7 @@ class File {
   }
 
   getFileFromPath(filePath) {
-    const parts = path.relative(this.path, filePath)
-            .split(path.sep);
-
-    /*eslint consistent-this:0*/
-    let file = this;
-    for (let i = 0; i < parts.length; i++) {
-      let fileName = parts[i];
-      if (!fileName) {
-        continue;
-      }
-
-      if (!file || !file.isDir) {
-        // File not found.
-        return null;
-      }
-
-      file = file.children[fileName];
-    }
-
-    return file;
+    return this._getFileFromPath(filePath);
   }
 
   getFiles() {
@@ -90,6 +71,72 @@ class File {
     }
 
     delete this.parent.children[path.basename(this.path)];
+  }
+
+  _getFileFromPath(filePath) {
+    const parts = path.relative(this.path, filePath)
+            .split(path.sep);
+
+    /*eslint consistent-this:0*/
+    let file = this;
+    for (let i = 0; i < parts.length; i++) {
+      let fileName = parts[i];
+      if (!fileName) {
+        continue;
+      }
+
+      if (!file || !file.isDir) {
+        // File not found.
+        return null;
+      }
+
+      file = file.children[fileName];
+    }
+
+    return file;
+  }
+
+  _createFileFromPath(filePath) {
+    var file = this;
+    const parts = path.relative(this.path, filePath).split(path.sep);
+    parts.forEach((part, i) => {
+      const newPath = file.path + "/" + part;
+      var newFile = this._getFileFromPath(newPath);
+      if (newFile == null) {
+        let isDir = i < parts.length - 1;
+        let isValid = isDir ? sync.isDir : sync.isFile;
+        if (!isValid(newPath)) {
+          let fileType = isDir ? 'directory' : 'file';
+          throw Error('"' + newPath + '" is not a ' + fileType + ' that exists.');
+        }
+        newFile = new File(newPath, { isDir: isDir });
+        file.addChild(newFile);
+
+        if (log.isVerbose) {
+          log.moat(1);
+          log.green.bold('created ');
+          log(newPath);
+          log.moat(1);
+        }
+
+        if (isDir) {
+          let pkgJsonPath = newPath + '/package.json';
+          if (sync.isFile(pkgJsonPath)) {
+            let pkgJson = new File(pkgJsonPath, { isDir: false });
+            newFile.addChild(pkgJson);
+
+            if (log.isVerbose) {
+              log.moat(1);
+              log.green.bold('created ');
+              log(pkgJsonPath);
+              log.moat(1);
+            }
+          }
+        }
+      }
+      file = newFile;
+    });
+    return file;
   }
 }
 
