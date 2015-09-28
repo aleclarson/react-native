@@ -70,6 +70,7 @@
     "lotus": "aleclarson/lotus#1.0.0",
     "micromatch": "^2.2.0",
     "module-deps": "^3.9.1",
+    "node-paths": "aleclarson/node-paths#0.0.1",
     "optimist": "^0.6.1",
     "os-browserify": "^0.1.2",
     "path-browserify": "0.0.0",
