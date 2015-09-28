@@ -72,6 +72,7 @@ class ResolutionRequest {
     .then(([oldModuleName, toModuleName]) => {
 
       if (toModuleName === null) {
+        redirectAlert(oldModuleName);
         return this._getNullModule(oldModuleName);
       }
 
@@ -79,13 +80,16 @@ class ResolutionRequest {
         let oldModuleName = toModuleName;
         toModuleName = globalConfig.redirect[toModuleName];
         if (toModuleName === false) {
+          redirectAlert(oldModuleName);
           return this._getNullModule(oldModuleName);
         }
         toModuleName = globalConfig.resolve(toModuleName);
+        redirectAlert(oldModuleName, toModuleName);
       }
 
       if (inArray(NODE_PATHS, toModuleName)
           && !this._hasteMap._map[toModuleName]) {
+        redirectAlert(toModuleName);
         return this._getNullModule(toModuleName);
       }
 
@@ -202,6 +206,7 @@ class ResolutionRequest {
           if (redirect === absPath) {
             return modulePath;
           } else {
+            redirectAlert(modulePath, redirect);
             return redirect;
           }
         });
@@ -431,6 +436,19 @@ class ResolutionRequest {
   }
 }
 
+function redirectAlert(oldName, newName) {
+  if (newName == null) {
+    newName = color.gray('null');
+  } else if (typeof newName === 'boolean') {
+    newName = color.yellow(newName);
+  }
+  log.moat(1);
+  log.it(color.green.bold('redirect ')
+         + oldName
+         + color.green(' -> ')
+         + newName);
+  log.moat(1);
+}
 
 function UnableToResolveError() {
   Error.call(this);
