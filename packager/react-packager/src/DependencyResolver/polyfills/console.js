@@ -370,6 +370,10 @@
 
     var originalConsole = global.console;
 
+    if (typeof window !== 'undefined') {
+      global.nativeLoggingHook = null;
+    }
+
     if (!global.nativeLoggingHook) {
       return;
     }
