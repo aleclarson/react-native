@@ -92,7 +92,7 @@ class HasteMap {
 
   _processHastePackage(file) {
     file = path.resolve(file);
-    const p = this._moduleCache.getPackage(file, this._fastfs);
+    const p = this._moduleCache.getPackage(file);
     return p.isHaste()
       .then(isHaste => isHaste && p.getName()
             .then(name => this._updateHasteMap(name, p)))
