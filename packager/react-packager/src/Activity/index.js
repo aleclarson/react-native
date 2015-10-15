@@ -23,6 +23,12 @@ function endEvent(eventId) {
     throw new Error('event(' + eventId + ') either ended or never started');
   }
 
+  if (_endedEvents[eventId]) {
+    _throw('event(' + eventId + ') has already ended!');
+  }
+
+  _endedEvents[eventId] = true;
+
   _writeAction({
     action: 'endEvent',
     eventId: eventId,
