@@ -46,16 +46,16 @@ function handleError(e, isFatal) {
 
 /**
  * Assigns a new global property, replacing the existing one if there is one.
- * 
+ *
  * Existing properties are preserved as `originalPropertyName`. Both properties
  * will maintain the same enumerability & configurability.
- * 
+ *
  * This allows you to undo the more aggressive polyfills, should you need to.
  * For example, if you want to route network requests through DevTools (to trace
  * them):
  *
  *     GLOBAL.XMLHTTPRequest = GLOBAL.originalXMLHTTPRequest;
- * 
+ *
  * For more info on that particular case, see:
  * https://github.com/facebook/react-native/issues/934
  */
@@ -164,6 +164,7 @@ function setUpProfile() {
 }
 
 function setUpProcessEnv() {
+  GLOBAL.process = require('process');
   GLOBAL.process = GLOBAL.process || {};
   GLOBAL.process.env = GLOBAL.process.env || {};
   if (!GLOBAL.process.env.NODE_ENV) {
