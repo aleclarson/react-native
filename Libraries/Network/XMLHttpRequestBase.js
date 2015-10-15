@@ -112,12 +112,15 @@ class XMLHttpRequestBase {
     throw new Error('Subclass must define abortImpl method');
   }
 
-  send(data: any): void {
+  send(data: ?any): void {
     if (this.readyState !== this.OPENED) {
       throw new Error('Request has not been opened');
     }
     if (this._sent) {
       throw new Error('Request has already been sent');
+    }
+    if (typeof data === 'undefined') {
+      data = null;
     }
     this._sent = true;
     this.sendImpl(this._method, this._url, this._headers, data);
