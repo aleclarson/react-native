@@ -15,6 +15,7 @@ var RCTExceptionsManager = require('NativeModules').ExceptionsManager;
 
 var { loadSourceMapForBundle, loadSourceMapForFile } = require('loadSourceMap');
 var resolveSourceMaps = require('resolveSourceMaps');
+var filterErrorStack = require('filterErrorStack');
 var parseErrorStack = require('parseErrorStack');
 var printErrorStack = require('printErrorStack');
 var stringifySafe = require('stringifySafe');
@@ -77,6 +78,9 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
         typeof frame === 'string' ||
         frame.file.indexOf('/http:/') !== 0
       );
+
+      // Filter out frames that have blacklisted files.
+      stack = filterErrorStack(stack);
 
       // Keep `error.stack` in sync with `stack`.
       error.stack = stack.filter(frame =>
