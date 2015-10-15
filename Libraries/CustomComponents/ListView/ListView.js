@@ -98,6 +98,9 @@ var SCROLLVIEW_REF = 'listviewscroll';
  */
 
 var ListView = React.createClass({
+
+  displayName: 'ListView',
+
   mixins: [ScrollResponder.Mixin, TimerMixin],
 
   statics: {

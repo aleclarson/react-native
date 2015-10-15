@@ -34,6 +34,9 @@ var PRESS_RECT_OFFSET = {top: 20, left: 20, right: 20, bottom: 30};
  * one of the primary reason a "web" app doesn't feel "native".
  */
 var TouchableWithoutFeedback = React.createClass({
+
+  displayName: 'TouchableWithoutFeedback',
+
   mixins: [TimerMixin, Touchable.Mixin],
 
   propTypes: {

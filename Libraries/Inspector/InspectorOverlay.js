@@ -26,6 +26,9 @@ type EventLike = {
 };
 
 var InspectorOverlay = React.createClass({
+
+  displayName: 'Inspector',
+
   propTypes: {
     inspected: PropTypes.shape({
       frame: PropTypes.object,
