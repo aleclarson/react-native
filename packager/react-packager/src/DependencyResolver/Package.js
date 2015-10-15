@@ -3,6 +3,8 @@
 const isAbsolutePath = require('absolute-path');
 const path = require('path');
 
+const REDIRECT_EXTS = ['', '.js', '.json'];
+
 class Package {
 
   constructor(file, fastfs, cache) {
@@ -51,7 +53,7 @@ class Package {
 
   redirectRequire(name) {
     return this._read().then(json => {
-      const {browser} = json;
+      var {browser} = json;
 
       if (!browser || typeof browser !== 'object') {
         return name;
@@ -66,17 +68,21 @@ class Package {
       }
 
       const relPath = './' + path.relative(this.root, name);
-      const redirect = browser[relPath] ||
-              browser[relPath + '.js'] ||
-              browser[relPath + '.json'];
-      if (redirect === false) {
-        return null;
-      }
-      if (typeof redirect === 'string') {
-        return path.join(
-          this.root,
-          redirect
-        );
+
+      for (let i = 0; i < REDIRECT_EXTS.length; i++) {
+
+        let redirect = browser[relPath + REDIRECT_EXTS[i]];
+
+        if (redirect === false) {
+          return null;
+        }
+
+        if (typeof redirect === 'string') {
+          return path.join(
+            this.root,
+            redirect
+          );
+        }
       }
 
       return name;
