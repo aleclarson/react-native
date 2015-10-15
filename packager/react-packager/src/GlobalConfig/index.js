@@ -49,6 +49,8 @@ GlobalConfig.prototype = {
 
     this.assetExts = json.assetExts || ['png', 'jpeg', 'jpg'];
 
+    this.assetRoots = json.assetRoots || [];
+
     this.redirect = json.redirect || Object.create(null);
 
     if (json.ignoredPatterns) {

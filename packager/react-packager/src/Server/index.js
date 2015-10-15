@@ -36,6 +36,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  assetRoots: {
+    type: 'array',
+    required: true,
+  },
   assetExts: {
     type: 'array',
     required: true,
@@ -70,10 +74,6 @@ const validateOpts = declareOpts({
   nonPersistent: {
     type: 'boolean',
     default: false,
-  },
-  assetRoots: {
-    type: 'array',
-    required: false,
   },
   transformTimeoutInterval: {
     type: 'number',
