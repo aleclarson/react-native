@@ -25,6 +25,8 @@ const url = require('url');
 
 const SERVER_API = require('./api');
 
+const SUPPRESSED_EVENTS = /^(read|watch)\//;
+
 const validateOpts = declareOpts({
   projectRoots: {
     type: 'array',
@@ -304,14 +306,19 @@ class Server {
     })
 
     if (endpoint) {
-      const requestEvent = Activity.startEvent('request:' + req.url);
+      var requestEvent = null;
+      if (!SUPPRESSED_EVENTS.test(req.url)) {
+        requestEvent = Activity.startEvent('request:' + req.url);
+      }
       const finishResponse = res.end;
       res.end = (body) => {
         if (body == null) {
           body = '';
         }
         finishResponse.call(res, body);
-        Activity.endEvent(requestEvent);
+        if (requestEvent) {
+          Activity.endEvent(requestEvent);
+        }
       };
       endpoint.call(this, req, res);
     } else {
