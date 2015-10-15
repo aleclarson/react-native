@@ -76,6 +76,7 @@
    */
   function setupErrorGuard() {
     global.ErrorUtils.setGlobalHandler(function(error) {
+      console.log(error.message);
       if (console.reportErrorsAsExceptions) {
         console.reportException(error);
       }
