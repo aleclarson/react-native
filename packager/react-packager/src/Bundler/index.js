@@ -140,11 +140,10 @@ class Bundler {
   bundle(main, runModule, sourceMapUrl, isDev, platform) {
     const bundle = new Bundle(sourceMapUrl);
     const findEventId = Activity.startEvent('find dependencies');
-    let transformEventId;
 
     return this.getDependencies(main, isDev, platform).then((response) => {
       Activity.endEvent(findEventId);
-      transformEventId = Activity.startEvent('transform');
+      let transformEventId = Activity.startEvent('transform');
 
       let bar;
       if (process.stdout.isTTY) {
@@ -171,10 +170,15 @@ class Bundler {
             return transformed;
           })
         )
-      );
-    }).then((transformedModules) => {
-      Activity.endEvent(transformEventId);
+      ).then((results) => {
+        if (bar) {
+          log.moat(2);
+        }
+        Activity.endEvent(transformEventId);
 
+        return results;
+      });
+    }).then((transformedModules) => {
       transformedModules.forEach(function(moduleTransport) {
         bundle.addModule(moduleTransport);
       });
