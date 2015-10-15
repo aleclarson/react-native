@@ -30,6 +30,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  projectExts: {
+    type: 'array',
+    required: true,
+  },
   assetExts: {
     type: 'array',
     required: true,
@@ -133,32 +137,29 @@ class Server {
     this._bundles = Object.create(null);
     this._changeWatchers = [];
 
-    const assetGlobs = opts.assetExts.map(ext => '**/*.' + ext);
+    const projectGlobs = this._convertExtsToGlobs(opts.projectExts);
 
-    var watchRootConfigs = opts.projectRoots.map(dir => {
+    const projectRootConfigs = opts.projectRoots.map(dir => {
       return {
         dir: dir,
-        globs: [
-          '**/*.js',
-          '**/*.json',
-        ].concat(assetGlobs),
+        globs: projectGlobs,
       };
     });
 
-    if (opts.assetRoots != null) {
-      watchRootConfigs = watchRootConfigs.concat(
-        opts.assetRoots.map(dir => {
-          return {
-            dir: dir,
-            globs: assetGlobs,
-          };
-        })
-      );
-    }
+    const assetGlobs = this._convertExtsToGlobs(opts.assetExts);
+
+    const assetRootConfigs = opts.assetRoots.map(dir => {
+      return {
+        dir: dir,
+        globs: assetGlobs,
+      };
+    });
+
+    const rootConfigs = projectRootConfigs.concat(assetRootConfigs);
 
     this._fileWatcher = options.nonPersistent
       ? FileWatcher.createDummyWatcher()
-      : new FileWatcher(watchRootConfigs);
+      : new FileWatcher(rootConfigs);
 
     this._assetServer = new AssetServer({
       projectRoots: opts.projectRoots,
@@ -376,6 +377,10 @@ class Server {
     }
 
     return query[opt] === 'true' || query[opt] === '1';
+  }
+
+  _convertExtsToGlobs(exts) {
+    return exts.map(ext => '**/*.' + ext);
   }
 }
 
