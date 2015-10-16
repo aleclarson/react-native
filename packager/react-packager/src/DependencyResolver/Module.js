@@ -16,10 +16,6 @@ const replacePatterns = require('./replacePatterns');
 class Module {
 
   constructor(file, fastfs, moduleCache, cache) {
-    if (!isAbsolutePath(file)) {
-      throw new Error('Expected file to be absolute path but got ' + file);
-    }
-
     this.path = path.resolve(file);
     this.type = 'Module';
 
