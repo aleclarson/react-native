@@ -31,15 +31,12 @@ module.exports = function(options) {
     } else if (req.url === '/launch-chrome-devtools') {
       var debuggerURL = 'http://localhost:' + options.port + '/debugger-ui';
       var script = 'launchChromeDevTools.applescript';
-      console.log('Launching Dev Tools...');
       execFile(
         path.join(__dirname, script), [debuggerURL],
         function(err, stdout, stderr) {
           if (err) {
             console.log('Failed to run ' + script, err);
           }
-          console.log(stdout);
-          console.warn(stderr);
         }
       );
       res.end('OK');
