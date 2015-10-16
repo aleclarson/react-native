@@ -24,12 +24,14 @@ class XMLHttpRequestBase {
 
   onreadystatechange: ?Function;
   onload: ?Function;
+  onerror: ?Function;
   upload: any;
   readyState: number;
   responseHeaders: ?Object;
   responseText: ?string;
   status: number;
 
+  _error: ?string;
   _method: ?string;
   _url: ?string;
   _headers: Object;
@@ -46,9 +48,11 @@ class XMLHttpRequestBase {
 
     this.onreadystatechange = null;
     this.onload = null;
+    this.onerror = null;
     this.upload = undefined; /* Upload not supported yet */
 
     this._reset();
+    this._error = null;
     this._method = null;
     this._url = null;
     this._aborted = false;
@@ -169,6 +173,10 @@ class XMLHttpRequestBase {
       // We should send an event to handler, but since we don't process that
       // event anywhere, let's leave it empty
       onreadystatechange(null);
+    }
+    if (this._error && this.onerror) {
+      this.onerror(this._error);
+      this._error = null;
     }
     if (newState === this.DONE && !this._aborted) {
       this._sendLoad();
