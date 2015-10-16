@@ -34,7 +34,7 @@ function printErrorStack(error, stack) {
     stack: stack,
   });
 
-  console.error(message);
+  console.log(message);
 }
 
 module.exports = printErrorStack;
