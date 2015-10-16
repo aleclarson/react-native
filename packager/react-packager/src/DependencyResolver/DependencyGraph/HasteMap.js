@@ -11,7 +11,6 @@
 const Q = require ('q');
 const path = require('path');
 const getPlatformExtension = require('../../lib/getPlatformExtension');
-const Q = require('q');
 
 const GENERIC_PLATFORM = 'generic';
 
