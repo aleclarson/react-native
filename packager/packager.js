@@ -98,10 +98,6 @@ process.on('uncaughtException', function(e) {
   process.exit(1);
 });
 
-//
-// Initialize directories to start crawling from.
-//
-
 var projectRoots = [
   process.cwd()
 ];
