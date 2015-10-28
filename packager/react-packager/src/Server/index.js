@@ -25,7 +25,7 @@ const url = require('url');
 
 const SERVER_API = require('./api');
 
-const SUPPRESSED_EVENTS = /^(read|watch)\//;
+const SUPPRESSED_EVENTS = /^\/(read|watcher)\//;
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -139,29 +139,32 @@ class Server {
     this._bundles = Object.create(null);
     this._changeWatchers = [];
 
-    const projectGlobs = this._convertExtsToGlobs(opts.projectExts);
+    const globsByRoot = Object.create(null);
+    const projectGlobs = opts.projectExts.map(ext => '**/*.' + ext);
+    opts.projectRoots
+      .concat(opts.internalRoots)
+      .forEach(dir => globsByRoot[dir] = projectGlobs);
 
-    const projectRootConfigs = opts.projectRoots.map(dir => {
-      return {
-        dir: dir,
-        globs: projectGlobs,
-      };
+    const assetGlobs = opts.assetExts.map(ext => '**/*.' + ext);
+    opts.assetRoots.forEach(dir => {
+      const globs = globsByRoot[dir];
+      if (globs) {
+        globsByRoot[dir] = globs.concat(assetGlobs);
+      } else {
+        globsByRoot[dir] = assetGlobs;
+      }
     });
 
-    const assetGlobs = this._convertExtsToGlobs(opts.assetExts);
-
-    const assetRootConfigs = opts.assetRoots.map(dir => {
+    const roots = Object.keys(globsByRoot).map(dir => {
       return {
         dir: dir,
-        globs: assetGlobs,
+        globs: globsByRoot[dir],
       };
     });
-
-    const rootConfigs = projectRootConfigs.concat(assetRootConfigs);
 
     this._fileWatcher = options.nonPersistent
       ? FileWatcher.createDummyWatcher()
-      : new FileWatcher(rootConfigs);
+      : new FileWatcher(roots);
 
     this._assetServer = new AssetServer({
       projectRoots: opts.projectRoots,
@@ -235,6 +238,14 @@ class Server {
 
   _getBundleOptions(req) {
     const options = this._getOptionsFromUrl(req.url);
+    if (/^\/index.bundle(\?|$)/.test(req.url)) {
+      log.moat(1);
+      log.format(options, {
+        label: 'Bundle options: ',
+        maxStringLength: Infinity
+      });
+      log.moat(1);
+    }
     const refresh = steal(options, 'refresh');
     return {
       bundleID: JSON.stringify(options),
@@ -362,9 +373,22 @@ class Server {
 
     const extensionRegex = /\.(bundle|map)$/;
 
+    const platform = urlObj.query.platform || 'ios';
+
+    const entryFile = 'js/src' + pathname.replace(
+      extensionRegex,
+      '.' + platform + '.js'
+    );
+
+    const sourceMapUrl = pathname.replace(
+      extensionRegex,
+      '.map'
+    ) + '?platform=' + platform;
+
     return {
-      sourceMapUrl: pathname.replace(extensionRegex, '.map'),
-      entryFile: 'js/src' + pathname.replace(extensionRegex, '.js'),
+      platform: platform,
+      entryFile: entryFile,
+      sourceMapUrl: sourceMapUrl,
       dev: this._getBoolOptionFromQuery(urlObj.query, 'dev', true),
       minify: this._getBoolOptionFromQuery(urlObj.query, 'minify'),
       refresh: urlObj.query.refresh === '',
@@ -374,7 +398,6 @@ class Server {
         'inlineSourceMap',
         false
       ),
-      platform: urlObj.query.platform,
     };
   }
 
@@ -384,10 +407,6 @@ class Server {
     }
 
     return query[opt] === 'true' || query[opt] === '1';
-  }
-
-  _convertExtsToGlobs(exts) {
-    return exts.map(ext => '**/*.' + ext);
   }
 }
 

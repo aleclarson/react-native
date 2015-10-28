@@ -28,6 +28,8 @@ exports.Activity = Activity;
 // compat.
 exports.buildPackage =
 exports.buildBundle = function(options, bundleOptions) {
+  log.format(options, 'options = ');
+  log.format(bundleOptions, 'bundleOptions = ');
   var server = createServer(options);
   return server.buildBundle(bundleOptions)
     .then(function(p) {

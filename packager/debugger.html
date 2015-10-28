@@ -16,20 +16,20 @@
 <title>React Native Debugger</title>
 <script>
 
-var isRefreshingBundle = false;
+var worker = null;
 
 function refreshBundle() {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'http://localhost:8081/index.bundle?refresh', true);
-  xhr.onreadystatechange = function() {
-    console.log('XHR: (readystagechange) ' + xhr.readyState);
-  };
-  xhr.onerror = function(error) {
-    console.log('XHR: (error) ' + error);
-  };
-  xhr.onload = function() {
-    console.log('XHR: (loaded)');
-  };
+  // xhr.onreadystatechange = function() {
+  //   console.log('XHR: (readystagechange) ' + xhr.readyState);
+  // };
+  // xhr.onerror = function(error) {
+  //   console.log('XHR: (error) ' + error);
+  // };
+  // xhr.onload = function() {
+  //   console.log('XHR: (loaded)');
+  // };
   xhr.send();
 }
 
@@ -56,7 +56,7 @@ function setStatus(status) {
 // This worker will run the application javascript code,
 // making sure that it's run in an environment without a global
 // document, to make it consistent with the JSC executor environment.
-var worker = new Worker('debuggerWorker.js');
+worker = new Worker('debuggerWorker.js');
 
 var messageHandlers = {
   // This method is a bit hacky. Catalyst asks for a new clean JS runtime.

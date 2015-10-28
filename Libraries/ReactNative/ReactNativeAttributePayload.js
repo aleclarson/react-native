@@ -205,12 +205,18 @@ function diffProperties(
       }
     } else {
       // default: fallthrough case when nested properties are defined
-      updatePayload = diffNestedProperty(
-        updatePayload,
-        prevProp,
-        nextProp,
-        attributeConfig
-      );
+      try {
+        updatePayload = diffNestedProperty(
+          updatePayload,
+          prevProp,
+          nextProp,
+          attributeConfig
+        );
+      } catch(e) {
+        console.log('"' + propKey + '" failed to update');
+        log.format(nextProps);
+        throw e;
+      }
     }
   }
 

@@ -39,7 +39,11 @@ RCT_EXPORT_MODULE()
 
 - (instancetype)init
 {
+#if TARGET_IPHONE_SIMULATOR
   return [self initWithURL:[RCTConvert NSURL:@"http://localhost:8081/debugger-proxy"]];
+#else
+  return [self initWithURL:[RCTConvert NSURL:@"http://192.168.0.2:8081/debugger-proxy"]];
+#endif
 }
 
 - (instancetype)initWithURL:(NSURL *)URL

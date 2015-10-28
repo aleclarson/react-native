@@ -33,7 +33,6 @@ const validateOpts = declareOpts({
   },
   ignoreFilePath: {
     type: 'function',
-
     default: function(){}
   },
   fileWatcher: {
@@ -50,7 +49,7 @@ const validateOpts = declareOpts({
   },
   internalRoots: {
     type: 'array',
-    default: [],
+    required: true,
   },
   platforms: {
     type: 'array',
@@ -82,33 +81,35 @@ class DependencyGraph {
     const depGraphActivity = Activity.startEvent('Building Dependency Graph');
     const crawlActivity = Activity.startEvent('Crawling File System');
 
-    var roots = this._helpers.mergeArrays([
+    const allRoots = this._helpers.mergeArrays([
+      this._opts.internalRoots,
       this._opts.roots,
       this._opts.assetRoots_DEPRECATED,
-      this._opts.internalRoots,
     ]);
 
-    var ignorePath = (filepath) =>
+    const ignorePath = (filepath) =>
       this._opts.ignoreFilePath(filepath) ||
         !this._helpers.shouldCrawlDir(filepath);
 
-    this._crawling = crawl(roots, {
+    this._crawling = crawl(allRoots, {
       ignore: ignorePath,
       exts: ['js', 'json'].concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
     });
 
-    this._crawling.then((files) =>
-      Activity.endEvent(crawlActivity));
+    this._crawling.then((files) => {
+      // log.format(files, { unlimited: true });
+      Activity.endEvent(crawlActivity);
+    });
 
-    roots = this._helpers.mergeArrays([
+    const sourceRoots = this._helpers.mergeArrays([
       this._opts.roots,
       this._opts.internalRoots,
     ]);
 
     this._fastfs = new Fastfs(
       'JavaScript',
-      roots,
+      sourceRoots,
       this._opts.fileWatcher,
       {
         ignore: ignorePath,
@@ -136,6 +137,7 @@ class DependencyGraph {
       fileWatcher: this._opts.fileWatcher,
       ignoreFilePath: ignorePath,
       assetExts: this._opts.assetExts,
+      moduleCache: this._moduleCache,
     });
 
     this._loading = Q.all([

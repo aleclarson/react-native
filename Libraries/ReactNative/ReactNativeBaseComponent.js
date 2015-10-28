@@ -20,6 +20,10 @@ var ReactMultiChild = require('ReactMultiChild');
 var RCTUIManager = require('NativeModules').UIManager;
 
 var deepFreezeAndThrowOnMutationInDev = require('deepFreezeAndThrowOnMutationInDev');
+var StyleSheetRegistry = require('StyleSheetRegistry');
+var ExceptionsManager = require('ExceptionsManager');
+var parseErrorStack = require('parseErrorStack');
+var flattenStyle = require('flattenStyle');
 var warning = require('warning');
 
 var registrationNames = ReactNativeEventEmitter.registrationNames;

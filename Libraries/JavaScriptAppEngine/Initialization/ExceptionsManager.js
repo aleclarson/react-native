@@ -59,7 +59,7 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
     global._fatalException = error;
     RCTExceptionsManager.reportFatalException(error.message, stack, currentExceptionID);
   } else {
-    RCTExceptionsManager.reportSoftException(error.message, stack);
+    RCTExceptionsManager.reportSoftException(error.message, stack, currentExceptionID);
   }
 
   if (__DEV__ && isFatal) {
@@ -98,7 +98,7 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
         error.stack.map(frame =>
           loadSourceMapForFile(frame.file)
             // Ignore file-specific loading failures.
-            .fail(() => null)
+            .fail(error => log.it(error.message))
         )
       )
 

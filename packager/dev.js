@@ -1,31 +1,18 @@
 
-global.lotus = require('lotus');
-global.log = lotus.log;
-global.color = log.color;
+global.lotus = require('lotus-require');
+global.log = require('lotus-log');
 
 require('./babelRegisterOnly')([
   /packager\/[^\/]*/
 ]);
 
-// Prevent babel from messing up the stack trace.
-// require('stack').initialize()
-// TODO: This causes an error when a bundle is requested.
-
 // Make sure `lotus.file` exists.
 require('./react-packager/src/DependencyResolver/lotusfs');
 
 log.clear();
+log.error.isQuiet = false;
 log.error.isPretty = false;
 log.indent = 2;
-
-log.moat(1);
-log.it('lotus.parent = ' + color.yellow(lotus.parent.filename));
-log.moat(1);
-log.format(Object.keys(lotus.dependers), {
-  label: 'lotus.dependers = ',
-  unlimited: true
-});
-log.moat(1);
 
 var KeyBindings = require('key-bindings');
 

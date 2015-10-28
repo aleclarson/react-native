@@ -72,7 +72,7 @@ class ResolutionRequest {
     .then(([oldModuleName, toModuleName]) => {
 
       if (toModuleName === null) {
-        redirectAlert(oldModuleName);
+        redirectAlert(fromModule.path, oldModuleName);
         return this._getNullModule(oldModuleName);
       }
 
@@ -80,16 +80,16 @@ class ResolutionRequest {
         let oldModuleName = toModuleName;
         toModuleName = globalConfig.redirect[toModuleName];
         if (toModuleName === false) {
-          redirectAlert(oldModuleName);
+          redirectAlert(fromModule.path, oldModuleName);
           return this._getNullModule(oldModuleName);
         }
         toModuleName = globalConfig.resolve(toModuleName);
-        redirectAlert(oldModuleName, toModuleName);
+        redirectAlert(fromModule.path, oldModuleName, toModuleName);
       }
 
       if (inArray(NODE_PATHS, toModuleName)
           && !this._hasteMap._map[toModuleName]) {
-        redirectAlert(toModuleName);
+        redirectAlert(fromModule.path, toModuleName);
         return this._getNullModule(toModuleName);
       }
 
@@ -206,7 +206,7 @@ class ResolutionRequest {
           if (redirect === absPath) {
             return modulePath;
           } else {
-            redirectAlert(modulePath, redirect);
+            redirectAlert(fromModule.path, modulePath, redirect);
             return redirect;
           }
         });
@@ -306,6 +306,14 @@ class ResolutionRequest {
         }
 
         const {name, type} = getAssetDataFromName(potentialModulePath);
+        log.format({
+          path: potentialModulePath,
+          name: name,
+          type: type,
+        }, {
+          label: 'assetData = ',
+          maxStringLength: Infinity,
+        });
 
         let pattern = '^' + name + '(@[\\d\\.]+x)?';
         if (this._platform != null) {
@@ -436,17 +444,16 @@ class ResolutionRequest {
   }
 }
 
-function redirectAlert(oldName, newName) {
+function redirectAlert(depender, oldName, newName) {
   if (newName == null) {
-    newName = color.gray('null');
+    newName = log.color.gray('null');
   } else if (typeof newName === 'boolean') {
-    newName = color.yellow(newName);
+    newName = log.color.yellow(newName);
   }
   log.moat(1);
-  log.it(color.green.bold('redirect ')
-         + oldName
-         + color.green(' -> ')
-         + newName);
+  log.gray.dim(depender).moat(0);
+  log.green.bold('redirect ').log(oldName).moat(0);
+  log.green.bold('      to ').log(newName);
   log.moat(1);
 }
 

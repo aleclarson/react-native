@@ -307,6 +307,7 @@ class Bundler {
   }
 
   generateAssetModule(bundle, module, platform = null) {
+    console.log('generateAssetModule: ' + module.path);
     const relPath = getPathRelativeToRoot(this._projectRoots, module.path);
 
     return Q.all([
@@ -332,6 +333,8 @@ class Bundler {
 
       const ASSET_TEMPLATE = 'module.exports = require("AssetRegistry").registerAsset(%json);';
       const code = ASSET_TEMPLATE.replace('%json', JSON.stringify(img));
+
+      log.it(code);
 
       return new ModuleTransport({
         code: code,

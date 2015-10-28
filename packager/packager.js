@@ -171,6 +171,8 @@ function runServer(
     .use(connect.errorHandler());
 
   return http.createServer(app).listen(options.port, '::', function() {
-    log.it('Server started: ', color.yellow('http://localhost:' + options.port));
+    log.moat(0);
+    log('Server started: ').yellow('http://localhost:' + options.port);
+    log.moat(0);
   });
 }

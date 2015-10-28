@@ -21,6 +21,7 @@ var StyleSheetPropType = require('StyleSheetPropType');
 var ViewStylePropTypes = require('ViewStylePropTypes');
 
 var createReactNativeComponentClass = require('createReactNativeComponentClass');
+var flattenStyle = require('flattenStyle');
 
 var stylePropType = StyleSheetPropType(ViewStylePropTypes);
 

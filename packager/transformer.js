@@ -29,7 +29,7 @@ function transform(src, filename, options) {
     retainLines: true,
     compact: true,
     comments: false,
-    filename,
+    filename: filename,
     whitelist: [
       // Keep in sync with packager/react-packager/.babelrc
       'es6.arrowFunctions',
@@ -51,7 +51,7 @@ function transform(src, filename, options) {
       'react.displayName',
       'regenerator',
     ],
-    plugins,
+    plugins: plugins,
     sourceFileName: filename,
     sourceMaps: false,
     extra: options || {},

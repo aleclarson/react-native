@@ -23,16 +23,6 @@ function getStyle(style) {
   return style;
 }
 
-function flattenStyle(style: ?StyleObj): ?Object {
-  if (!style) {
-    return undefined;
-  }
-  invariant(style !== true, 'style may be false but not true');
-
-  if (!Array.isArray(style)) {
-    return getStyle(style);
-  }
-
 function mergeStyles(style: Array<?Atom>) {
   var result = {};
   for (var i = 0; i < style.length; ++i) {
@@ -50,15 +40,14 @@ function mergeStyles(style: Array<?Atom>) {
 }
 
 function flattenStyle(style: ?StyleObj): ?Object {
+
   if (style == null) {
     return;
   }
 
-  if (typeof style === 'function') {
-    style = style();
+  if (style === true) {
+    throw Error('style cannot equal true');
   }
-
-  invariant(style !== true, 'style may be false but not true');
 
   if (Array.isArray(style)) {
     return mergeStyles(style);

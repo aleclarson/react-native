@@ -22,10 +22,14 @@ class HasteMap {
   }
 
   build() {
+    log.moat(1);
+    log.yellow('Building haste map...');
+    log.moat(1);
+
     this._map = Object.create(null);
 
     let promises = this._fastfs.findFilesByExt('js', {
-      ignore: (file) => !this._helpers.shouldCrawlDir(filePath)
+      ignore: (file) => !this._helpers.shouldCrawlDir(file)
     }).map(file => this._processHasteModule(file));
 
     return Q.all(promises);
@@ -112,10 +116,10 @@ class HasteMap {
     const moduleMap = this._map[name];
     const modulePlatform = getPlatformExtension(mod.path) || GENERIC_PLATFORM;
 
-    if (moduleMap[modulePlatform]) {
+    const collision = moduleMap[modulePlatform];
+    if (collision && collision.path !== mod.path) {
       throw new Error(
-        `Naming collision detected: ${mod.path} ` +
-        `collides with ${moduleMap[modulePlatform].path}`
+        `Both '${mod.path}' and '${collision.path}' want to be named '${name}'.`
       );
     }
 

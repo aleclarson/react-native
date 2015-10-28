@@ -64,10 +64,7 @@ class StyleSheet {
   static create(obj: {[key: string]: any}): {[key: string]: number} {
     return Object.keys(obj).reduce(function(result, key) {
       StyleSheetValidation.validateStyle(key, obj);
-      var id = StyleSheetRegistry.registerStyle(obj[key]);
-      result[key] = function() {
-        return arguments.length ? [id].concat(slice.call(arguments)) : id;
-      };
+      result[key] = StyleSheetRegistry.registerStyle(obj[key]);
       return result;
     }, {});
   }

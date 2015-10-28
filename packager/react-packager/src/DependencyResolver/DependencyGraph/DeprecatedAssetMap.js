@@ -15,6 +15,8 @@ const debug = require('debug')('ReactNativePackager:DependencyGraph');
 const path = require('path');
 const Q = require ('q');
 
+const getAssetDataFromName = require('../../lib/getAssetDataFromName');
+
 class DeprecatedAssetMap {
   constructor({ fsCrawl, roots, assetExts, fileWatcher, ignoreFilePath, helpers }) {
     if (roots == null || roots.length === 0) {
@@ -73,9 +75,19 @@ class DeprecatedAssetMap {
   _processAsset(file) {
     let ext = this._helpers.extname(file);
     if (this._assetExts.indexOf(ext) !== -1) {
-      let name = assetName(file, ext);
-      if (this._map[name] != null) {
-        debug('Conflcting assets', name);
+      let {name, resolution} = getAssetDataFromName(file);
+      let assetModule = this._map[name];
+      if (assetModule) {
+        if (assetModule.resolution === resolution) {
+          return log
+            .moat(1)
+            .red('Error: ')
+            .white('An asset named "' + name +
+              '" already exists with a resolution of ' + resolution + '.')
+            .moat(1);
+        } else {
+          return;
+        }
       }
 
       this._map[name] = new AssetModule_DEPRECATED(file);

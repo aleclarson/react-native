@@ -59,7 +59,7 @@ function loadSourceMapForFile(filePath): Q.Promise {
 
   var dirPath = filePath.slice(0, filePath.lastIndexOf('/'));
 
-  var url = 'http://192.168.0.2:8081/read' + filePath;
+  var url = 'http://localhost:8081/read' + filePath;
 
   var promise = fetching[url];
 
@@ -74,11 +74,11 @@ function loadSourceMapForFile(filePath): Q.Promise {
 
   .then(extractSourceMapURL)
 
-  .then(({ baseURL, mapURL }) => {
-    if (mapURL) {
-      return baseURL + '/read' + Path.resolve(dirPath + '/' + mapURL);
+  .then((urls) => {
+    if (urls.mapURL) {
+      return urls.baseURL + '/read' + Path.resolve(dirPath + '/' + urls.mapURL);
     }
-    throw Error('No source map URL found.');
+    throw Error('No source map: ' + url);
   })
 
   .then(loadSourceMap);

@@ -463,7 +463,7 @@ var ListView = React.createClass({
       if (isEndReached !== this._isEndReached) {
         this._isEndReached = isEndReached;
         if (isEndReached) {
-          this.props.onEndReached(e);
+          this.props.onEndReached(event);
           return true;
         }
       }

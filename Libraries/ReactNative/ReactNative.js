@@ -24,6 +24,7 @@ var ReactPropTypes = require('ReactPropTypes');
 var ReactUpdates = require('ReactUpdates');
 
 var deprecated = require('deprecated');
+var parseErrorStack = require('parseErrorStack');
 var findNodeHandle = require('findNodeHandle');
 var invariant = require('invariant');
 var onlyChild = require('onlyChild');

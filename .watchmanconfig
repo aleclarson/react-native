@@ -1,0 +1,6 @@
+{
+  "version": "3.9.0",
+  "config": {
+    "fsevents_latency": 0.05
+  }
+}

@@ -21,6 +21,9 @@ var WarningBox = require('WarningBox');
 var invariant = require('invariant');
 
 var AppContainer = React.createClass({
+
+  displayName: 'AppContainer',
+
   mixins: [Subscribable.Mixin],
 
   getInitialState: function() {
@@ -70,10 +73,10 @@ function renderApplication<D, P, S>(
     'Expect to have a valid rootTag, instead got ', rootTag
   );
   // not when debugging in chrome
-  if (__DEV__ && !window.document) {
-    var setupDevtools = require('setupDevtools');
-    setupDevtools();
-  }
+  // if (__DEV__ && !window.document) {
+  //   var setupDevtools = require('setupDevtools');
+  //   setupDevtools();
+  // }
   React.render(
     <AppContainer rootTag={rootTag}>
       <RootComponent

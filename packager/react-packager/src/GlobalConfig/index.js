@@ -22,7 +22,7 @@ function GlobalConfig(filePath) {
   }
 
   if (!sync.isFile(filePath)) {
-    throw Error(log.color.yellow(filePath) + ' is not a file that exists.');
+    throw Error('\'' + filePath + '\' is not a file that exists.');
   }
 
   const self = Object.create(GlobalConfig.prototype);
