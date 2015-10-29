@@ -182,7 +182,6 @@ var View = React.createClass({
      * `TouchableHighlight` or `TouchableOpacity`. Check out `Touchable.js`,
      * `ScrollResponder.js` and `ResponderEventPlugin.js` for more discussion.
      */
-    onMoveShouldSetResponder: PropTypes.func,
     onResponderGrant: PropTypes.func,
     onResponderMove: PropTypes.func,
     onResponderReject: PropTypes.func,
@@ -191,6 +190,8 @@ var View = React.createClass({
     onResponderTerminationRequest: PropTypes.func,
     onStartShouldSetResponder: PropTypes.func,
     onStartShouldSetResponderCapture: PropTypes.func,
+    onMoveShouldSetResponder: PropTypes.func,
+    onMoveShouldSetResponderCapture: PropTypes.func,
 
     /**
      * Invoked on mount and layout changes with
