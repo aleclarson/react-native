@@ -104,7 +104,7 @@ var projectRoots = [
 
 var internalRoots = sync.map([
   'Libraries',
-  'node_modules/react-tools',
+  '../react',
   'node_modules/react-timer-mixin',
 ], function(internalPath) {
   return path.resolve(__dirname, '../' + internalPath);
