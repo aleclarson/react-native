@@ -82,7 +82,6 @@
     "q": "aleclarson/q#1.0.0",
     "querystring": "^0.2.0",
     "react-timer-mixin": "^0.13.2",
-    "react-tools": "git://github.com/facebook/react#b4e74e38e43ac53af8acd62c78c9213be0194245",
     "rebound": "^0.0.12",
     "regenerator": "0.8.36",
     "sane": "^1.1.2",
