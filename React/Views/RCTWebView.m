@@ -64,6 +64,17 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   [_webView reload];
 }
 
+- (void)stopLoading
+{
+  [_webView stopLoading];
+}
+
+- (void)removeAllRanges
+{
+  NSString *script = @"window.getSelection().removeAllRanges()";
+  [_webView stringByEvaluatingJavaScriptFromString:script];
+}
+
 - (NSURL *)URL
 {
   return _webView.request.URL;

@@ -22,6 +22,9 @@ var blacklist = [
 ];
 
 var shouldFilter = function(frame) {
+  if (frame == null) {
+    return true;
+  }
   if (typeof frame !== 'string') {
     let i, length = blacklist.length;
     for (i = 0; i < length; i++) {

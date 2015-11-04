@@ -75,6 +75,7 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
 
       // Filter out frames without an original JS file.
       stack = stack.filter(frame =>
+        frame == null ||
         typeof frame === 'string' ||
         frame.file.indexOf('/http:/') !== 0
       );

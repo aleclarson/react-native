@@ -27,6 +27,8 @@ RCT_REMAP_VIEW_PROPERTY(url, URL, NSURL);
 RCT_REMAP_VIEW_PROPERTY(html, HTML, NSString);
 RCT_REMAP_VIEW_PROPERTY(bounces, _webView.scrollView.bounces, BOOL);
 RCT_REMAP_VIEW_PROPERTY(scrollEnabled, _webView.scrollView.scrollEnabled, BOOL);
+RCT_REMAP_VIEW_PROPERTY(contentOffset, _webView.scrollView.contentOffset, CGPoint);
+RCT_REMAP_VIEW_PROPERTY(userInteractionEnabled, _webView.userInteractionEnabled, BOOL);
 RCT_REMAP_VIEW_PROPERTY(scalesPageToFit, _webView.scalesPageToFit, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(injectedJavaScript, NSString);
 RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
@@ -82,6 +84,30 @@ RCT_EXPORT_METHOD(reload:(nonnull NSNumber *)reactTag)
       RCTLogError(@"Invalid view returned from registry, expecting RCTWebView, got: %@", view);
     } else {
       [view reload];
+    }
+  }];
+}
+
+RCT_EXPORT_METHOD(stopLoading:(nonnull NSNumber *)reactTag)
+{
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, RCTSparseArray *viewRegistry) {
+    RCTWebView *view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RCTWebView class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RCTWebView, got: %@", view);
+    } else {
+      [view stopLoading];
+    }
+  }];
+}
+
+RCT_EXPORT_METHOD(removeAllRanges:(nonnull NSNumber *)reactTag)
+{
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, RCTSparseArray *viewRegistry) {
+    RCTWebView *view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RCTWebView class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RCTWebView, got: %@", view);
+    } else {
+      [view removeAllRanges];
     }
   }];
 }

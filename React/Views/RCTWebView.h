@@ -27,5 +27,7 @@ extern NSString *const RCTJSNavigationScheme;
 - (void)goForward;
 - (void)goBack;
 - (void)reload;
+- (void)stopLoading;
+- (void)removeAllRanges;
 
 @end

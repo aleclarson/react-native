@@ -13,6 +13,7 @@
 
 var ActivityIndicatorIOS = require('ActivityIndicatorIOS');
 var EdgeInsetsPropType = require('EdgeInsetsPropType');
+var PointPropType = require('PointPropType');
 var React = require('React');
 var StyleSheet = require('StyleSheet');
 var Text = require('Text');
@@ -88,11 +89,18 @@ var WebView = React.createClass({
     renderLoading: PropTypes.func, // loading indicator to show
     bounces: PropTypes.bool,
     scrollEnabled: PropTypes.bool,
+    userInteractionEnabled: PropTypes.bool,
     automaticallyAdjustContentInsets: PropTypes.bool,
     contentInset: EdgeInsetsPropType,
     onNavigationStateChange: PropTypes.func,
     startInLoadingState: PropTypes.bool, // force WebView to show loadingView on first load
     style: View.propTypes.style,
+    /**
+     * Used to manually set the starting scroll offset.
+     * The default value is `{x: 0, y: 0}`.
+     * @platform ios
+     */
+    contentOffset: PointPropType,
     /**
      * Used for android only, JS is enabled by default for WebView on iOS
      */
@@ -162,7 +170,9 @@ var WebView = React.createClass({
         injectedJavaScript={this.props.injectedJavaScript}
         bounces={this.props.bounces}
         scrollEnabled={this.props.scrollEnabled}
+        userInteractionEnabled={this.props.userInteractionEnabled}
         contentInset={this.props.contentInset}
+        contentOffset={this.props.contentOffset}
         automaticallyAdjustContentInsets={this.props.automaticallyAdjustContentInsets}
         onLoadingStart={this.onLoadingStart}
         onLoadingFinish={this.onLoadingFinish}
@@ -188,6 +198,14 @@ var WebView = React.createClass({
 
   reload: function() {
     RCTWebViewManager.reload(this.getWebViewHandle());
+  },
+
+  stopLoading: function() {
+    RCTWebViewManager.stopLoading(this.getWebViewHandle());
+  },
+
+  removeAllRanges: function() {
+    RCTWebViewManager.removeAllRanges(this.getWebViewHandle());
   },
 
   /**

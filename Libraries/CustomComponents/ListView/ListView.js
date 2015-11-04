@@ -581,13 +581,17 @@ var ListView = React.createClass({
   },
 
   _onScroll: function(e) {
-    var lengthKey = this.props.horizontal ? 'width' : 'height';
-    var offsetKey = this.props.horizontal ? 'x' : 'y';
-    this.scrollProperties.visibleLength = e.nativeEvent.layoutMeasurement[lengthKey];
-    this.scrollProperties.contentLength = e.nativeEvent.contentSize[lengthKey];
-    this.scrollProperties.offset = e.nativeEvent.contentOffset[offsetKey];
+    var isVertical = !this.props.horizontal;
+    this.scrollProperties.visibleLength = e.nativeEvent.layoutMeasurement[
+      isVertical ? 'height' : 'width'
+    ];
+    this.scrollProperties.contentLength = e.nativeEvent.contentSize[
+      isVertical ? 'height' : 'width'
+    ];
+    this.scrollProperties.offset = e.nativeEvent.contentOffset[
+      isVertical ? 'y' : 'x'
+    ];
     this._updateVisibleRows(e.nativeEvent.updatedChildFrames);
-
     if (!this._maybeCallOnEndReached(e)) {
       this._renderMoreRowsIfNeeded();
     }
