@@ -456,17 +456,13 @@ var ListView = React.createClass({
   },
 
   _maybeCallOnEndReached: function(event) {
-    if (this.props.onEndReached) {
-      var distanceFromEnd = this._getDistanceFromEnd(this.scrollProperties);
-      var isEndReached = distanceFromEnd < this.props.onEndReachedThreshold;
-
-      if (isEndReached !== this._isEndReached) {
-        this._isEndReached = isEndReached;
-        if (isEndReached) {
-          this.props.onEndReached(event);
-          return true;
-        }
-      }
+    if (this.props.onEndReached &&
+        this.scrollProperties.contentLength !== this._sentEndForContentLength &&
+        this._getDistanceFromEnd(this.scrollProperties) < this.props.onEndReachedThreshold &&
+        this.state.curRenderedRowsCount === this.props.dataSource.getRowCount()) {
+      this._sentEndForContentLength = this.scrollProperties.contentLength;
+      this.props.onEndReached(event);
+      return true;
     }
     return false;
   },
