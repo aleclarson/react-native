@@ -106,6 +106,7 @@ var internalRoots = sync.map([
   'Libraries',
   '../react',
   'node_modules/react-timer-mixin',
+  'node_modules/parseErrorStack',
 ], function(internalPath) {
   return path.resolve(__dirname, '../' + internalPath);
 });

@@ -15,10 +15,12 @@ var pathToRegex = function(parts) {
 };
 
 var blacklist = [
+  pathToRegex('modules/q'),
   pathToRegex('modules/io'),
+  pathToRegex('modules/react'),
   // pathToRegex('modules/type-utils'),
-  // pathToRegex('modules/react-native/packager'),
-  pathToRegex('modules/react-native/node_modules/react-tools'),
+  pathToRegex('modules/react-native/packager'),
+  pathToRegex('modules/react-native/node_modules'),
 ];
 
 var shouldFilter = function(frame) {

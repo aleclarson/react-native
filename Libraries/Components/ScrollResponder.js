@@ -112,6 +112,27 @@ type State = {
 };
 type Event = Object;
 
+var PropTypes = React.PropTypes;
+
+var ScrollResponderPropTypes = {
+  onStartShouldSetResponder: PropTypes.func,
+  onResponderTerminationRequest: PropTypes.func,
+  onResponderGrant: PropTypes.func,
+  onResponderRelease: PropTypes.func,
+  onTouchStart: PropTypes.func,
+  onTouchMove: PropTypes.func,
+  onTouchEnd: PropTypes.func,
+  onScrollBeginDrag: PropTypes.func,
+  onScrollEndDrag: PropTypes.func,
+  onMomentumScrollBegin: PropTypes.func,
+  onMomentumScrollEnd: PropTypes.func,
+  onScrollResponderKeyboardDismissed: PropTypes.func,
+  onKeyboardWillShow: PropTypes.func,
+  onKeyboardDidShow: PropTypes.func,
+  onKeyboardWillHide: PropTypes.func,
+  onKeyboardDidHide: PropTypes.func,
+};
+
 var ScrollResponderMixin = {
   mixins: [Subscribable.Mixin],
   statics: RCTScrollViewConsts,
@@ -164,6 +185,9 @@ var ScrollResponderMixin = {
    *
    */
   scrollResponderHandleStartShouldSetResponder: function(): boolean {
+    if (this.props.onStartShouldSetResponder) {
+      return this.props.onStartShouldSetResponder();
+    }
     return false;
   },
 
@@ -200,7 +224,7 @@ var ScrollResponderMixin = {
    * a touch has already started.
    */
   scrollResponderHandleResponderReject: function() {
-    warning(false, "ScrollView doesn't take rejection well - scrolls anyway");
+    // warning(false, "ScrollView doesn't take rejection well - scrolls anyway");
   },
 
   /**
@@ -219,6 +243,9 @@ var ScrollResponderMixin = {
    *   rejected.
    */
   scrollResponderHandleTerminationRequest: function(): boolean {
+    if (this.props.onResponderTerminationRequest) {
+      return this.props.onResponderTerminationRequest();
+    }
     return !this.state.observedScrollSinceBecomingResponder;
   },
 
@@ -523,6 +550,7 @@ var ScrollResponderMixin = {
 
 var ScrollResponder = {
   Mixin: ScrollResponderMixin,
+  propTypes: ScrollResponderPropTypes,
 };
 
 module.exports = ScrollResponder;

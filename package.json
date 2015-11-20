@@ -75,6 +75,7 @@
     "node-paths": "aleclarson/node-paths#0.0.1",
     "optimist": "^0.6.1",
     "os-browserify": "^0.1.2",
+    "parseErrorStack": "aleclarson/parseErrorStack#1.0.0",
     "path-browserify": "0.0.0",
     "process": "aleclarson/node-process#0.0.1",
     "progress": "^1.1.8",

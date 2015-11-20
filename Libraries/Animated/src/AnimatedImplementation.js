@@ -275,7 +275,7 @@ class DecayAnimation extends Animation {
       (this._velocity / (1 - this._deceleration)) *
       (1 - Math.exp(-(1 - this._deceleration) * (now - this._startTime)));
 
-    if (this._clampValue != null && this._tryClamping(value)) {
+    if (this._clampValue != null && this._shouldClamp(value)) {
       this._onUpdate(this._clampValue);
       this.__debouncedOnEnd({finished: true});
       return;
@@ -300,7 +300,7 @@ class DecayAnimation extends Animation {
     this.__debouncedOnEnd({finished: false});
   }
 
-  _tryClamping(
+  _shouldClamp(
     value: number,
   ): void {
     var distance = (this._clampValue - value) * (this._velocity >= 0 ? 1 : -1);

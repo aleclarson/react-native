@@ -40,6 +40,20 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
 
   var currentExceptionID = ++exceptionID;
 
+  if (error.computation) {
+    stack = stack.concat(
+      '--- Below is the stack trace of an invalidated Tracker.Computation ---',
+      error.computation.stack
+    );
+  }
+
+  if (error.promise) {
+    stack = stack.concat(
+      '--- Below is the stack trace of the previous Promise ---',
+      error.promise.stack
+    );
+  }
+
   error = {
     message: error.message,
     framesToPop: error.framesToPop,
@@ -47,13 +61,6 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
       typeof frame !== 'string'
     ),
   };
-
-  if (error.computation) {
-    stack = stack.concat(
-      '--- Below is the stack trace of an invalidated Tracker.Computation ---',
-      error.computation.stack
-    );
-  }
 
   if (isFatal) {
     global._fatalException = error;

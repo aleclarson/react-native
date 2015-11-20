@@ -16,7 +16,7 @@
 
 #if RCT_DEV
 
-static BOOL isEnabled = YES;
+static BOOL isEnabled = NO;
 
 @implementation RCTDevLoadingView
 {

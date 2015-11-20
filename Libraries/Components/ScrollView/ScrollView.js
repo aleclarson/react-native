@@ -55,6 +55,8 @@ var INNERVIEW = 'InnerScrollView';
  */
 var ScrollView = React.createClass({
   propTypes: {
+    ...ScrollResponder.propTypes,
+
     /**
      * Controls whether iOS should automatically adjust the content inset
      * for scroll views that are placed behind a navigation bar or
