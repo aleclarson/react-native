@@ -17,7 +17,7 @@ const _eventEmitter = new events.EventEmitter();
 let _uuid = 1;
 let _enabled = true;
 
-function endEvent(eventId) {
+function endEvent(eventId, quiet) {
   const eventEndTime = Date.now();
   if (!_eventStarts[eventId]) {
     throw new Error('event(' + eventId + ') either ended or never started');
@@ -26,7 +26,8 @@ function endEvent(eventId) {
   _writeAction({
     action: 'endEvent',
     eventId: eventId,
-    tstamp: eventEndTime
+    tstamp: eventEndTime,
+    quiet: quiet
   });
 }
 
@@ -71,22 +72,28 @@ function _writeAction(action) {
 
   switch (action.action) {
     case 'startEvent':
-      log.moat(1);
-      log.gray('[', fmtTime, '] <START> ');
-      log.green(action.eventName);
-      log.gray(data);
-      log.moat(1);
+      log
+        .moat(1)
+        .gray.dim(fmtTime)
+        .yellow(' START ')
+        .gray.dim(action.eventName)
+        .gray.dim(data)
+        .moat(1);
       break;
 
     case 'endEvent':
       const startAction = _eventStarts[action.eventId];
       const startData = startAction.data ? ': ' + JSON.stringify(startAction.data) : '';
-      log.moat(1);
-      log.gray('[', fmtTime, '] <END> ');
-      log.green.dim(startAction.eventName);
-      log.gray(' (', (action.tstamp - startAction.tstamp), 'ms)');
-      log.gray(startData);
-      log.moat(1);
+      if (!action.quiet) {
+        log
+          .moat(1)
+          .gray.dim(fmtTime)
+          .red(' END   ')
+          .gray.dim(startAction.eventName)
+          .green(' ' + (action.tstamp - startAction.tstamp) + ' ms')
+          .gray.dim(startData)
+          .moat(1);
+      }
       delete _eventStarts[action.eventId];
       break;
 

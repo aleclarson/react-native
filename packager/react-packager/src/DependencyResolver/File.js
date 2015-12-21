@@ -14,7 +14,20 @@ class File {
 
   read() {
     if (!this._read) {
+      // var startTime = Date.now();
       this._read = async.read(this.path);
+        // .always(() => {
+        //   var readTime = (Date.now() - startTime) / 1000;
+        //   if (readTime > 0.5) {
+        //     log
+        //       .moat(1)
+        //       .gray.dim(this.path)
+        //       .moat(0)
+        //       .gray('Read time: ')
+        //       .red(readTime)
+        //       .moat(1);
+        //   }
+        // });
     }
     return this._read;
   }
@@ -112,25 +125,11 @@ class File {
         newFile = new File(newPath, { isDir: isDir });
         file.addChild(newFile);
 
-        if (log.isVerbose) {
-          log.moat(1);
-          log.green.bold('created ');
-          log(newPath);
-          log.moat(1);
-        }
-
         if (isDir) {
           let pkgJsonPath = newPath + '/package.json';
           if (sync.isFile(pkgJsonPath)) {
             let pkgJson = new File(pkgJsonPath, { isDir: false });
             newFile.addChild(pkgJson);
-
-            if (log.isVerbose) {
-              log.moat(1);
-              log.green.bold('created ');
-              log(pkgJsonPath);
-              log.moat(1);
-            }
           }
         }
       }

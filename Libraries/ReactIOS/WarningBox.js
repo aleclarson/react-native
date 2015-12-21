@@ -58,6 +58,9 @@ var warningCountEvents = new EventEmitter();
 
 if (__DEV__) {
   console.warn = function() {
+    if (console.throwOnWarn) {
+      throw Error(arguments[0]);
+    }
     consoleWarn.apply(null, arguments);
     if (!console.yellowBoxEnabled) {
       return;

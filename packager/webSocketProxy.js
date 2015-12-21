@@ -22,7 +22,7 @@ function attachToServer(server, path) {
       try {
         cn.send(JSON.stringify(message));
       } catch(e) {
-        console.warn('WARN: ' + e.message);
+        // console.warn('WARN: ' + e.message);
       }
     });
   }

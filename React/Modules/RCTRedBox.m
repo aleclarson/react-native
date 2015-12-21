@@ -179,6 +179,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (UITableViewCell *)reuseCell:(UITableViewCell *)cell forStackFrame:(NSDictionary *)stackFrame
 {
+  if (!stackFrame) {
+    return nil;
+  }
+
   if (!cell) {
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"cell"];
     cell.textLabel.textColor = [UIColor colorWithWhite:1 alpha:0.9];

@@ -19,10 +19,12 @@ const {sync} = require('io');
 const Q = require('q');
 
 const Module = require('../Module');
+const NullModule = require('../NullModule');
 const globalConfig = require('../../GlobalConfig');
 
 class ResolutionRequest {
   constructor({
+    dev,
     platform,
     entryPath,
     hasteMap,
@@ -31,6 +33,7 @@ class ResolutionRequest {
     moduleCache,
     fastfs,
   }) {
+    this._dev = dev;
     this._platform = platform;
     this._entryPath = entryPath;
     this._hasteMap = hasteMap;
@@ -73,7 +76,7 @@ class ResolutionRequest {
 
       if (toModuleName === null) {
         redirectAlert(fromModule.path, oldModuleName);
-        return this._getNullModule(oldModuleName);
+        return this._getNullModule(oldModuleName, fromModule);
       }
 
       if (globalConfig.redirect[toModuleName] !== undefined) {
@@ -81,7 +84,7 @@ class ResolutionRequest {
         toModuleName = globalConfig.redirect[toModuleName];
         if (toModuleName === false) {
           redirectAlert(fromModule.path, oldModuleName);
-          return this._getNullModule(oldModuleName);
+          return this._getNullModule(oldModuleName, fromModule);
         }
         toModuleName = globalConfig.resolve(toModuleName);
         redirectAlert(fromModule.path, oldModuleName, toModuleName);
@@ -90,7 +93,7 @@ class ResolutionRequest {
       if (inArray(NODE_PATHS, toModuleName)
           && !this._hasteMap._map[toModuleName]) {
         redirectAlert(fromModule.path, toModuleName);
-        return this._getNullModule(toModuleName);
+        return this._getNullModule(toModuleName, fromModule);
       }
 
       var promise = Q.reject();
@@ -417,44 +420,53 @@ class ResolutionRequest {
     throw new UnableToResolveError();
   }
 
-  _getNullModule(modulePath) {
+  _getNullModule(modulePath, fromModule) {
+
+    if (!this._dev) {
+      return;
+    }
+
     if (typeof modulePath !== 'string') {
       throw TypeError('Expected "modulePath" to be a String');
     }
 
-    var module = this._moduleCache._moduleCache[modulePath];
+    const moduleCache = this._moduleCache._moduleCache;
+
+    if (modulePath[0] === '.') {
+      modulePath = path.resolve(
+        path.resolve(fromModule.path),
+        modulePath
+      );
+    }
+
+    modulePath = modulePath + ' (null)';
+
+    var module = moduleCache[modulePath];
+
     if (!module) {
-      module = new Module(
+      module = moduleCache[modulePath] = new NullModule(
         modulePath,
         this._fastfs,
         this._moduleCache,
         this._moduleCache._cache
       );
-      module.path = modulePath;
-      module.isNull = true;
-      module.code = 'module.exports = null;';
-      module.isHaste = () => false;
-      module.isPolyfill = () => false;
-      module.getName = () => Q(modulePath);
-      module.getPackage = () => null;
-      module.getDependencies = () => Q([]);
-      this._moduleCache._moduleCache[modulePath] = module;
     }
+
     return module;
   }
 }
 
 function redirectAlert(depender, oldName, newName) {
-  if (newName == null) {
-    newName = log.color.gray('null');
-  } else if (typeof newName === 'boolean') {
-    newName = log.color.yellow(newName);
-  }
-  log.moat(1);
-  log.gray.dim(depender).moat(0);
-  log.green.bold('redirect ').log(oldName).moat(0);
-  log.green.bold('      to ').log(newName);
-  log.moat(1);
+  // if (newName == null) {
+  //   newName = log.color.gray('null');
+  // } else if (typeof newName === 'boolean') {
+  //   newName = log.color.yellow(newName);
+  // }
+  // log
+  //   .moat(1)
+  //   .gray.dim(depender).moat(0)
+  //   .green('redirect ').white(oldName).moat(0)
+  //   .green('      to ').white(newName).moat(1);
 }
 
 function UnableToResolveError() {

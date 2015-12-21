@@ -205,8 +205,8 @@ class Fastfs extends EventEmitter {
 
   _cacheResult(fromModule, result, resHash) {
     this._resolved[resHash] = result;
-    this._addToNestedCache(this._dependers, result.path, resHash);
-    this._addToNestedCache(this._dependencies, fromModule.path, resHash);
+    this._addToNestedCache('_dependers', result.path, resHash);
+    this._addToNestedCache('_dependencies', fromModule.path, resHash);
   }
 
   _resetCaches() {
@@ -215,13 +215,25 @@ class Fastfs extends EventEmitter {
     this._dependencies = Object.create(null);
   }
 
-  _addToNestedCache(obj, key, item) {
-    const cache = obj[key];
-    if (cache) {
-      cache.push(item);
+  _addToNestedCache(outerKey, innerKey, value) {
+    const outerCache = this[outerKey];
+    const innerCache = outerCache[innerKey];
+    if (innerCache) {
+      innerCache.push(value);
     } else {
-      obj[key] = [item];
+      outerCache[innerKey] = [value];
     }
+    // log
+    //   .moat(1)
+    //   .green('Added ')
+    //   .white(value.split(':')[1])
+    //   .moat(0)
+    //   .green(' to ')
+    //   .white(outerKey)
+    //   .moat(0)
+    //   .green(' for ')
+    //   .white(innerKey)
+    //   .moat(1);
   }
 
   _removeFromNestedCache(obj, key) {
@@ -245,14 +257,14 @@ class Fastfs extends EventEmitter {
       return;
     }
 
+    if (!this._fastPaths[absPath]) {
+      return;
+    }
+
     // Make sure this event belongs to one of our roots.
     if (!this._getRoot(absPath)) {
       return;
     }
-
-    log.moat(1);
-    log.yellow.bold(type, ' ')(filePath);
-    log.moat(1);
 
     // Clear this file's dependers. This causes an error to be
     // thrown if this file is deleted and another file still
@@ -272,7 +284,7 @@ class Fastfs extends EventEmitter {
       }
     }
 
-    delete this._fastPaths[path.normalize(absPath)];
+    delete this._fastPaths[absPath];
 
     if (type !== 'delete') {
       this._add(new File(absPath, { isDir: false }));

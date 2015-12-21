@@ -42,6 +42,9 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     return;
   }
 
+  NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+  sessionConfig.timeoutIntervalForRequest = 300;
+
   // Load remote script file
   NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:scriptURL completionHandler:
                                 ^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -49,7 +52,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     // Handle general request errors
     if (error) {
       if ([error.domain isEqualToString:NSURLErrorDomain]) {
-        NSString *desc = [@"Could not connect to development server.\n\nEnsure the following:\n- Node server is running and available on the same network - run 'npm start' from react-native root\n- Node server URL is correctly set in AppDelegate\n\nURL: " stringByAppendingString:scriptURL.absoluteString];
+        NSString *desc = [@"Could not connect to development server.\n\nURL: " stringByAppendingString:scriptURL.absoluteString];
         NSDictionary *userInfo = @{
           NSLocalizedDescriptionKey: desc,
           NSLocalizedFailureReasonErrorKey: error.localizedDescription,

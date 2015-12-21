@@ -12,15 +12,60 @@ const _ = require('underscore');
 const base64VLQ = require('./base64-vlq');
 const UglifyJS = require('uglify-js');
 const ModuleTransport = require('../lib/ModuleTransport');
+const declareOpts = require('../lib/declareOpts');
 
 const SOURCEMAPPING_URL = '\n\/\/@ sourceMappingURL=';
 
+const validateOpts = declareOpts({
+  sourceMapUrl: {
+    type: 'string',
+    required: false,
+  },
+  entryFile: {
+    type: 'string',
+    required: true,
+  },
+  dev: {
+    type: 'boolean',
+    default: true,
+  },
+  minify: {
+    type: 'boolean',
+    default: false,
+  },
+  refresh: {
+    type: 'boolean',
+    default: false,
+  },
+  runModule: {
+    type: 'boolean',
+    default: true,
+  },
+  inlineSourceMap: {
+    type: 'boolean',
+    default: false,
+  },
+  platform: {
+    type: 'string',
+    required: true,
+  }
+});
+
 class Bundle {
-  constructor(sourceMapUrl) {
+  constructor(opts) {
+    opts = validateOpts(opts);
+
+    this.entryFile = opts.entryFile;
+    this.dev = opts.dev;
+    this.minify = opts.minify;
+    this.platform = opts.platform;
+    this.runModule = opts.runModule;
+
+    this._aborted = false;
     this._finalized = false;
     this._modules = [];
     this._assets = [];
-    this._sourceMapUrl = sourceMapUrl;
+    this._sourceMapUrl = opts.sourceMapUrl;
     this._shouldCombineSourceMaps = false;
   }
 
@@ -50,7 +95,29 @@ class Bundle {
     this._assets.push(asset);
   }
 
+  abort() {
+
+    log
+      .moat(1)
+      .green('aborted bundle: ')
+      .white(this.entryFile)
+      .moat(1);
+
+    this._aborted = true;
+  }
+
+  isAborted() {
+    return this._aborted;
+  }
+
   finalize(options) {
+
+    log
+      .moat(1)
+      .green('finalized bundle: ')
+      .white(this.entryFile)
+      .moat(1);
+
     options = options || {};
     if (options.runMainModule) {
       const runCode = ';require("' + this._mainModuleId + '");';

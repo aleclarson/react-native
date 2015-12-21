@@ -86,7 +86,7 @@ var getDependenciesValidateOpts = declareOpts({
 HasteDependencyResolver.prototype.getDependencies = function(main, options) {
   var opts = getDependenciesValidateOpts(options);
 
-  return this._depGraph.getDependencies(main, opts.platform).then(
+  return this._depGraph.getDependencies(main, opts).then(
     resolutionResponse => {
       this._getPolyfillDependencies(opts.dev).reverse().forEach(
         polyfill => resolutionResponse.prependDependency(polyfill)
@@ -98,6 +98,10 @@ HasteDependencyResolver.prototype.getDependencies = function(main, options) {
 };
 
 HasteDependencyResolver.prototype._getPolyfillDependencies = function(isDev) {
+  // if (this._polyfillCache) {
+  //   return this._polyfillCache;
+  // }
+
   var polyfillModuleNames = [
     isDev ? 'prelude_dev' : 'prelude',
     'require',
@@ -110,7 +114,7 @@ HasteDependencyResolver.prototype._getPolyfillDependencies = function(isDev) {
     return path.join(__dirname, 'polyfills', name + '.js');
   }).concat(this._polyfillModuleNames);
 
-  return polyfillModuleNames.map(
+  return this._polyfillCache = polyfillModuleNames.map(
     (polyfillModuleName, idx) => new Polyfill({
       path: polyfillModuleName,
       id: polyfillModuleName,
@@ -126,7 +130,7 @@ HasteDependencyResolver.prototype.wrapModule = function(resolutionResponse, modu
       return Q(code);
     }
 
-    if (module.isNull) {
+    if (module.isNull()) {
       return defineModuleCode({
         moduleName: module.path,
         deps: [],

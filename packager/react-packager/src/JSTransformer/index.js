@@ -16,8 +16,6 @@ const util = require('util');
 const workerFarm = require('worker-farm');
 const debug = require('debug')('ReactNativePackager:JStransformer');
 
-const readFile = Q.denodeify(fs.readFile);
-
 // Avoid memory leaks caused in workers. This number seems to be a good enough number
 // to avoid any memory leak while not slowing down initial builds.
 // TODO(amasad): Once we get bundle splitting, we can drive this down a bit more.
@@ -49,6 +47,10 @@ const validateOpts = declareOpts({
     type: 'object',
     required: true,
   },
+  resolver: {
+    type: 'object',
+    required: true,
+  },
   transformTimeoutInterval: {
     type: 'number',
     default: DEFAULT_MAX_CALL_TIME,
@@ -60,6 +62,7 @@ class Transformer {
     const opts = this._opts = validateOpts(options);
 
     this._cache = opts.cache;
+    this._resolver = opts.resolver;
 
     if (opts.transformModulePath != null) {
       this._workers = workerFarm({
@@ -82,22 +85,19 @@ class Transformer {
     this._cache.invalidate(filePath);
   }
 
-  loadFileAndTransform(filePath) {
+  loadFileAndTransform(filePath, bundle) {
     if (this._transform == null) {
       return Q.reject(new Error('No transfrom module'));
     }
 
-    debug('transforming file', filePath);
-
+    const fastfs = this._resolver._depGraph._fastfs;
     return this._cache.get(
       filePath,
       'transformedSource',
-      // TODO: use fastfs to avoid reading file from disk again
-      () => readFile(filePath).then(
+      () => fastfs.readFile(filePath).then(
         buffer => {
           const sourceCode = buffer.toString('utf8');
-
-          return this._transform({
+          const transform = this._transform({
             sourceCode,
             filename: filePath,
           }).then(res => {
@@ -109,8 +109,6 @@ class Transformer {
               );
               throw formatError(res.error, filePath);
             }
-
-            debug('done transforming file', filePath);
 
             return new ModuleTransport({
               code: res.code,
@@ -138,6 +136,19 @@ class Transformer {
 
             throw formatError(err, filePath);
           });
+
+          transform.always(() => {
+            if (bundle.isAborted()) {
+              return;
+            }
+            log
+              .moat(1)
+              .green('transformed module: ')
+              .white(filePath)
+              .moat(1);
+          });
+
+          return transform;
         })
     );
   }

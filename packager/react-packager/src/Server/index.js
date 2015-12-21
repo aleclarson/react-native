@@ -12,6 +12,7 @@ const Activity = require('../Activity');
 const AssetServer = require('../AssetServer');
 const FileWatcher = require('../FileWatcher');
 const Bundler = require('../Bundler');
+const Bundle = require('../Bundler/Bundle');
 const Q = require('q');
 
 const has = require('has');
@@ -79,41 +80,6 @@ const validateOpts = declareOpts({
     type: 'number',
     required: false,
   },
-});
-
-const bundleOpts = declareOpts({
-  sourceMapUrl: {
-    type: 'string',
-    required: false,
-  },
-  entryFile: {
-    type: 'string',
-    required: true,
-  },
-  dev: {
-    type: 'boolean',
-    default: true,
-  },
-  minify: {
-    type: 'boolean',
-    default: false,
-  },
-  refresh: {
-    type: 'boolean',
-    default: false,
-  },
-  runModule: {
-    type: 'boolean',
-    default: true,
-  },
-  inlineSourceMap: {
-    type: 'boolean',
-    default: false,
-  },
-  platform: {
-    type: 'string',
-    required: true,
-  }
 });
 
 const dependencyOpts = declareOpts({
@@ -192,16 +158,9 @@ class Server {
   }
 
   buildBundle(options) {
-    return Q.resolve().then(() => {
-      const opts = bundleOpts(options);
-      return this._bundler.bundle(
-        opts.entryFile,
-        opts.runModule,
-        opts.sourceMapUrl,
-        opts.dev,
-        opts.platform
-      );
-    });
+    const bundle = new Bundle(options);
+    bundle._bundling = this._bundler.bundle(bundle);
+    return bundle;
   }
 
   buildBundleFromUrl(reqUrl) {
@@ -209,43 +168,18 @@ class Server {
     return this.buildBundle(options);
   }
 
-  getDependencies(options) {
-    return Q.resolve().then(() => {
-      const opts = dependencyOpts(options);
-      return this._bundler.getDependencies(
-        opts.entryFile,
-        opts.dev,
-        opts.platform,
-      );
-    });
-  }
-
-  getOrderedDependencyPaths(options) {
-    return Q.resolve().then(() => {
-      const opts = dependencyOpts(options);
-      return this._bundler.getOrderedDependencyPaths(opts);
-    });
-  }
-
   _getBundle(req) {
     const {bundleID, refresh, options} = this._getBundleOptions(req);
     if (refresh) {
       return this._refreshBundle(bundleID, options);
     }
-    return this._bundles[bundleID] ||
+    const bundle = this._bundles[bundleID] ||
       (this._bundles[bundleID] = this.buildBundle(options));
+    return bundle._bundling;
   }
 
   _getBundleOptions(req) {
     const options = this._getOptionsFromUrl(req.url);
-    if (/^\/index.bundle(\?|$)/.test(req.url)) {
-      log.moat(1);
-      log.format(options, {
-        label: 'Bundle options: ',
-        maxStringLength: Infinity
-      });
-      log.moat(1);
-    }
     const refresh = steal(options, 'refresh');
     return {
       bundleID: JSON.stringify(options),
@@ -256,8 +190,12 @@ class Server {
 
   _refreshBundle(bundleID, options) {
     const depGraph = this._bundler._resolver._depGraph;
-    return this._bundles[bundleID] = depGraph.refreshModuleCache()
-      .then(() => this.buildBundle(options));
+    return depGraph.refreshModuleCache()
+      .then(() => {
+        const bundle = this.buildBundle(options);
+        this._bundles[bundleID] = bundle;
+        return bundle._bundling;
+      });
   }
 
   _onFileChange(type, filepath, root) {
@@ -268,26 +206,32 @@ class Server {
     this._debouncedFileChangeHandler(absPath);
   }
 
-  _rebuildBundles() {
+  _rebuildBundles(filePath) {
     const buildBundle = this.buildBundle.bind(this);
     const bundles = this._bundles;
 
-    Object.keys(bundles).forEach(function(optionsJson) {
-      const options = JSON.parse(optionsJson);
-      // Wait for a previous build (if exists) to finish.
-      bundles[optionsJson] = (bundles[optionsJson] || Q()).always(function() {
-        // With finally promise callback we can't change the state of the promise
-        // so we need to reassign the promise.
-        bundles[optionsJson] = buildBundle(options).then(function(p) {
-          // Make a throwaway call to getSource to cache the source string.
-          p.getSource({
-            inlineSourceMap: options.inlineSourceMap,
-            minify: options.minify,
-          });
-          return p;
+    sync.each(bundles, (bundle, hash) => {
+      const options = JSON.parse(hash);
+      var bundle = bundles[hash];
+      if (bundle) {
+        bundle.abort();
+        this._bundler.resetTransformer();
+      }
+      log
+        .moat(1)
+        .green('building bundle: ')
+        .white(options.entryFile)
+        .moat(1);
+      bundle = buildBundle(options);
+      bundles[hash] = bundle;
+      bundle._bundling = bundle._bundling.then(function(p) {
+        // Make a throwaway call to getSource to cache the source string.
+        p.getSource({
+          inlineSourceMap: options.inlineSourceMap,
+          minify: options.minify,
         });
+        return p;
       });
-      return bundles[optionsJson];
     });
   }
 
@@ -337,6 +281,16 @@ class Server {
     }
   }
 
+  _fileExists(filePath) {
+    var exists = false;
+    sync.each(this._projectRoots, function(root) {
+      if (!exists && sync.exists(root + '/' + filePath)) {
+        exists = true;
+      }
+    });
+    return exists;
+  }
+
   _handleError(res, bundleID, error) {
     res.writeHead(error.status || 500, {
       'Content-Type': 'application/json; charset=UTF-8',
@@ -369,21 +323,15 @@ class Server {
     // node v0.11.14 bug see https://github.com/facebook/react-native/issues/218
     urlObj.query = urlObj.query || {};
 
-    const pathname = decodeURIComponent(urlObj.pathname);
-
-    const extensionRegex = /\.(bundle|map)$/;
-
+    const dir = urlObj.query.dir || '';
     const platform = urlObj.query.platform || 'ios';
 
-    const entryFile = 'js/src' + pathname.replace(
-      extensionRegex,
-      '.' + platform + '.js'
-    );
+    const pathname = decodeURIComponent(urlObj.pathname)
+      .slice(1).replace(/\.(bundle|map)$/, '');
 
-    const sourceMapUrl = pathname.replace(
-      extensionRegex,
-      '.map'
-    ) + '?platform=' + platform;
+    const entryFile = path.join(dir, pathname) + '.' + platform + '.js';
+    const sourceMapUrl = '/' + pathname +
+      '.map?platform=' + platform + '&dir=' + dir;
 
     return {
       platform: platform,

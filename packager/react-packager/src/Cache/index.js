@@ -77,7 +77,7 @@ class Cache {
   }
 
   end() {
-    return this._persistCache();
+    return this._persistCache().done();
   }
 
   reset() {
@@ -125,6 +125,11 @@ class Cache {
     if (this._persisting != null) {
       return this._persisting;
     }
+
+    log
+      .moat(1)
+      .yellow('Persisting the cache...')
+      .moat(1);
 
     var data = this._data;
     var cacheFilepath = this._cacheFilePath;

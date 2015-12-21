@@ -43,6 +43,7 @@ var PropTypes = React.PropTypes;
 
 var DEFAULT_PAGE_SIZE = 1;
 var DEFAULT_INITIAL_ROWS = 10;
+var DEFAULT_MAX_ROWS = Infinity;
 var DEFAULT_SCROLL_RENDER_AHEAD = 1000;
 var DEFAULT_END_REACHED_THRESHOLD = 1000;
 var DEFAULT_SCROLL_CALLBACK_THROTTLE = 50;
@@ -116,6 +117,8 @@ var ListView = React.createClass({
    */
   propTypes: {
     ...ScrollView.propTypes,
+
+    DEBUG: PropTypes.bool,
 
     dataSource: PropTypes.instanceOf(ListViewDataSource).isRequired,
     /**
@@ -240,6 +243,7 @@ var ListView = React.createClass({
   getDefaultProps: function() {
     return {
       initialListSize: DEFAULT_INITIAL_ROWS,
+      maxListSize: DEFAULT_MAX_ROWS,
       pageSize: DEFAULT_PAGE_SIZE,
       renderScrollComponent: props => <ScrollView {...props} />,
       scrollRenderAheadDistance: DEFAULT_SCROLL_RENDER_AHEAD,
@@ -384,6 +388,13 @@ var ListView = React.createClass({
       }
     }
 
+    if (this.props.DEBUG) {
+      log.format({
+        rowCount: rowCount,
+        renderedRows: this.state.curRenderedRowsCount,
+      });
+    }
+
     var {
       renderScrollComponent,
       ...props,
@@ -478,6 +489,14 @@ var ListView = React.createClass({
 
     var distanceFromEnd = this._getDistanceFromEnd(this.scrollProperties);
     if (distanceFromEnd < this.props.scrollRenderAheadDistance) {
+      if (this.props.DEBUG) {
+        log.format({
+          contentLength: this.scrollProperties.contentLength,
+          visibleLength: this.scrollProperties.visibleLength,
+          distanceFromEnd: distanceFromEnd,
+          scrollRenderAheadDistance: this.props.scrollRenderAheadDistance
+        });
+      }
       this._pageInNewRows();
     }
   },
@@ -486,7 +505,10 @@ var ListView = React.createClass({
     this.setState((state, props) => {
       var rowsToRender = Math.min(
         state.curRenderedRowsCount + props.pageSize,
-        props.dataSource.getRowCount()
+        Math.min(
+          props.maxListSize,
+          props.dataSource.getRowCount(),
+        )
       );
       return {
         prevRenderedRowsCount: state.curRenderedRowsCount,

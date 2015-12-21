@@ -117,12 +117,6 @@ function processFileEvent(req, res) {
       fstat = sync.stats(filePath);
       filePath = path.relative(root, filePath);
       this._fileWatcher.emit('all', type, filePath, root, fstat);
-    } else {
-      log
-        .moat(1)
-        .red('Error: ')
-        .white('"', filePath, '" has an invalid root: ', root)
-        .moat(1);
     }
   } else {
     log

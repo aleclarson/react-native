@@ -12,7 +12,6 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const Q = require('q');
-const ProgressBar = require('progress');
 const BundlesLayout = require('../BundlesLayout');
 const Cache = require('../Cache');
 const Transformer = require('../JSTransformer');
@@ -117,15 +116,23 @@ class Bundler {
       projectRoots: opts.projectRoots,
     });
 
-    this._transformer = new Transformer({
-      projectRoots: opts.projectRoots,
-      blacklistRE: opts.blacklistRE,
-      cache: this._cache,
-      transformModulePath: opts.transformModulePath,
-    });
+    this.resetTransformer();
 
     this._projectRoots = opts.projectRoots;
     this._assetServer = opts.assetServer;
+  }
+
+  resetTransformer() {
+    if (this._transformer) {
+      this._transformer.kill();
+    }
+    this._transformer = new Transformer({
+      projectRoots: this._opts.projectRoots,
+      blacklistRE: this._opts.blacklistRE,
+      cache: this._cache,
+      resolver: this._resolver,
+      transformModulePath: this._opts.transformModulePath,
+    });
   }
 
   kill() {
@@ -137,23 +144,25 @@ class Bundler {
     return this._bundlesLayout.generateLayout(main, isDev);
   }
 
-  bundle(main, runModule, sourceMapUrl, isDev, platform) {
-    const bundle = new Bundle(sourceMapUrl);
+  bundle(bundle) {
     const findEventId = Activity.startEvent('find dependencies');
+    return this.getDependencies(bundle).then((response) => {
 
-    return this.getDependencies(main, isDev, platform).then((response) => {
-      Activity.endEvent(findEventId);
-      let transformEventId = Activity.startEvent('transform');
-
-      let bar;
-      if (process.stdout.isTTY) {
-        bar = new ProgressBar('transforming [:bar] :percent :current/:total', {
-          complete: '=',
-          incomplete: ' ',
-          width: 40,
-          total: response.dependencies.length,
-        });
+      const isAborted = bundle.isAborted();
+      Activity.endEvent(findEventId, isAborted);
+      if (isAborted) {
+        const abortError = Error('Aborted the bundle.');
+        abortError.type = 'NotFoundError';
+        throw abortError;
       }
+
+      log
+        .moat(1)
+        .green('module count: ')
+        .white(response.dependencies.length)
+        .moat(1);
+
+      let transformEventId = Activity.startEvent('transform');
 
       bundle.setMainModuleId(response.mainModuleId);
       return Q.all(
@@ -162,20 +171,13 @@ class Bundler {
             bundle,
             response,
             module,
-            platform
+            bundle.platform
           ).then(transformed => {
-            if (bar) {
-              bar.tick();
-            }
             return transformed;
           })
         )
       ).then((results) => {
-        if (bar) {
-          log.moat(2);
-        }
-        Activity.endEvent(transformEventId);
-
+        Activity.endEvent(transformEventId, bundle.isAborted());
         return results;
       });
     }).then((transformedModules) => {
@@ -183,7 +185,7 @@ class Bundler {
         bundle.addModule(moduleTransport);
       });
 
-      bundle.finalize({ runMainModule: runModule });
+      bundle.finalize({ runMainModule: bundle.runModule });
       return bundle;
     });
   }
@@ -192,13 +194,18 @@ class Bundler {
     this._transformer.invalidateFile(filePath);
   }
 
-  getDependencies(main, isDev, platform) {
-    return this._resolver.getDependencies(main, { dev: isDev, platform });
+  getDependencies(bundle) {
+    return this._resolver.getDependencies(
+      bundle.entryFile,
+      { dev: bundle.dev,
+        platform: bundle.platform }
+    );
   }
 
   getOrderedDependencyPaths({ entryFile, dev, platform }) {
     return this.getDependencies(entryFile, dev, platform).then(
       ({ dependencies }) => {
+
         const ret = [];
         const promises = [];
         const placeHolder = {};
@@ -230,7 +237,7 @@ class Bundler {
 
   _transformModule(bundle, response, module, platform = null) {
 
-    if (module.isNull) {
+    if (module.isNull()) {
       return this._resolver
         .wrapModule(response, module)
         .then(function(code) {
@@ -252,7 +259,8 @@ class Bundler {
       transform = generateJSONModule(module);
     } else {
       transform = this._transformer.loadFileAndTransform(
-        path.resolve(module.path)
+        path.resolve(module.path),
+        bundle
       );
     }
 

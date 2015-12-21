@@ -76,6 +76,12 @@ class ModuleCache {
   _processFileChange(type, filePath, root) {
     const absPath = path.join(root, filePath);
 
+    log
+      .moat(1)
+      .green('invalidating: ')
+      .white(absPath)
+      .moat(1);
+
     if (this._moduleCache[absPath]) {
       this._moduleCache[absPath].invalidate();
       delete this._moduleCache[absPath];

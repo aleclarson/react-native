@@ -22,10 +22,6 @@ class HasteMap {
   }
 
   build() {
-    log.moat(1);
-    log.yellow('Building haste map...');
-    log.moat(1);
-
     this._map = Object.create(null);
 
     let promises = this._fastfs.findFilesByExt('js', {

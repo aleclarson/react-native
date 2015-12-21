@@ -10,6 +10,7 @@
  */
 'use strict';
 
+const log = require('lotus-log');
 const babel = require('babel-core');
 const inlineRequires = require('fbjs-scripts/babel/inline-requires');
 

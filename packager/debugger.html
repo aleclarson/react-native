@@ -16,18 +16,10 @@
 <title>React Native Debugger</title>
 <script>
 
+var XHR = XMLHttpRequest;
 function refreshBundle() {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'http://localhost:8081/index.bundle?refresh', true);
-  // xhr.onreadystatechange = function() {
-  //   console.log('XHR: (readystagechange) ' + xhr.readyState);
-  // };
-  // xhr.onerror = function(error) {
-  //   console.log('XHR: (error) ' + error);
-  // };
-  // xhr.onload = function() {
-  //   console.log('XHR: (loaded)');
-  // };
+  var xhr = new XHR();
+  xhr.open('GET', 'http://localhost:8081/index.bundle?refresh&platform=ios&dev=true&dir=js/src', true);
   xhr.send();
 }
 
@@ -192,6 +184,7 @@ function loadScript(src, callback) {
     </p>
     <p>Status: <span id="status">Loading...</span></p>
     <p>Press <span class="shortcut">⌘⌥J</span> to open Developer Tools.</p>
+    <button onclick="NativeModules.DevMenu.reload()">Reload app</button>
     <button onclick="refreshBundle()">Refresh bundle</button>
   </div>
 </body>

@@ -154,11 +154,12 @@ class DependencyGraph {
     return this._loading;
   }
 
-  getDependencies(entryPath, platform) {
+  getDependencies(entryPath, { dev, platform }) {
     return this.load().then(() => {
       platform = this._getRequestPlatform(entryPath, platform);
       const absPath = this._getAbsolutePath(entryPath);
       const req = new ResolutionRequest({
+        dev,
         platform,
         entryPath: absPath,
         deprecatedAssetMap: this._deprecatedAssetMap,

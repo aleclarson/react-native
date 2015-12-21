@@ -16,8 +16,20 @@ const replacePatterns = require('./replacePatterns');
 class Module {
 
   constructor(file, fastfs, moduleCache, cache) {
-    this.path = path.resolve(file);
+    if (file[0] === '.') {
+      throw Error('Path cannot be relative: ' + file);
+    }
+
+    this.path = file;
     this.type = 'Module';
+
+    if (!this.isPolyfill() && !this.isNull()) {
+      log
+        .moat(1)
+        .green('found module: ')
+        .white(this.path)
+        .moat(1);
+    }
 
     this._fastfs = fastfs;
     this._moduleCache = moduleCache;
@@ -117,6 +129,10 @@ class Module {
   }
 
   isPolyfill() {
+    return false;
+  }
+
+  isNull() {
     return false;
   }
 
