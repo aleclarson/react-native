@@ -10,6 +10,13 @@ class AssetModule_DEPRECATED extends Module {
     const {resolution, name} = getAssetDataFromName(this.path);
     this.resolution = resolution;
     this.name = name;
+
+    log
+      .moat(1)
+      .white('AssetModule_DEPRECATED(')
+      .yellow(this.path)
+      .white(')')
+      .moat(1);
   }
 
   isHaste() {

@@ -45,11 +45,9 @@ GlobalConfig.prototype = {
       json = {};
     }
 
-    this.projectExts = json.projectExts || ['js', 'json'];
+    this.projectExts = json.projectExts;
 
-    this.assetExts = json.assetExts || ['png', 'jpeg', 'jpg'];
-
-    this.assetRoots = json.assetRoots || [];
+    this.assetExts = json.assetExts;
 
     this.redirect = json.redirect || Object.create(null);
 

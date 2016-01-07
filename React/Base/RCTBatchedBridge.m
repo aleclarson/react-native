@@ -404,6 +404,8 @@ RCT_EXTERN NSArray *RCTGetModuleClasses(void);
     return;
   }
 
+  NSLog(@"[RCTBatchedBridge stopLoadingWithError:] %@", error.localizedDescription);
+
   _loading = NO;
 
   NSArray *stack = error.userInfo[@"stack"];
@@ -818,9 +820,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
   }
   @catch (NSException *exception) {
     RCTLogError(@"Exception thrown while invoking %@ on target %@ with params %@: %@", method.JSMethodName, moduleData.name, params, exception);
-    if (!RCT_DEBUG && [exception.name rangeOfString:@"Unhandled JS Exception"].location != NSNotFound) {
-      @throw exception;
-    }
+    return NO;
+//    if (!RCT_DEBUG && [exception.name rangeOfString:@"Unhandled JS Exception"].location != NSNotFound) {
+//      @throw exception;
+//    }
   }
 
   NSMutableDictionary *args = [method.profileArgs mutableCopy];

@@ -17,13 +17,15 @@ var Path = require('path');
 var NativeModules = require('NativeModules');
 var SourceMapConsumer = require('SourceMap').SourceMapConsumer;
 var SourceMapURL = require('./source-map-url');
+var { fetch } = require('fetch');
 
 var RCTSourceCode = NativeModules.SourceCode;
 var RCTNetworking = NativeModules.Networking;
 
-var fetching = Object.create(null);
+global._loadSourceMapForFile = Object.create(null);
 
 function loadSourceMapForBundle(): Q.Promise {
+
   if (global.RAW_SOURCE_MAP) {
     return Q(global.RAW_SOURCE_MAP);
   }
@@ -59,13 +61,17 @@ function loadSourceMapForFile(filePath): Q.Promise {
 
   var dirPath = filePath.slice(0, filePath.lastIndexOf('/'));
 
-  var url = 'http://localhost:8081/read' + filePath;
+  var url = 'http://192.168.0.2:8081/read' + filePath;
 
-  var promise = fetching[url];
+  var promise = global._loadSourceMapForFile[url];
 
   if (!promise) {
-    promise = fetching[url] = fetch(url);
-    promise.always(() => delete fetching[url]);
+    console.log('Loading: ' + url);
+    promise = global._loadSourceMapForFile[url] = fetch(url);
+    promise.always(() => {
+      console.log('Finished loading: ' + url);
+      delete global._loadSourceMapForFile[url];
+    });
   }
 
   return promise
@@ -86,18 +92,15 @@ function loadSourceMapForFile(filePath): Q.Promise {
 
 function loadSourceMap(url): Q.Promise {
 
-  return fetch(url)
+  console.log('Loading source map: ' + url);
+
+  global._loadSourceMap = fetch(url);
+
+  return global._loadSourceMap
 
   .then(res => res.text())
 
-  .then(map => new SourceMapConsumer(map))
-
-  .fail(error => {
-    log.moat(1);
-    log('Failed to load source map: ', url);
-    log.moat(1);
-    throw error;
-  });
+  .then(map => new SourceMapConsumer(map));
 }
 
 function extractSourceMapURL({ url, text, fullSourceMappingURL }): ?string {

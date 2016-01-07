@@ -85,10 +85,10 @@ function setUpRedBoxConsoleErrorHandler() {
 }
 
 function setUpFlowChecker() {
-  if (__DEV__) {
-    var checkFlowAtRuntime = require('checkFlowAtRuntime');
-    checkFlowAtRuntime();
-  }
+  // if (__DEV__) {
+  //   var checkFlowAtRuntime = require('checkFlowAtRuntime');
+  //   checkFlowAtRuntime();
+  // }
 }
 
 /**

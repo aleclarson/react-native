@@ -13,6 +13,8 @@ const url = require('url');
 const path = require('path');
 const {sync, async} = require('io');
 
+const Activity = require('../Activity');
+
 module.exports = {
   '*.bundle': readBundle,
   '*.map': readMap,
@@ -191,12 +193,15 @@ function debug(req, res) {
 function debugBundles(req, res) {
   var ret = '<!doctype html>';
   ret += '<h1> Cached Bundles </h1>';
-  Q.all(Object.keys(this._bundles).map(optionsJson =>
-    this._bundles[optionsJson].then(p => {
-      ret += '<div><h2>' + optionsJson + '</h2>';
-      ret += p.getDebugInfo();
+  Q.all(
+    Object.keys(this._bundles).map(bundleID => {
+      var bundle = this._bundles[bundleID];
+      return bundle._bundling.then(p => {
+        ret += '<div><h2>' + bundleID + '</h2>';
+        ret += p.getDebugInfo();
+      });
     })
-  )).then(
+  ).then(
     () => res.end(ret),
     e => {
       res.writeHead(500);

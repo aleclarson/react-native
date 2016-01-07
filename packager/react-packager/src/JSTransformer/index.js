@@ -94,8 +94,13 @@ class Transformer {
     return this._cache.get(
       filePath,
       'transformedSource',
-      () => fastfs.readFile(filePath).then(
-        buffer => {
+      () => {
+        log
+          .moat(1)
+          .white('Transforming: ')
+          .yellow(filePath)
+          .moat(1);
+        return fastfs.readFile(filePath).then(buffer => {
           const sourceCode = buffer.toString('utf8');
           const transform = this._transform({
             sourceCode,
@@ -149,8 +154,8 @@ class Transformer {
           });
 
           return transform;
-        })
-    );
+        });
+      });
   }
 }
 

@@ -16,6 +16,7 @@ const getCacheFilePath = require('../lib/getCacheFilePath');
 const isAbsolutePath = require('absolute-path');
 const loadCacheSync = require('../lib/loadCacheSync');
 const path = require('path');
+const log = require('lotus-log');
 const version = require('../../../../package.json').version;
 
 const validateOpts = declareOpts({
@@ -126,16 +127,18 @@ class Cache {
       return this._persisting;
     }
 
-    log
-      .moat(1)
-      .yellow('Persisting the cache...')
-      .moat(1);
-
     var data = this._data;
+    var dataKeys = Object.keys(data);
     var cacheFilepath = this._cacheFilePath;
 
+    log
+      .moat(1)
+      .white('Saving cache: ')
+      .yellow(cacheFilepath)
+      .moat(1);
+
     var allPromises = _.values(data)
-      .map(record => {
+      .map((record, index) => {
         var fieldNames = Object.keys(record.data);
         var fieldValues = _.values(record.data);
 
@@ -157,7 +160,7 @@ class Cache {
     this._persisting = Q.all(allPromises)
       .then(values => {
         var json = Object.create(null);
-        Object.keys(data).forEach((key, i) => {
+        dataKeys.forEach((key, i) => {
           json[key] = Object.create(null);
           json[key].metadata = data[key].metadata;
           json[key].data = values[i].data;
@@ -166,19 +169,40 @@ class Cache {
       })
       .then(() => {
         this._persisting = null;
-        log.it('Cache located at: ' + color.cyan(this._cacheFilePath));
+        log
+          .moat(1)
+          .white('Saved cache: ')
+          .cyan(cacheFilepath)
+          .moat(1)
         return true;
       });
+
+    this._persisting.done();
 
     return this._persisting;
   }
 
   _loadCacheSync(cachePath) {
+
+    log
+      .moat(1)
+      .white('Loading cache: ')
+      .green(cachePath)
+      .moat(1);
+
     var ret = Object.create(null);
     var cacheOnDisk = loadCacheSync(cachePath);
 
+    var cacheKeys = Object.keys(cacheOnDisk);
+    log
+      .moat(1)
+      .white('Cache has ')
+      .pink(cacheKeys.length)
+      .white(' modules!')
+      .moat(1);
+
     // Filter outdated cache and convert to promises.
-    Object.keys(cacheOnDisk).forEach(key => {
+    cacheKeys.forEach(key => {
       if (!fs.existsSync(key)) {
         return;
       }

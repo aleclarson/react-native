@@ -11,6 +11,13 @@ class AssetModule extends Module {
     this.resolution = resolution;
     this._name = name;
     this._type = type;
+
+    log
+      .moat(1)
+      .white('AssetModule(')
+      .yellow(this.path)
+      .white(')')
+      .moat(1);
   }
 
   isHaste() {

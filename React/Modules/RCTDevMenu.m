@@ -21,7 +21,7 @@
 #import "RCTSourceCode.h"
 #import "RCTUtils.h"
 
-#if RCT_DEV
+//#if RCT_DEV
 
 @interface RCTBridge (Profiling)
 
@@ -611,19 +611,19 @@ RCT_EXPORT_METHOD(reloadWithCallback:(RCTResponseSenderBlock)callback)
 
 @end
 
-#else // Unavailable when not in dev mode
-
-@implementation RCTDevMenu
-
-- (void)show {}
-- (void)reload {}
-- (void)reloadWithCallback:(RCTResponseSenderBlock)callback {}
-- (void)addItem:(NSString *)title handler:(dispatch_block_t)handler {}
-- (void)addItem:(RCTDevMenu *)item {}
-
-@end
-
-#endif
+//#else // Unavailable when not in dev mode
+//
+//@implementation RCTDevMenu
+//
+//- (void)show {}
+//- (void)reload {}
+//- (void)reloadWithCallback:(RCTResponseSenderBlock)callback {}
+//- (void)addItem:(NSString *)title handler:(dispatch_block_t)handler {}
+//- (void)addItem:(RCTDevMenu *)item {}
+//
+//@end
+//
+//#endif
 
 @implementation  RCTBridge (RCTDevMenu)
 

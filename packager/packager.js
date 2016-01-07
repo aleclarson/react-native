@@ -129,7 +129,6 @@ function getAppMiddleware(options) {
     nonPersistent: options.nonPersistent,
     projectRoots: projectRoots,
     projectExts: globalConfig.projectExts,
-    assetRoots: projectRoots.concat(globalConfig.assetRoots),
     assetExts: globalConfig.assetExts,
     internalRoots: internalRoots,
     blacklistRE: blacklist(),

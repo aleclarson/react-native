@@ -78,8 +78,8 @@ class ModuleCache {
 
     log
       .moat(1)
-      .green('invalidating: ')
-      .white(absPath)
+      .white('Deleted module: ')
+      .red(absPath)
       .moat(1);
 
     if (this._moduleCache[absPath]) {

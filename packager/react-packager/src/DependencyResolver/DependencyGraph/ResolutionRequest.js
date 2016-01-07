@@ -28,7 +28,6 @@ class ResolutionRequest {
     platform,
     entryPath,
     hasteMap,
-    deprecatedAssetMap,
     helpers,
     moduleCache,
     fastfs,
@@ -37,7 +36,6 @@ class ResolutionRequest {
     this._platform = platform;
     this._entryPath = entryPath;
     this._hasteMap = hasteMap;
-    this._deprecatedAssetMap = deprecatedAssetMap;
     this._helpers = helpers;
     this._moduleCache = moduleCache;
     this._fastfs = fastfs;
@@ -59,13 +57,19 @@ class ResolutionRequest {
       return Q(resolved);
     }
 
-    const asset_DEPRECATED = this._deprecatedAssetMap.resolve(
-      fromModule,
-      toModuleName
-    );
-    if (asset_DEPRECATED) {
-      return Q(asset_DEPRECATED);
-    }
+    // log
+    //   .moat(1)
+    //   .white('Resolving dependency: ')
+    //   .green(resHash)
+    //   .moat(1);
+
+    // const asset_DEPRECATED = this._deprecatedAssetMap.resolve(
+    //   fromModule,
+    //   toModuleName
+    // );
+    // if (asset_DEPRECATED) {
+    //   return Q(asset_DEPRECATED);
+    // }
 
     return Q.all([
       toModuleName,
@@ -136,6 +140,11 @@ class ResolutionRequest {
       visited[entry.hash()] = true;
 
       const collect = (mod) => {
+        // log
+        //   .moat(1)
+        //   .white('Gathering dependencies: ')
+        //   .yellow(mod.path)
+        //   .moat(1);
         response.pushDependency(mod);
         return mod.getDependencies().then(
           depNames => Q.all(
@@ -301,6 +310,11 @@ class ResolutionRequest {
   }
 
   _loadAsFile(potentialModulePath) {
+    log
+      .moat(1)
+      .white('Loading as file: ')
+      .yellow(potentialModulePath)
+      .moat(1);
     return Q().then(() => {
       if (this._helpers.isAssetFile(potentialModulePath)) {
         const dirname = path.dirname(potentialModulePath);
@@ -422,9 +436,9 @@ class ResolutionRequest {
 
   _getNullModule(modulePath, fromModule) {
 
-    if (!this._dev) {
-      return;
-    }
+    // if (!this._dev) {
+    //   return;
+    // }
 
     if (typeof modulePath !== 'string') {
       throw TypeError('Expected "modulePath" to be a String');

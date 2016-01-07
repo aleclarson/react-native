@@ -330,8 +330,7 @@ class Server {
       .slice(1).replace(/\.(bundle|map)$/, '');
 
     const entryFile = path.join(dir, pathname) + '.' + platform + '.js';
-    const sourceMapUrl = '/' + pathname +
-      '.map?platform=' + platform + '&dir=' + dir;
+    const sourceMapUrl = '/' + pathname + '.map' + reqUrl.slice(reqUrl.indexOf('?'));
 
     return {
       platform: platform,
@@ -339,6 +338,7 @@ class Server {
       sourceMapUrl: sourceMapUrl,
       dev: this._getBoolOptionFromQuery(urlObj.query, 'dev', true),
       minify: this._getBoolOptionFromQuery(urlObj.query, 'minify'),
+      scale: this._getNumberOptionFromQuery(urlObj.query, 'scale', 3),
       refresh: urlObj.query.refresh === '',
       runModule: this._getBoolOptionFromQuery(urlObj.query, 'runModule', true),
       inlineSourceMap: this._getBoolOptionFromQuery(
@@ -347,6 +347,10 @@ class Server {
         false
       ),
     };
+  }
+
+  _getNumberOptionFromQuery(query, opt, defaultVal) {
+    return query[opt] != null ? parseInt(query[opt]) : defaultVal;
   }
 
   _getBoolOptionFromQuery(query, opt, defaultVal) {

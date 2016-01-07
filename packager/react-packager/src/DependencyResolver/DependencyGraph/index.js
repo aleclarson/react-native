@@ -24,10 +24,21 @@ const Helpers = require('./Helpers');
 const ResolutionRequest = require('./ResolutionRequest');
 const ResolutionResponse = require('./ResolutionResponse');
 const HasteMap = require('./HasteMap');
-const DeprecatedAssetMap = require('./DeprecatedAssetMap');
 
 const validateOpts = declareOpts({
-  roots: {
+  internalRoots: {
+    type: 'array',
+    required: true,
+  },
+  projectRoots: {
+    type: 'array',
+    required: true,
+  },
+  projectExts: {
+    type: 'array',
+    required: true,
+  },
+  assetExts: {
     type: 'array',
     required: true,
   },
@@ -37,18 +48,6 @@ const validateOpts = declareOpts({
   },
   fileWatcher: {
     type: 'object',
-    required: true,
-  },
-  assetRoots_DEPRECATED: {
-    type: 'array',
-    default: [],
-  },
-  assetExts: {
-    type: 'array',
-    required: true,
-  },
-  internalRoots: {
-    type: 'array',
     required: true,
   },
   platforms: {
@@ -81,19 +80,23 @@ class DependencyGraph {
     const depGraphActivity = Activity.startEvent('Building Dependency Graph');
     const crawlActivity = Activity.startEvent('Crawling File System');
 
-    const allRoots = this._helpers.mergeArrays([
+    const roots = this._helpers.mergeArrays([
       this._opts.internalRoots,
-      this._opts.roots,
-      this._opts.assetRoots_DEPRECATED,
+      this._opts.projectRoots,
+    ]);
+
+    const exts = this._helpers.mergeArrays([
+      this._opts.projectExts,
+      this._opts.assetExts,
     ]);
 
     const ignorePath = (filepath) =>
       this._opts.ignoreFilePath(filepath) ||
         !this._helpers.shouldCrawlDir(filepath);
 
-    this._crawling = crawl(allRoots, {
+    this._crawling = crawl(roots, {
+      exts: exts,
       ignore: ignorePath,
-      exts: ['js', 'json'].concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
     });
 
@@ -102,14 +105,8 @@ class DependencyGraph {
       Activity.endEvent(crawlActivity);
     });
 
-    const sourceRoots = this._helpers.mergeArrays([
-      this._opts.roots,
-      this._opts.internalRoots,
-    ]);
-
     this._fastfs = new Fastfs(
-      'JavaScript',
-      sourceRoots,
+      roots,
       this._opts.fileWatcher,
       {
         ignore: ignorePath,
@@ -130,24 +127,10 @@ class DependencyGraph {
       helpers: this._helpers,
     });
 
-    this._deprecatedAssetMap = new DeprecatedAssetMap({
-      fsCrawl: this._crawling,
-      roots: this._opts.assetRoots_DEPRECATED,
-      helpers: this._helpers,
-      fileWatcher: this._opts.fileWatcher,
-      ignoreFilePath: ignorePath,
-      assetExts: this._opts.assetExts,
-      moduleCache: this._moduleCache,
-    });
-
-    this._loading = Q.all([
-      this._fastfs.build()
-        .then(() => {
-          const hasteActivity = Activity.startEvent('Building Haste Map');
-          return this._hasteMap.build().then(() => Activity.endEvent(hasteActivity));
-        }),
-      this._deprecatedAssetMap.build(),
-    ]).then(() =>
+    this._loading = this._fastfs.build().then(() => {
+      const hasteActivity = Activity.startEvent('Building Haste Map');
+      return this._hasteMap.build().then(() => Activity.endEvent(hasteActivity));
+    }).then(() =>
       Activity.endEvent(depGraphActivity)
     );
 
@@ -162,7 +145,6 @@ class DependencyGraph {
         dev,
         platform,
         entryPath: absPath,
-        deprecatedAssetMap: this._deprecatedAssetMap,
         hasteMap: this._hasteMap,
         helpers: this._helpers,
         moduleCache: this._moduleCache,
@@ -199,8 +181,14 @@ class DependencyGraph {
     const file = this._fastfs._fastPaths[mod.path];
     file._read = null;
 
+    log
+      .moat(1)
+      .white('Refreshing module: ')
+      .red(mod.path)
+      .moat(1);
+
     return reading.then(data => {
-      const cache = this._resolved;
+      const cache = this._fastfs._resolved;
       async.each(data.dependencies, name => {
         const hash = this._helpers.resolutionHash(mod.path, name);
         const dep = cache[hash];
@@ -226,8 +214,8 @@ class DependencyGraph {
       return path.resolve(filePath);
     }
 
-    for (let i = 0; i < this._opts.roots.length; i++) {
-      const root = this._opts.roots[i];
+    for (let i = 0; i < this._opts.projectRoots.length; i++) {
+      const root = this._opts.projectRoots[i];
       const potentialAbsPath = path.join(root, filePath);
       if (this._fastfs.fileExists(potentialAbsPath)) {
         return path.resolve(potentialAbsPath);
@@ -237,7 +225,7 @@ class DependencyGraph {
     throw new NotFoundError(
       'Cannot find entry file %s in any of the roots: %j',
       filePath,
-      this._opts.roots
+      this._opts.projectRoots
     );
   }
 

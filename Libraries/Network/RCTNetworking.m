@@ -140,6 +140,8 @@ RCT_EXPORT_MODULE()
 - (RCTURLRequestCancellationBlock)buildRequest:(NSDictionary *)query
                                  completionBlock:(void (^)(NSURLRequest *request))block
 {
+//  NSLog(@"[RCTNetworking buildRequest:] %@", query[@"url"]);
+
   NSURL *URL = [RCTConvert NSURL:query[@"url"]]; // this is marked as nullable in JS, but should not be null
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = [RCTConvert NSString:RCTNilIfNull(query[@"method"])].uppercaseString ?: @"GET";
@@ -303,6 +305,8 @@ RCT_EXPORT_MODULE()
  incrementalUpdates:(BOOL)incrementalUpdates
      responseSender:(RCTResponseSenderBlock)responseSender
 {
+//  NSLog(@"[RCTNetworking sendRequest:] %@", request.URL.absoluteString);
+
   __block RCTDownloadTask *task;
 
   RCTURLRequestProgressBlock uploadProgressBlock = ^(int64_t progress, int64_t total) {

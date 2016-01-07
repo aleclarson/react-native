@@ -23,13 +23,13 @@ class Module {
     this.path = file;
     this.type = 'Module';
 
-    if (!this.isPolyfill() && !this.isNull()) {
-      log
-        .moat(1)
-        .green('found module: ')
-        .white(this.path)
-        .moat(1);
-    }
+    // if (!this.isPolyfill() && !this.isNull()) {
+    //   log
+    //     .moat(1)
+    //     .white('Created module: ')
+    //     .cyan(this.path)
+    //     .moat(1);
+    // }
 
     this._fastfs = fastfs;
     this._moduleCache = moduleCache;

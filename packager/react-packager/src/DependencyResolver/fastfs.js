@@ -4,7 +4,6 @@ const Activity = require('../Activity');
 const Q = require('q');
 const {EventEmitter} = require('events');
 
-const mm = require('micromatch');
 const _ = require('underscore');
 const fs = require('fs');
 const path = require('path');
@@ -20,9 +19,8 @@ const NOT_FOUND_IN_ROOTS = 'NotFoundInRootsError';
 const File = require('./File');
 
 class Fastfs extends EventEmitter {
-  constructor(name, roots, fileWatcher, {ignore, crawling}) {
+  constructor(roots, fileWatcher, {ignore, crawling}) {
     super();
-    this._name = name;
     this._fileWatcher = fileWatcher;
     this._ignore = ignore;
     this._detachedRoots = [];
@@ -33,12 +31,14 @@ class Fastfs extends EventEmitter {
   }
 
   build() {
-    const rootsPattern = '(' + this._roots.map(file => file.path).join('|') + ')/**';
     return this._crawling.then(files => {
-      const fastfsActivity = Activity.startEvent('Building in-memory fs for ' + this._name);
-      files.filter(filePath =>
-        mm.isMatch(filePath, rootsPattern, { dot: true }))
-      .forEach(filePath => {
+      const fastfsActivity = Activity.startEvent('Building in-memory filesystem');
+      files.forEach(filePath => {
+        log
+          .moat(1)
+          .white('Found file: ')
+          .green(filePath)
+          .moat(1);
         const newFile = new File(filePath, { isDir: false });
         const parent = this._fastPaths[path.dirname(filePath)];
         if (parent) {
@@ -265,6 +265,12 @@ class Fastfs extends EventEmitter {
     if (!this._getRoot(absPath)) {
       return;
     }
+
+    log
+      .moat(1)
+      .white('Clearing dependencies: ')
+      .red(absPath)
+      .moat(1);
 
     // Clear this file's dependers. This causes an error to be
     // thrown if this file is deleted and another file still

@@ -40,14 +40,15 @@ class FileWatcher extends EventEmitter {
     super();
     this._watcherByRoot = Object.create(null);
 
+    log
+      .moat(1)
+      .format(rootConfigs, "FileWatcher.options = ")
+      .moat(1);
+
     this._loading = Q.all(
       rootConfigs.map(createWatcher)
     ).then(watchers => {
       watchers.forEach((watcher, i) => {
-        log.moat(1);
-        log.it('Watching root: ');
-        log.yellow(rootConfigs[i].dir);
-        log.moat(1);
         this._watcherByRoot[rootConfigs[i].dir] = watcher;
         watcher.on(
           'all',

@@ -16,13 +16,25 @@ var declareOpts = require('../lib/declareOpts');
 var Q = require('q');
 
 var validateOpts = declareOpts({
+  internalRoots: {
+    type: 'array',
+    required: false,
+  },
   projectRoots: {
     type: 'array',
     required: true,
   },
-  internalRoots: {
+  projectExts: {
     type: 'array',
-    required: false,
+    required: true,
+  },
+  assetRoots: {
+    type: 'array',
+    required: true,
+  },
+  assetExts: {
+    type: 'array',
+    required: true,
   },
   blacklistRE: {
     type: 'object', // typeof regex is object
@@ -35,16 +47,8 @@ var validateOpts = declareOpts({
     type: 'string',
     default: 'haste',
   },
-  assetRoots: {
-    type: 'array',
-    default: [],
-  },
   fileWatcher: {
     type: 'object',
-    required: true,
-  },
-  assetExts: {
-    type: 'array',
     required: true,
   },
   cache: {
@@ -57,9 +61,10 @@ function HasteDependencyResolver(options) {
   var opts = validateOpts(options);
 
   this._depGraph = new DependencyGraph({
-    roots: opts.projectRoots,
     internalRoots: opts.internalRoots,
-    assetRoots_DEPRECATED: opts.assetRoots,
+    projectRoots: opts.projectRoots,
+    projectExts: opts.projectExts,
+    assetRoots: opts.assetRoots,
     assetExts: opts.assetExts,
     ignoreFilePath: function(filepath) {
       return opts.blacklistRE && opts.blacklistRE.test(filepath);
@@ -67,7 +72,6 @@ function HasteDependencyResolver(options) {
     fileWatcher: opts.fileWatcher,
     cache: opts.cache,
   });
-
 
   this._polyfillModuleNames = opts.polyfillModuleNames || [];
 }

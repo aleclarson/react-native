@@ -91,6 +91,12 @@ class AssetServer {
   _getAssetRecord(assetPath, platform = null) {
     const filename = path.basename(assetPath);
 
+    log
+      .moat(1)
+      .white('_getAssetRecord: ')
+      .yellow(assetPath)
+      .moat(1);
+
     return (
       this._findRoot(
         this._roots,
@@ -104,6 +110,12 @@ class AssetServer {
         const dir = res[0];
         const files = res[1];
         const assetData = getAssetDataFromName(filename);
+
+        log.format({
+          path: path.join(dir, file),
+          name: asset.assetName,
+          resolution: asset.resolution
+        });
 
         const map = this._buildAssetMap(dir, files, platform);
 

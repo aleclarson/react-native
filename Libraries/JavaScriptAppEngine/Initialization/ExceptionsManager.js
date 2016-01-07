@@ -22,15 +22,18 @@ var stringifySafe = require('stringifySafe');
 var { fetch } = require('fetch');
 var Q = require ('q');
 
-var sourceMapPromise;
-
 var exceptionID = 0;
 
+global._bundleSourceMap = null;
 global._fatalException = null;
 
 function reportException(error: Exception, isFatal: bool, stack?: any) {
 
-  if (!__DEV__ || !RCTExceptionsManager || global._fatalException){
+  // if (!__DEV__) {
+  //   return;
+  // }
+
+  if (!RCTExceptionsManager || global._fatalException){
     return;
   }
 
@@ -58,82 +61,91 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
     message: error.message,
     framesToPop: error.framesToPop,
     stack: stack.filter(frame =>
-      typeof frame !== 'string'
+      frame instanceof Object
     ),
   };
 
   if (isFatal) {
     global._fatalException = error;
-    RCTExceptionsManager.reportFatalException(error.message, stack, currentExceptionID);
+    RCTExceptionsManager.reportFatalException(error.message, error.stack, currentExceptionID);
   } else {
-    RCTExceptionsManager.reportSoftException(error.message, stack, currentExceptionID);
+    RCTExceptionsManager.reportSoftException(error.message, error.stack, currentExceptionID);
   }
 
-  if (__DEV__ && isFatal) {
+  // if (!__DEV__) {
+  //   return;
+  // }
 
-    if (sourceMapPromise == null) {
-      sourceMapPromise = loadSourceMapForBundle();
-    }
+  if (!isFatal) {
+    return;
+  }
 
-    sourceMapPromise.then(bundleSourceMap => {
+  if (global._bundleSourceMap === null) {
+    console.log('Loading the bundle\'s source map...');
+    global._bundleSourceMap = loadSourceMapForBundle();
+  }
 
-      // Map the bundle to the original JS files.
-      parseErrorStack(error, bundleSourceMap);
+  global._bundleSourceMap.then(bundleSourceMap => {
 
-      // Filter out frames without an original JS file.
-      stack = stack.filter(frame =>
-        frame == null ||
-        typeof frame === 'string' ||
-        frame.file.indexOf('/http:/') !== 0
-      );
+    console.log('Loaded the bundle\'s source map!');
 
-      // Filter out frames that have blacklisted files.
-      stack = filterErrorStack(stack);
+    // Map the bundle to the original JS files.
+    parseErrorStack(error, bundleSourceMap);
 
-      // Keep `error.stack` in sync with `stack`.
-      error.stack = stack.filter(frame =>
-        typeof frame !== 'string'
-      );
+    // Filter out frames without an original JS file.
+    stack = stack.filter(frame =>
+      frame == null ||
+      typeof frame === 'string' ||
+      frame.file.indexOf('/http:/') !== 0
+    );
+
+    // Filter out frames that have blacklisted files.
+    stack = filterErrorStack(stack);
+
+    // Keep `error.stack` in sync with `stack`.
+    error.stack = stack.filter(frame =>
+      frame instanceof Object
+    );
+
+    RCTExceptionsManager.updateExceptionMessage(
+      error.message,
+      error.stack,
+      currentExceptionID
+    );
+
+    // Map the JS files to any original dialects.
+    Q.all(
+      error.stack.map(frame =>
+        loadSourceMapForFile(frame.file)
+          // Ignore file-specific loading failures.
+          .fail(error => console.log(error.message))
+      )
+    )
+
+    .then(sourceMaps => {
+      error.stack.forEach((frame, index) => {
+        var sourceMap = sourceMaps[index];
+        if (sourceMap) {
+          resolveSourceMaps(sourceMap, frame);
+        }
+      });
+
+      printErrorStack(error, stack);
 
       RCTExceptionsManager.updateExceptionMessage(
         error.message,
         error.stack,
         currentExceptionID
       );
-
-      // Map the JS files to any original dialects.
-      Q.all(
-        error.stack.map(frame =>
-          loadSourceMapForFile(frame.file)
-            // Ignore file-specific loading failures.
-            .fail(error => log.it(error.message))
-        )
-      )
-
-      .then(sourceMaps => {
-        error.stack.forEach((frame, index) => {
-          var sourceMap = sourceMaps[index];
-          if (sourceMap) {
-            resolveSourceMaps(sourceMap, frame);
-          }
-        });
-
-        printErrorStack(error, stack);
-
-        RCTExceptionsManager.updateExceptionMessage(
-          error.message,
-          error.stack,
-          currentExceptionID
-        );
-      })
-
-      .done();
     })
 
-    .fail(error => {
-      printErrorStack(error, parseErrorStack(error));
-    });
-  }
+    .done();
+  })
+
+  .fail(error => {
+    console.log('Failed to load the bundle\'s source map!');
+    printErrorStack(error, parseErrorStack(error));
+  });
 }
 
 /**

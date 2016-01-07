@@ -26,13 +26,21 @@ const sizeOf = Q.denodeify(imageSize);
 const readFile = Q.denodeify(fs.readFile);
 
 const validateOpts = declareOpts({
+  internalRoots: {
+    type: 'array',
+    required: true,
+  },
   projectRoots: {
     type: 'array',
     required: true,
   },
-  internalRoots: {
+  projectExts: {
     type: 'array',
-    required: false,
+    default: ['js', 'json'],
+  },
+  assetExts: {
+    type: 'array',
+    default: ['png'],
   },
   blacklistRE: {
     type: 'object', // typeof regex is object
@@ -60,14 +68,6 @@ const validateOpts = declareOpts({
   nonPersistent: {
     type: 'boolean',
     default: false,
-  },
-  assetRoots: {
-    type: 'array',
-    required: false,
-  },
-  assetExts: {
-    type: 'array',
-    default: ['png'],
   },
   fileWatcher: {
     type: 'object',
@@ -98,14 +98,14 @@ class Bundler {
     });
 
     this._resolver = new DependencyResolver({
-      projectRoots: opts.projectRoots,
       internalRoots: opts.internalRoots,
+      projectRoots: opts.projectRoots,
+      projectExts: opts.projectExts,
+      assetExts: opts.assetExts,
       blacklistRE: opts.blacklistRE,
       polyfillModuleNames: opts.polyfillModuleNames,
       moduleFormat: opts.moduleFormat,
-      assetRoots: opts.assetRoots,
       fileWatcher: opts.fileWatcher,
-      assetExts: opts.assetExts,
       cache: this._cache,
     });
 
@@ -158,8 +158,9 @@ class Bundler {
 
       log
         .moat(1)
-        .green('module count: ')
-        .white(response.dependencies.length)
+        .white('Bundle has ')
+        .pink(response.dependencies.length)
+        .white(' module dependencies!')
         .moat(1);
 
       let transformEventId = Activity.startEvent('transform');
@@ -251,9 +252,7 @@ class Bundler {
 
     let transform;
 
-    if (module.isAsset_DEPRECATED()) {
-      transform = this.generateAssetModule_DEPRECATED(bundle, module);
-    } else if (module.isAsset()) {
+    if (module.isAsset()) {
       transform = this.generateAssetModule(bundle, module, platform);
     } else if (module.isJSON()) {
       transform = generateJSONModule(module);
@@ -286,34 +285,6 @@ class Bundler {
     return this._resolver.getDebugInfo();
   }
 
-  generateAssetModule_DEPRECATED(bundle, module) {
-    return Q.all([
-      sizeOf(module.path),
-      module.getName(),
-    ]).then(([dimensions, id]) => {
-      const img = {
-        __packager_asset: true,
-        isStatic: true,
-        path: module.path,
-        uri: id.replace(/^[^!]+!/, ''),
-        width: dimensions.width / module.resolution,
-        height: dimensions.height / module.resolution,
-        deprecated: true,
-      };
-
-      bundle.addAsset(img);
-
-      const code = 'module.exports = ' + JSON.stringify(img) + ';';
-
-      return new ModuleTransport({
-        code: code,
-        sourceCode: code,
-        sourcePath: module.path,
-        virtual: true,
-      });
-    });
-  }
-
   generateAssetModule(bundle, module, platform = null) {
     console.log('generateAssetModule: ' + module.path);
     const relPath = getPathRelativeToRoot(this._projectRoots, module.path);
@@ -341,8 +312,6 @@ class Bundler {
 
       const ASSET_TEMPLATE = 'module.exports = require("AssetRegistry").registerAsset(%json);';
       const code = ASSET_TEMPLATE.replace('%json', JSON.stringify(img));
-
-      log.it(code);
 
       return new ModuleTransport({
         code: code,

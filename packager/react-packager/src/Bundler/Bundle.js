@@ -99,8 +99,8 @@ class Bundle {
 
     log
       .moat(1)
-      .green('aborted bundle: ')
-      .white(this.entryFile)
+      .white('Aborted bundle: ')
+      .red(this.entryFile)
       .moat(1);
 
     this._aborted = true;
@@ -114,8 +114,8 @@ class Bundle {
 
     log
       .moat(1)
-      .green('finalized bundle: ')
-      .white(this.entryFile)
+      .white('Finalized bundle: ')
+      .cyan(this.entryFile)
       .moat(1);
 
     options = options || {};

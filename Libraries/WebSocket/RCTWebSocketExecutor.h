@@ -9,7 +9,7 @@
 
 #import "RCTDefines.h"
 
-#if RCT_DEV // Debug executors are only supported in dev mode
+//#if RCT_DEV // Debug executors are only supported in dev mode
 
 #import "RCTJavaScriptExecutor.h"
 
@@ -19,4 +19,4 @@
 
 @end
 
-#endif
+//#endif
