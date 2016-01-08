@@ -131,11 +131,11 @@ class Cache {
     var dataKeys = Object.keys(data);
     var cacheFilepath = this._cacheFilePath;
 
-    log
-      .moat(1)
-      .white('Saving cache: ')
-      .yellow(cacheFilepath)
-      .moat(1);
+    // log
+    //   .moat(1)
+    //   .white('Saving cache: ')
+    //   .yellow(cacheFilepath)
+    //   .moat(1);
 
     var allPromises = _.values(data)
       .map((record, index) => {
@@ -169,11 +169,11 @@ class Cache {
       })
       .then(() => {
         this._persisting = null;
-        log
-          .moat(1)
-          .white('Saved cache: ')
-          .cyan(cacheFilepath)
-          .moat(1)
+        // log
+        //   .moat(1)
+        //   .white('Saved cache: ')
+        //   .cyan(cacheFilepath)
+        //   .moat(1)
         return true;
       });
 

@@ -43,124 +43,50 @@ class ResolutionRequest {
     this._fastfs = fastfs;
   }
 
-  _tryResolve(action, secondaryAction) {
-    return action().fail((error) => {
-      if (error.type !== 'UnableToResolveError') {
-        throw error;
-      }
-      return secondaryAction();
-    });
-  }
-
-  resolveDependency(fromModule, toModuleName) {
-    const hash = this._helpers.resolutionHash(fromModule.path, toModuleName);
-    const resolved = this._fastfs._resolved[hash];
-    if (resolved) {
-      return Q(resolved);
-    }
-
-    var promise = null;
-
-    const asset = this._resolveAssetDependency(toModuleName);
-    if (asset) {
-      promise = Q(asset);
-    } else {
-      promise = this._resolveJSDependency(fromModule, toModuleName);
-    }
-
-    return promise.then(result => {
-      var displayPath = result.path;
-      if (result.path[0] === '/') {
-        displayPath = path.relative(lotus.path, result.path);
-      }
-      log
-        .moat(1)
-        .gray.dim(path.relative(lotus.path, fromModule.path), ' ')
-        .moat(0)
-        .yellow(toModuleName)
-        .moat(0)
-        .green(displayPath)
-        .moat(1);
-      this._fastfs._cacheResult(fromModule, result, hash);
-      return result;
-    });
-  }
-
-  _resolveJSDependency(fromModule, toModuleName) {
-    return Q.all([
-      toModuleName,
-      this._redirectRequire(fromModule, toModuleName)
-    ])
-
-    .then(([oldModuleName, toModuleName]) => {
-
-      if (toModuleName === null) {
-        redirectAlert(fromModule.path, oldModuleName);
-        return this._getNullModule(oldModuleName, fromModule);
-      }
-
-      if (globalConfig.redirect[toModuleName] !== undefined) {
-        let oldModuleName = toModuleName;
-        toModuleName = globalConfig.redirect[toModuleName];
-        if (toModuleName === false) {
-          redirectAlert(fromModule.path, oldModuleName);
-          return this._getNullModule(oldModuleName, fromModule);
-        }
-        toModuleName = globalConfig.resolve(toModuleName);
-        redirectAlert(fromModule.path, oldModuleName, toModuleName);
-      }
-
-      if (inArray(NODE_PATHS, toModuleName)
-          && !this._hasteMap._map[toModuleName]) {
-        redirectAlert(fromModule.path, toModuleName);
-        return this._getNullModule(toModuleName, fromModule);
-      }
-
-      var promise = Q.reject();
-
-      if (toModuleName[0] !== '.' && toModuleName[0] !== '/') {
-        promise = promise.fail(() =>
-          this._resolveHasteDependency(fromModule, toModuleName));
-      }
-
-      return promise
-
-      .fail(() => {
-        let absPath = this._getLotusPath(fromModule, toModuleName);
-        return this._resolveNodeDependency(fromModule, absPath);
-      })
-
-      .fail(error => {
-        if (error.type !== 'UnableToResolveError') {
-          throw error;
-        }
-
-        log.moat(1);
-        log.red('UnableToResolveError ');
-        log('Cannot resolve module \'', toModuleName, '\' from \'', fromModule.path, '\'');
-        log.moat(1);
-        return null;
-      });
-    });
-  }
-
   getOrderedDependencies(response) {
     return Q().then(() => {
       const entry = this._moduleCache.getModule(this._entryPath);
       const visited = Object.create(null);
       visited[entry.hash()] = true;
 
+      var failed = false;
       const collect = (mod) => {
-        // log
-        //   .moat(1)
-        //   .white('Collecting dependencies: ')
-        //   .yellow(mod.path)
-        //   .moat(1);
         response.pushDependency(mod);
         return mod.getDependencies().then(
           depNames => Q.all(
-            depNames.map(name => this.resolveDependency(mod, name))
-          ).then((dependencies) => [depNames, dependencies])
+            depNames.map(name => {
+              const result = this.getDependency(mod, name);
+              if (result) {
+                return result;
+              } else {
+                return this.resolveDependency(mod, name)
+                .then(result => {
+                  if (result && !failed) {
+                    var displayPath = result.path;
+                    if (result.path[0] === '/') {
+                      displayPath = path.relative(lotus.path, result.path);
+                    }
+                    log
+                      .moat(1)
+                      .gray.dim(path.relative(lotus.path, mod.path), ' ')
+                      .moat(0)
+                      .yellow(name)
+                      .moat(0)
+                      .green(displayPath)
+                      .moat(1);
+                  }
+                  return result;
+                })
+                .fail(error => {
+                  failed = true;
+                  if (error.type !== 'UnableToResolveError') {
+                    throw error;
+                  }
+                });
+              }
+            })
+          )
+          .then(dependencies => [depNames, dependencies])
         ).then(([depNames, dependencies]) => {
           let p = Q();
 
@@ -214,27 +140,79 @@ class ResolutionRequest {
     ));
   }
 
-  _redirectRequire(fromModule, modulePath) {
-    return Q(fromModule.getPackage()).then(p => {
-      if (p) {
-        var absPath = modulePath;
-        if (modulePath[0] === '.') {
-          absPath = path.resolve(
-            path.dirname(fromModule.path),
-            modulePath
-          );
-        }
-        return p.redirectRequire(absPath)
-        .then(redirect => {
-          if (redirect === absPath) {
-            return modulePath;
-          } else {
-            redirectAlert(fromModule.path, modulePath, redirect);
-            return redirect;
-          }
-        });
+  getDependency(fromModule, toModuleName) {
+    const hash = this._helpers.resolutionHash(fromModule.path, toModuleName);
+    return this._fastfs._resolved[hash];
+  }
+
+  resolveDependency(fromModule, toModuleName) {
+    return Q.try(() =>
+      this._resolveAssetDependency(toModuleName) ||
+        this._resolveJSDependency(fromModule, toModuleName))
+    .then(result => {
+      const hash = this._helpers.resolutionHash(fromModule.path, toModuleName);
+      this._fastfs._cacheResult(fromModule, result, hash);
+      return result;
+    });
+  }
+
+  _resolveJSDependency(fromModule, toModuleName) {
+    return Q.all([
+      toModuleName,
+      this._redirectRequire(fromModule, toModuleName)
+    ])
+
+    .then(([oldModuleName, toModuleName]) => {
+
+      if (toModuleName === null) {
+        redirectAlert(fromModule.path, oldModuleName);
+        return this._getNullModule(oldModuleName, fromModule);
       }
-      return modulePath;
+
+      if (globalConfig.redirect[toModuleName] !== undefined) {
+        let oldModuleName = toModuleName;
+        toModuleName = globalConfig.redirect[toModuleName];
+        if (toModuleName === false) {
+          redirectAlert(fromModule.path, oldModuleName);
+          return this._getNullModule(oldModuleName, fromModule);
+        }
+        toModuleName = globalConfig.resolve(toModuleName);
+        redirectAlert(fromModule.path, oldModuleName, toModuleName);
+      }
+
+      if (inArray(NODE_PATHS, toModuleName)
+          && !this._hasteMap._map[toModuleName]) {
+        redirectAlert(fromModule.path, toModuleName);
+        return this._getNullModule(toModuleName, fromModule);
+      }
+
+      var promise = Q.reject();
+
+      if (toModuleName[0] !== '.' && toModuleName[0] !== '/') {
+        promise = promise.fail(() =>
+          this._resolveHasteDependency(fromModule, toModuleName));
+      }
+
+      return promise
+
+      .fail(() => {
+        let absPath = this._getLotusPath(fromModule, toModuleName);
+        return this._resolveNodeDependency(fromModule, absPath);
+      })
+
+      .fail(error => {
+        if (error.type === 'UnableToResolveError') {
+          log
+            .moat(1)
+            .white('Failed to resolve: ')
+            .moat(0)
+            .red(toModuleName)
+            .white(' from ')
+            .red(fromModule.path)
+            .moat(1);
+        }
+        throw error;
+      });
     });
   }
 
@@ -327,6 +305,30 @@ class ResolutionRequest {
     });
   }
 
+  _redirectRequire(fromModule, modulePath) {
+    return Q(fromModule.getPackage()).then(p => {
+      if (p) {
+        var absPath = modulePath;
+        if (modulePath[0] === '.') {
+          absPath = path.resolve(
+            path.dirname(fromModule.path),
+            modulePath
+          );
+        }
+        return p.redirectRequire(absPath)
+        .then(redirect => {
+          if (redirect === absPath) {
+            return modulePath;
+          } else {
+            redirectAlert(fromModule.path, modulePath, redirect);
+            return redirect;
+          }
+        });
+      }
+      return modulePath;
+    });
+  }
+
   _loadAsFile(potentialModulePath) {
     return Q().then(() => {
       let file;
@@ -388,6 +390,15 @@ class ResolutionRequest {
       return sync.isDir(filePath);
     }
     return this._fastfs.dirExists(filePath);
+  }
+
+  _tryResolve(action, secondaryAction) {
+    return action().fail((error) => {
+      if (error.type !== 'UnableToResolveError') {
+        throw error;
+      }
+      return secondaryAction();
+    });
   }
 
   _getLotusPath(fromModule, toModuleName) {

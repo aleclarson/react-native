@@ -26,7 +26,7 @@ const url = require('url');
 
 const SERVER_API = require('./api');
 
-const SUPPRESSED_EVENTS = /^\/(read|watcher)\//;
+const SUPPRESSED_EVENTS = /^\/(assets|read|watcher)\//;
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -128,7 +128,7 @@ class Server {
     this._fileWatcher.on('all', this._onFileChange.bind(this));
 
     this._debouncedFileChangeHandler = _.debounce(filePath => {
-      this._rebuildBundles(filePath);
+      this._bundles = Object.create(null);
       this._informChangeWatchers();
     }, 50);
   }
@@ -168,9 +168,10 @@ class Server {
     const hash = JSON.stringify(options);
     if (refresh) {
       return this._bundler.refreshModuleCache()
-        .then(() => this._bundles[hash] = this.buildBundle(hash, options));
+        .then(() => this.buildBundle(hash, options)._bundling);
     }
-    return Q(this._bundles[hash] || this.buildBundle(hash, options));
+    var bundle = this._bundles[hash] || this.buildBundle(hash, options);
+    return bundle._bundling;
   }
 
   _onFileChange(type, filepath, root) {
@@ -179,21 +180,6 @@ class Server {
     // Make sure the file watcher event runs through the system before
     // we rebuild the bundles.
     this._debouncedFileChangeHandler(absPath);
-  }
-
-  _rebuildBundles(filePath) {
-    sync.each(this._bundles, (bundle, hash) => {
-      const options = JSON.parse(hash);
-      bundle = this.buildBundle(hash, options);
-      bundle._bundling = bundle._bundling.then(function(p) {
-        // Make a throwaway call to getSource to cache the source string.
-        p.getSource({
-          inlineSourceMap: options.inlineSourceMap,
-          minify: options.minify,
-        });
-        return p;
-      });
-    });
   }
 
   _informChangeWatchers() {
@@ -239,7 +225,8 @@ class Server {
       };
 
       Q(endpoint.call(this, req, res))
-        .fail(error => this._handleError(res, error));
+        .fail(error => this._handleError(res, error))
+        .done();
     } else {
       next();
     }

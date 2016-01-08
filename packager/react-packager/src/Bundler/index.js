@@ -177,12 +177,9 @@ class Bundler {
       bundle.finalize({ runMainModule: bundle.runModule });
       return bundle;
     }).fail(error => {
-      log
-        .moat(1)
-        .white('Bundler Error: ')
-        .red(error.message)
-        .moat(1);
-      throw error;
+      if (!bundle._aborted) {
+        throw error;
+      }
     });
   }
 

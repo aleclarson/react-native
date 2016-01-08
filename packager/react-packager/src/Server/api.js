@@ -30,7 +30,7 @@ module.exports = {
 };
 
 function readBundle(req, res) {
-  this.buildBundleFromUrl(req.url)
+  return this.buildBundleFromUrl(req.url)
   .then(bundle => {
     const code = bundle.getSource({
       inlineSourceMap: false,
@@ -42,7 +42,7 @@ function readBundle(req, res) {
 }
 
 function readMap(req, res) {
-  this.buildBundleFromUrl(req.url)
+  return this.buildBundleFromUrl(req.url)
   .then(bundle => {
     var sourceMap = bundle.getSourceMap();
     sourceMap = JSON.stringify(sourceMap);
@@ -52,7 +52,7 @@ function readMap(req, res) {
 }
 
 function readAssets(req, res) {
-  this.buildBundleFromUrl(req.url)
+  return this.buildBundleFromUrl(req.url)
   .then(bundle => {
     var assets = bundle.getAssets();
     assets = JSON.stringify(assets);
@@ -64,7 +64,7 @@ function readAssets(req, res) {
 function readSpecificFile(req, res) {
   const urlObj = url.parse(req.url, true);
   const filePath = urlObj.pathname.replace(/^\/read/, '');
-  async.read(filePath)
+  return async.read(filePath)
   .then(contents => res.end(contents))
   .fail(error => {
     res.writeHead(500);
@@ -79,7 +79,7 @@ function readSpecificFile(req, res) {
 function readSpecificAsset(req, res) {
   const urlObj = url.parse(req.url, true);
   const assetPath = urlObj.pathname.match(/^\/assets\/(.+)$/);
-  this._assetServer
+  return this._assetServer
     .get(assetPath[1], urlObj.query.platform)
     .then(data =>
       res.end(data))
@@ -107,13 +107,14 @@ function processFileEvent(req, res) {
       filePath = path.relative(root, filePath);
       this._fileWatcher.emit('all', type, filePath, root, fstat);
     }
-  } else {
-    log
-      .moat(1)
-      .red('Error: ')
-      .white('"', filePath, '" is not used by the bundle')
-      .moat(1);
   }
+  // else {
+  //   log
+  //     .moat(1)
+  //     .red('Error: ')
+  //     .white('"', filePath, '" is not used by the bundle')
+  //     .moat(1);
+  // }
 
   res.end();
 }

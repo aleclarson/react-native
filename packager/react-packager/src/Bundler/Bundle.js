@@ -103,7 +103,6 @@ class Bundle {
     if (!this._aborted) {
       return;
     }
-    log.it('The bundle is aborted!');
     const abortError = Error('Aborted the bundle.');
     abortError.type = 'NotFoundError';
     throw abortError;
