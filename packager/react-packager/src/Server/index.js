@@ -37,13 +37,9 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
-  assetRoots: {
-    type: 'array',
-    required: true,
-  },
   assetExts: {
     type: 'array',
-    required: true,
+    default: [],
   },
   internalRoots: {
     type: 'array',
@@ -105,28 +101,15 @@ class Server {
     this._bundles = Object.create(null);
     this._changeWatchers = [];
 
-    const globsByRoot = Object.create(null);
-    const projectGlobs = opts.projectExts.map(ext => '**/*.' + ext);
-    opts.projectRoots
+    const globs = opts.projectExts.map(ext => '**/*.' + ext);
+    const roots = opts.projectRoots
       .concat(opts.internalRoots)
-      .forEach(dir => globsByRoot[dir] = projectGlobs);
-
-    const assetGlobs = opts.assetExts.map(ext => '**/*.' + ext);
-    opts.assetRoots.forEach(dir => {
-      const globs = globsByRoot[dir];
-      if (globs) {
-        globsByRoot[dir] = globs.concat(assetGlobs);
-      } else {
-        globsByRoot[dir] = assetGlobs;
-      }
-    });
-
-    const roots = Object.keys(globsByRoot).map(dir => {
-      return {
-        dir: dir,
-        globs: globsByRoot[dir],
-      };
-    });
+      .map(dir => {
+        return {
+          dir: dir,
+          globs: globs,
+        };
+      });
 
     this._fileWatcher = options.nonPersistent
       ? FileWatcher.createDummyWatcher()
@@ -157,45 +140,37 @@ class Server {
     ]);
   }
 
-  buildBundle(options) {
-    const bundle = new Bundle(options);
-    bundle._bundling = this._bundler.bundle(bundle);
+  buildBundle(hash, options) {
+    var bundle = this._bundles[hash];
+    if (bundle) {
+      bundle.abort();
+      this._bundler.resetTransformer();
+    }
+
+    log
+      .moat(1)
+      .format(options, 'Building bundle: ')
+      .moat(1);
+    bundle = this._bundles[hash] = new Bundle(options);
+    bundle._bundling = this._bundler.bundle(bundle)
+      .fail(error => {
+        if (error.type === 'NotFoundError') {
+          delete this._bundles[hash];
+        }
+        throw error;
+      });
     return bundle;
   }
 
   buildBundleFromUrl(reqUrl) {
     const options = this._getOptionsFromUrl(reqUrl);
-    return this.buildBundle(options);
-  }
-
-  _getBundle(req) {
-    const {bundleID, refresh, options} = this._getBundleOptions(req);
-    if (refresh) {
-      return this._refreshBundle(bundleID, options);
-    }
-    const bundle = this._bundles[bundleID] ||
-      (this._bundles[bundleID] = this.buildBundle(options));
-    return bundle._bundling;
-  }
-
-  _getBundleOptions(req) {
-    const options = this._getOptionsFromUrl(req.url);
     const refresh = steal(options, 'refresh');
-    return {
-      bundleID: JSON.stringify(options),
-      refresh: refresh,
-      options: options,
-    };
-  }
-
-  _refreshBundle(bundleID, options) {
-    const depGraph = this._bundler._resolver._depGraph;
-    return depGraph.refreshModuleCache()
-      .then(() => {
-        const bundle = this.buildBundle(options);
-        this._bundles[bundleID] = bundle;
-        return bundle._bundling;
-      });
+    const hash = JSON.stringify(options);
+    if (refresh) {
+      return this._bundler.refreshModuleCache()
+        .then(() => this._bundles[hash] = this.buildBundle(hash, options));
+    }
+    return Q(this._bundles[hash] || this.buildBundle(hash, options));
   }
 
   _onFileChange(type, filepath, root) {
@@ -207,23 +182,9 @@ class Server {
   }
 
   _rebuildBundles(filePath) {
-    const buildBundle = this.buildBundle.bind(this);
-    const bundles = this._bundles;
-
-    sync.each(bundles, (bundle, hash) => {
+    sync.each(this._bundles, (bundle, hash) => {
       const options = JSON.parse(hash);
-      var bundle = bundles[hash];
-      if (bundle) {
-        bundle.abort();
-        this._bundler.resetTransformer();
-      }
-      log
-        .moat(1)
-        .green('building bundle: ')
-        .white(options.entryFile)
-        .moat(1);
-      bundle = buildBundle(options);
-      bundles[hash] = bundle;
+      bundle = this.buildBundle(hash, options);
       bundle._bundling = bundle._bundling.then(function(p) {
         // Make a throwaway call to getSource to cache the source string.
         p.getSource({
@@ -265,6 +226,7 @@ class Server {
       if (!SUPPRESSED_EVENTS.test(req.url)) {
         requestEvent = Activity.startEvent('request:' + req.url);
       }
+
       const finishResponse = res.end;
       res.end = (body) => {
         if (body == null) {
@@ -275,7 +237,9 @@ class Server {
           Activity.endEvent(requestEvent);
         }
       };
-      endpoint.call(this, req, res);
+
+      Q(endpoint.call(this, req, res))
+        .fail(error => this._handleError(res, error));
     } else {
       next();
     }
@@ -291,7 +255,7 @@ class Server {
     return exists;
   }
 
-  _handleError(res, bundleID, error) {
+  _handleError(res, error) {
     res.writeHead(error.status || 500, {
       'Content-Type': 'application/json; charset=UTF-8',
     });
@@ -303,10 +267,6 @@ class Server {
         lineNumber: error.lineNumber,
       }];
       res.end(JSON.stringify(error));
-
-      if (error.type === 'NotFoundError') {
-        delete this._bundles[bundleID];
-      }
     } else {
       console.error(error.stack || error);
       res.end(JSON.stringify({
@@ -338,7 +298,6 @@ class Server {
       sourceMapUrl: sourceMapUrl,
       dev: this._getBoolOptionFromQuery(urlObj.query, 'dev', true),
       minify: this._getBoolOptionFromQuery(urlObj.query, 'minify'),
-      scale: this._getNumberOptionFromQuery(urlObj.query, 'scale', 3),
       refresh: urlObj.query.refresh === '',
       runModule: this._getBoolOptionFromQuery(urlObj.query, 'runModule', true),
       inlineSourceMap: this._getBoolOptionFromQuery(
@@ -347,10 +306,6 @@ class Server {
         false
       ),
     };
-  }
-
-  _getNumberOptionFromQuery(query, opt, defaultVal) {
-    return query[opt] != null ? parseInt(query[opt]) : defaultVal;
   }
 
   _getBoolOptionFromQuery(query, opt, defaultVal) {

@@ -146,7 +146,7 @@ class BundlesLayout {
       .green(cachePath)
       .moat(1);
 
-    const loadCacheId = Activity.startEvent('Loading bundles layout');
+    const loadCacheId = Activity.startEvent('Loading Bundles Layout');
     const cacheOnDisk = loadCacheSync(cachePath);
 
     const cacheKeys = Object.keys(cacheOnDisk);

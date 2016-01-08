@@ -30,7 +30,7 @@ module.exports = {
 };
 
 function readBundle(req, res) {
-  this._getBundle(req)
+  this.buildBundleFromUrl(req.url)
   .then(bundle => {
     const code = bundle.getSource({
       inlineSourceMap: false,
@@ -38,38 +38,26 @@ function readBundle(req, res) {
     });
     res.setHeader('Content-Type', 'application/javascript');
     res.end(code);
-  })
-  .fail(error => {
-    const {bundleID} = this._getBundleOptions(req);
-    this._handleError(res, bundleID, error);
   });
 }
 
 function readMap(req, res) {
-  this._getBundle(req)
+  this.buildBundleFromUrl(req.url)
   .then(bundle => {
     var sourceMap = bundle.getSourceMap();
     sourceMap = JSON.stringify(sourceMap);
     res.setHeader('Content-Type', 'application/json');
     res.end(sourceMap);
-  })
-  .fail(error => {
-    const {bundleID} = this._getBundleOptions(req);
-    this._handleError(res, bundleID, error);
   });
 }
 
 function readAssets(req, res) {
-  this._getBundle(req)
+  this.buildBundleFromUrl(req.url)
   .then(bundle => {
     var assets = bundle.getAssets();
     assets = JSON.stringify(assets);
     res.setHeader('Content-Type', 'application/json');
     res.end(assets);
-  })
-  .fail(error => {
-    const {bundleID} = this._getBundleOptions(req);
-    this._handleError(res, bundleID, error);
   });
 }
 
@@ -91,16 +79,15 @@ function readSpecificFile(req, res) {
 function readSpecificAsset(req, res) {
   const urlObj = url.parse(req.url, true);
   const assetPath = urlObj.pathname.match(/^\/assets\/(.+)$/);
-  const assetEvent = Activity.startEvent(`processing asset request ${assetPath[1]}`);
-  this._assetServer.get(assetPath[1], urlObj.query.platform)
-    .then(
-      data => res.end(data),
-      error => {
-        console.error(error.stack);
-        res.writeHead('404');
-        res.end('Asset not found');
-      }
-    ).done(() => Activity.endEvent(assetEvent));
+  this._assetServer
+    .get(assetPath[1], urlObj.query.platform)
+    .then(data =>
+      res.end(data))
+    .fail(error => {
+      console.error(error.stack);
+      res.writeHead('404');
+      res.end('Asset not found');
+    });
 }
 
 function processFileEvent(req, res) {

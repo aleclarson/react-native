@@ -18,7 +18,6 @@ var Server = require('./src/Server');
 var SocketInterface = require('./src/SocketInterface');
 
 exports.middleware = function(options) {
-  log.format(options, 'Server.options = ');
   var server = new Server(options);
   return server.processRequest.bind(server);
 };

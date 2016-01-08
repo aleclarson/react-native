@@ -96,21 +96,22 @@ class Bundle {
   }
 
   abort() {
-
-    log
-      .moat(1)
-      .white('Aborted bundle: ')
-      .red(this.entryFile)
-      .moat(1);
-
     this._aborted = true;
   }
 
-  isAborted() {
-    return this._aborted;
+  throwIfAborted() {
+    if (!this._aborted) {
+      return;
+    }
+    log.it('The bundle is aborted!');
+    const abortError = Error('Aborted the bundle.');
+    abortError.type = 'NotFoundError';
+    throw abortError;
   }
 
   finalize(options) {
+
+    this.throwIfAborted();
 
     log
       .moat(1)

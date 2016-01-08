@@ -28,12 +28,8 @@ var validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
-  assetRoots: {
-    type: 'array',
-    required: true,
-  },
-  assetExts: {
-    type: 'array',
+  assetServer: {
+    type: 'object',
     required: true,
   },
   blacklistRE: {
@@ -64,8 +60,7 @@ function HasteDependencyResolver(options) {
     internalRoots: opts.internalRoots,
     projectRoots: opts.projectRoots,
     projectExts: opts.projectExts,
-    assetRoots: opts.assetRoots,
-    assetExts: opts.assetExts,
+    assetServer: opts.assetServer,
     ignoreFilePath: function(filepath) {
       return opts.blacklistRE && opts.blacklistRE.test(filepath);
     },
@@ -126,6 +121,10 @@ HasteDependencyResolver.prototype._getPolyfillDependencies = function(isDev) {
       isPolyfill: true,
     })
   );
+};
+
+HasteDependencyResolver.prototype.refreshModuleCache = function() {
+  return this._depGraph.refreshModuleCache();
 };
 
 HasteDependencyResolver.prototype.wrapModule = function(resolutionResponse, module, code) {

@@ -60,19 +60,6 @@ var options = parseCommandLine([{
 
 checkNodeVersion();
 
-console.log(formatBanner(
-  'Running packager on port ' + options.port + '.\n'+
-  '\n' +
-  'Keep this packager running while developing on any JS projects. Feel free ' +
-  'to close this tab and run your own packager instance if you prefer.\n' +
-  '\n' +
-  'https://github.com/facebook/react-native', {
-    marginLeft: 1,
-    marginRight: 1,
-    paddingBottom: 1,
-  })
-);
-
 process.on('uncaughtException', function(e) {
   if (e.code === 'EADDRINUSE') {
     console.log(

@@ -38,8 +38,8 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
-  assetExts: {
-    type: 'array',
+  assetServer: {
+    type: 'object',
     required: true,
   },
   ignoreFilePath: {
@@ -64,6 +64,7 @@ class DependencyGraph {
   constructor(options) {
     this._opts = validateOpts(options);
     this._cache = this._opts.cache;
+    this._assetServer = this._opts.assetServer;
     this._helpers = new Helpers(this._opts);
     this.load().fail((err) => {
       // This only happens at initialization. Live errors are easier to recover from.
@@ -87,7 +88,7 @@ class DependencyGraph {
 
     const exts = this._helpers.mergeArrays([
       this._opts.projectExts,
-      this._opts.assetExts,
+      this._assetServer._assetExts,
     ]);
 
     const ignorePath = (filepath) =>
@@ -98,11 +99,9 @@ class DependencyGraph {
       exts: exts,
       ignore: ignorePath,
       fileWatcher: this._opts.fileWatcher,
-    });
-
-    this._crawling.then((files) => {
-      // log.format(files, { unlimited: true });
+    }).then((results) => {
       Activity.endEvent(crawlActivity);
+      return results;
     });
 
     this._fastfs = new Fastfs(
@@ -123,16 +122,21 @@ class DependencyGraph {
     this._hasteMap = new HasteMap({
       fastfs: this._fastfs,
       moduleCache: this._moduleCache,
-      assetExts: this._opts.exts,
-      helpers: this._helpers,
+      ignore: (file) => !this._helpers.shouldCrawlDir(file),
     });
 
-    this._loading = this._fastfs.build().then(() => {
-      const hasteActivity = Activity.startEvent('Building Haste Map');
-      return this._hasteMap.build().then(() => Activity.endEvent(hasteActivity));
-    }).then(() =>
-      Activity.endEvent(depGraphActivity)
-    );
+    this._loading = this._fastfs.build()
+      .then(() => {
+        const hasteActivity = Activity.startEvent('Building Haste Map');
+        return this._hasteMap.build()
+          .then(() => Activity.endEvent(hasteActivity));
+      })
+      .then(() => {
+        const assetActivity = Activity.startEvent('Building Asset Map');
+        this._assetServer._build(this._fastfs);
+        Activity.endEvent(assetActivity);
+      })
+      .then(() => Activity.endEvent(depGraphActivity));
 
     return this._loading;
   }
@@ -146,6 +150,7 @@ class DependencyGraph {
         platform,
         entryPath: absPath,
         hasteMap: this._hasteMap,
+        assetServer: this._assetServer,
         helpers: this._helpers,
         moduleCache: this._moduleCache,
         fastfs: this._fastfs,
@@ -162,9 +167,10 @@ class DependencyGraph {
 
   // Forces all modules to reload their contents on the next bundle request.
   refreshModuleCache() {
-    log.moat(1);
-    log.yellow('Refreshing the module cache...');
-    log.moat(1);
+    log
+      .moat(1)
+      .red('Refreshing the module cache!')
+      .moat(1);
     this._cache.reset();
     const cache = this._moduleCache._moduleCache;
     const modules = Object.keys(cache).map((key) => cache[key]);

@@ -34,11 +34,6 @@ class Fastfs extends EventEmitter {
     return this._crawling.then(files => {
       const fastfsActivity = Activity.startEvent('Building in-memory filesystem');
       files.forEach(filePath => {
-        log
-          .moat(1)
-          .white('Found file: ')
-          .green(filePath)
-          .moat(1);
         const newFile = new File(filePath, { isDir: false });
         const parent = this._fastPaths[path.dirname(filePath)];
         if (parent) {
@@ -203,10 +198,10 @@ class Fastfs extends EventEmitter {
     this._getAndAssertRoot(file.path).addChild(file);
   }
 
-  _cacheResult(fromModule, result, resHash) {
-    this._resolved[resHash] = result;
-    this._addToNestedCache('_dependers', result.path, resHash);
-    this._addToNestedCache('_dependencies', fromModule.path, resHash);
+  _cacheResult(fromModule, result, hash) {
+    this._resolved[hash] = result;
+    this._addToNestedCache('_dependers', result.path, hash);
+    this._addToNestedCache('_dependencies', fromModule.path, hash);
   }
 
   _resetCaches() {
@@ -223,25 +218,14 @@ class Fastfs extends EventEmitter {
     } else {
       outerCache[innerKey] = [value];
     }
-    // log
-    //   .moat(1)
-    //   .green('Added ')
-    //   .white(value.split(':')[1])
-    //   .moat(0)
-    //   .green(' to ')
-    //   .white(outerKey)
-    //   .moat(0)
-    //   .green(' for ')
-    //   .white(innerKey)
-    //   .moat(1);
   }
 
   _removeFromNestedCache(obj, key) {
     const cache = obj[key];
     delete obj[key];
     if (cache) {
-      cache.forEach(resHash => {
-        delete this._resolved[resHash];
+      cache.forEach(hash => {
+        delete this._resolved[hash];
       });
     }
   }
@@ -266,22 +250,29 @@ class Fastfs extends EventEmitter {
       return;
     }
 
-    log
-      .moat(1)
-      .white('Clearing dependencies: ')
-      .red(absPath)
-      .moat(1);
+    const relPath = path.relative(lotus.path, absPath);
+    log.moat(1);
+    if (type === 'delete') {
+      log.white('File deleted: ');
+      log.red(relPath);
+    } else if (type === 'change') {
+      log.white('File changed: ');
+      log.green(relPath);
+    } else if (type === 'add') {
+      log.white('File added: ');
+      log.cyan(relPath);
+    }
+    log.moat(1);
 
-    // Clear this file's dependers. This causes an error to be
-    // thrown if this file is deleted and another file still
-    // depends on it. This allows you to catch dependency errors
-    // before running the program.
-    this._removeFromNestedCache(this._dependers, absPath);
-
-    // Clear this file's dependencies. This file will have
-    // its dependencies parsed in order to find new dependencies
-    // and remove old dependencies from the resolution cache.
+    // Force this file to search for its dependencies again.
+    // This helps in detecting new dependencies and removing old ones.
     this._removeFromNestedCache(this._dependencies, absPath);
+
+    if (type === 'delete') {
+      // Force dependers to search for this file again.
+      // This helps in catching files that depend on deleted files.
+      this._removeFromNestedCache(this._dependers, absPath);
+    }
 
     if (type === 'delete' || type === 'change') {
       const file = this._getFile(absPath);

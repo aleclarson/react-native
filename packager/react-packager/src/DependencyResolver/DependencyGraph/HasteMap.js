@@ -15,18 +15,17 @@ const getPlatformExtension = require('../../lib/getPlatformExtension');
 const GENERIC_PLATFORM = 'generic';
 
 class HasteMap {
-  constructor({ fastfs, moduleCache, helpers }) {
+  constructor({ fastfs, moduleCache, ignore }) {
     this._fastfs = fastfs;
     this._moduleCache = moduleCache;
-    this._helpers = helpers;
+    this._ignore = ignore;
   }
 
   build() {
     this._map = Object.create(null);
 
-    let promises = this._fastfs.findFilesByExt('js', {
-      ignore: (file) => !this._helpers.shouldCrawlDir(file)
-    }).map(file => this._processHasteModule(file));
+    let promises = this._fastfs.findFilesByExt('js', { ignore: this._ignore })
+      .map(file => this._processHasteModule(file));
 
     return Q.all(promises);
   }
@@ -50,8 +49,8 @@ class HasteMap {
         }
       }
 
-      if (this._helpers.extname(absPath) === 'js' ||
-          this._helpers.extname(absPath) === 'json') {
+      const extname = path.extname(absPath).replace(/^\./, '');
+      if (extname === 'js' || extname === 'json') {
         if (path.basename(absPath) === 'package.json') {
           return this._processHastePackage(absPath);
         } else {

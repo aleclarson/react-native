@@ -45,9 +45,9 @@ GlobalConfig.prototype = {
       json = {};
     }
 
-    this.projectExts = json.projectExts;
+    this.projectExts = json.projectExts || ['js', 'json'];
 
-    this.assetExts = json.assetExts;
+    this.assetExts = json.assetExts || ['png'];
 
     this.redirect = json.redirect || Object.create(null);
 
@@ -55,9 +55,9 @@ GlobalConfig.prototype = {
       this.ignoredPatterns = new RegExp('(^|\/)(' + json.ignoredPatterns.join('|') + ')(\/|$)');
     }
 
-    log.moat(1);
-    log.format(this, { label: 'Global config: ', unlimited: true });
-    log.moat(1);
+    // log.moat(1);
+    // log.format(this, { label: 'Global config: ', unlimited: true });
+    // log.moat(1);
   },
 
   // Resolves a non-absolute path into an absolute path.

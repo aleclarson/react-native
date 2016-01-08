@@ -9,11 +9,17 @@
 'use strict';
 
 const path = require('path');
+const isAbsolutePath = require('absolute-path');
 const getPlatformExtension = require('./getPlatformExtension');
 
-function getAssetDataFromName(filename) {
-  const ext = path.extname(filename);
-  const platformExt = getPlatformExtension(filename);
+function getAssetDataFromName(assetPath) {
+
+  if (assetPath.indexOf('/') !== -1) {
+    assetPath = path.basename(assetPath);
+  }
+
+  const ext = path.extname(assetPath);
+  const platformExt = getPlatformExtension(assetPath);
 
   let pattern = '@([\\d\\.]+)x';
   if (platformExt != null) {
@@ -22,7 +28,7 @@ function getAssetDataFromName(filename) {
   pattern += '\\' + ext + '$';
   const re = new RegExp(pattern);
 
-  const match = filename.match(re);
+  const match = assetPath.match(re);
   let resolution;
 
   if (!(match && match[1])) {
@@ -36,20 +42,22 @@ function getAssetDataFromName(filename) {
 
   let assetName;
   if (match) {
-    assetName = filename.replace(re, ext);
+    assetName = assetPath.replace(re, ext);
   } else if (platformExt != null) {
-    assetName = filename.replace(new RegExp(`\\.${platformExt}\\${ext}`), ext);
+    assetName = assetPath.replace(new RegExp(`\\.${platformExt}\\${ext}`), ext);
   } else {
-    assetName = filename;
+    assetName = assetPath;
   }
 
-  return {
+  let asset = {
     resolution: resolution,
     assetName: assetName,
     type: ext.slice(1),
     name: path.basename(assetName, ext),
     platform: platformExt,
   };
+
+  return asset;
 }
 
 module.exports = getAssetDataFromName;

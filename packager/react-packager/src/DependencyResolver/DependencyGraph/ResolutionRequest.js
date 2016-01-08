@@ -28,6 +28,7 @@ class ResolutionRequest {
     platform,
     entryPath,
     hasteMap,
+    assetServer,
     helpers,
     moduleCache,
     fastfs,
@@ -36,6 +37,7 @@ class ResolutionRequest {
     this._platform = platform;
     this._entryPath = entryPath;
     this._hasteMap = hasteMap;
+    this._assetServer = assetServer;
     this._helpers = helpers;
     this._moduleCache = moduleCache;
     this._fastfs = fastfs;
@@ -51,26 +53,40 @@ class ResolutionRequest {
   }
 
   resolveDependency(fromModule, toModuleName) {
-    const resHash = this._helpers.resolutionHash(fromModule.path, toModuleName);
-    const resolved = this._fastfs._resolved[resHash];
+    const hash = this._helpers.resolutionHash(fromModule.path, toModuleName);
+    const resolved = this._fastfs._resolved[hash];
     if (resolved) {
       return Q(resolved);
     }
 
-    // log
-    //   .moat(1)
-    //   .white('Resolving dependency: ')
-    //   .green(resHash)
-    //   .moat(1);
+    var promise = null;
 
-    // const asset_DEPRECATED = this._deprecatedAssetMap.resolve(
-    //   fromModule,
-    //   toModuleName
-    // );
-    // if (asset_DEPRECATED) {
-    //   return Q(asset_DEPRECATED);
-    // }
+    const asset = this._resolveAssetDependency(toModuleName);
+    if (asset) {
+      promise = Q(asset);
+    } else {
+      promise = this._resolveJSDependency(fromModule, toModuleName);
+    }
 
+    return promise.then(result => {
+      var displayPath = result.path;
+      if (result.path[0] === '/') {
+        displayPath = path.relative(lotus.path, result.path);
+      }
+      log
+        .moat(1)
+        .gray.dim(path.relative(lotus.path, fromModule.path), ' ')
+        .moat(0)
+        .yellow(toModuleName)
+        .moat(0)
+        .green(displayPath)
+        .moat(1);
+      this._fastfs._cacheResult(fromModule, result, hash);
+      return result;
+    });
+  }
+
+  _resolveJSDependency(fromModule, toModuleName) {
     return Q.all([
       toModuleName,
       this._redirectRequire(fromModule, toModuleName)
@@ -114,11 +130,6 @@ class ResolutionRequest {
         return this._resolveNodeDependency(fromModule, absPath);
       })
 
-      .then(result => {
-        this._fastfs._cacheResult(fromModule, result, resHash);
-        return result;
-      })
-
       .fail(error => {
         if (error.type !== 'UnableToResolveError') {
           throw error;
@@ -142,7 +153,7 @@ class ResolutionRequest {
       const collect = (mod) => {
         // log
         //   .moat(1)
-        //   .white('Gathering dependencies: ')
+        //   .white('Collecting dependencies: ')
         //   .yellow(mod.path)
         //   .moat(1);
         response.pushDependency(mod);
@@ -225,6 +236,13 @@ class ResolutionRequest {
       }
       return modulePath;
     });
+  }
+
+  _resolveAssetDependency(toModuleName) {
+    const assetPath = this._assetServer.resolve(toModuleName, this._fastfs);
+    if (assetPath) {
+      return this._moduleCache.getAssetModule(assetPath);
+    }
   }
 
   _resolveHasteDependency(fromModule, toModuleName) {
@@ -310,46 +328,7 @@ class ResolutionRequest {
   }
 
   _loadAsFile(potentialModulePath) {
-    log
-      .moat(1)
-      .white('Loading as file: ')
-      .yellow(potentialModulePath)
-      .moat(1);
     return Q().then(() => {
-      if (this._helpers.isAssetFile(potentialModulePath)) {
-        const dirname = path.dirname(potentialModulePath);
-        if (!this._fastfs.dirExists(dirname)) {
-          throw new UnableToResolveError(`Directory ${dirname} doesn't exist`);
-        }
-
-        const {name, type} = getAssetDataFromName(potentialModulePath);
-        log.format({
-          path: potentialModulePath,
-          name: name,
-          type: type,
-        }, {
-          label: 'assetData = ',
-          maxStringLength: Infinity,
-        });
-
-        let pattern = '^' + name + '(@[\\d\\.]+x)?';
-        if (this._platform != null) {
-          pattern += '(\\.' + this._platform + ')?';
-        }
-        pattern += '\\.' + type;
-
-        // We arbitrarly grab the first one, because scale selection
-        // will happen somewhere
-        const [assetFile] = this._fastfs.matches(
-          dirname,
-          new RegExp(pattern)
-        );
-
-        if (assetFile) {
-          return this._moduleCache.getAssetModule(assetFile);
-        }
-      }
-
       let file;
       if (this._fileExists(potentialModulePath)) {
         file = potentialModulePath;

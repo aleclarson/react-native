@@ -14,6 +14,7 @@ const crypto = require('crypto');
 const declareOpts = require('../lib/declareOpts');
 const fs = require('fs');
 const getAssetDataFromName = require('../lib/getAssetDataFromName');
+const isAbsolutePath = require('absolute-path');
 const path = require('path');
 
 const stat = Q.denodeify(fs.stat);
@@ -34,8 +35,67 @@ const validateOpts = declareOpts({
 class AssetServer {
   constructor(options) {
     const opts = validateOpts(options);
+    this._map = Object.create(null);
     this._roots = opts.projectRoots;
     this._assetExts = opts.assetExts;
+  }
+
+  resolve(assetPath, fastfs) {
+
+    if (isAbsolutePath(assetPath)) {
+      const extname = path.extname(file).replace(/^\./, '');
+      const hasAssetExt = this._assetExts.indexOf(extname) !== -1;
+      if (!hasAssetExt) {
+        return;
+      }
+
+      const dirname = path.dirname(assetPath);
+      if (!fastfs.dirExists(dirname)) {
+        log
+          .moat(1)
+          .white('Error: ')
+          .red(`Directory '${dirname}' does not exist!`)
+          .moat(1);
+        return;
+      }
+
+      const {name, type} = getAssetDataFromName(assetPath);
+
+      let pattern = '^' + name + '(@[\\d\\.]+x)?';
+      if (this._platform != null) {
+        pattern += '(\\.' + this._platform + ')?';
+      }
+      pattern += '\\.' + type;
+
+      const matches = fastfs.matches(
+        dirname,
+        new RegExp(pattern)
+      );
+
+      // We arbitrarily grab the first one,
+      // because scale selection is done client-side.
+      return matches[0];
+    } else {
+      const assetMatch = assetPath.match(/^image!(.+)/);
+      if (assetMatch) {
+        var assetName = assetMatch[1];
+        const extname = path.extname(assetName).replace(/^\./, '');
+        const hasAssetExt = this._assetExts.indexOf(extname) !== -1;
+        if (!hasAssetExt) {
+          assetName += '.png';
+        }
+        const asset = this._map[assetName];
+        if (asset) {
+          return asset.files[0];
+        } else {
+          log
+            .moat(1)
+            .white('Error: ')
+            .red(`Asset '${assetName}' does not exist!`)
+            .moat(1);
+        }
+      }
+    }
   }
 
   get(assetPath, platform = null) {
@@ -52,15 +112,11 @@ class AssetServer {
   }
 
   getAssetData(assetPath, platform = null) {
-    const nameData = getAssetDataFromName(assetPath);
-    const data = {
-      name: nameData.name,
-      type: nameData.type,
-    };
+    const assetData = getAssetDataFromName(assetPath);
 
     return this._getAssetRecord(assetPath, platform).then(record => {
-      data.scales = record.scales;
-      data.files = record.files;
+      assetData.scales = record.scales;
+      assetData.files = record.files;
 
       return Q.all(
         record.files.map(file => stat(file))
@@ -72,8 +128,8 @@ class AssetServer {
         hash.update(fstat.mtime.getTime().toString())
       );
 
-      data.hash = hash.digest('hex');
-      return data;
+      assetData.hash = hash.digest('hex');
+      return assetData;
     });
   }
 
@@ -89,14 +145,6 @@ class AssetServer {
    * 5. Then pick the closest resolution (rounding up) to the requested one
    */
   _getAssetRecord(assetPath, platform = null) {
-    const filename = path.basename(assetPath);
-
-    log
-      .moat(1)
-      .white('_getAssetRecord: ')
-      .yellow(assetPath)
-      .moat(1);
-
     return (
       this._findRoot(
         this._roots,
@@ -109,22 +157,15 @@ class AssetServer {
       .then(res => {
         const dir = res[0];
         const files = res[1];
-        const assetData = getAssetDataFromName(filename);
-
-        log.format({
-          path: path.join(dir, file),
-          name: asset.assetName,
-          resolution: asset.resolution
-        });
-
-        const map = this._buildAssetMap(dir, files, platform);
+        const { assetName } = getAssetDataFromName(assetPath);
 
         let record;
-        if (platform != null){
-          record = map[getAssetKey(assetData.assetName, platform)] ||
-                   map[assetData.assetName];
+        if (platform != null) {
+          const assetKey = getAssetKey(assetName, platform);
+          record = this._map[assetKey] ||
+                   this._map[assetName];
         } else {
-          record = map[assetData.assetName];
+          record = this._map[assetName];
         }
 
         if (!record) {
@@ -158,15 +199,15 @@ class AssetServer {
     });
   }
 
-  _buildAssetMap(dir, files) {
-    const assets = files.map(getAssetDataFromName);
-    const map = Object.create(null);
-    assets.forEach(function(asset, i) {
-      const file = files[i];
-      const assetKey = getAssetKey(asset.assetName, asset.platform);
-      let record = map[assetKey];
+  _build(fastfs) {
+    fastfs.findFilesByExts(this._assetExts)
+    .forEach((assetPath) => {
+      const { assetName, platform, resolution } = getAssetDataFromName(assetPath);
+      const assetKey = getAssetKey(assetName, platform);
+
+      let record = this._map[assetKey];
       if (!record) {
-        record = map[assetKey] = {
+        record = this._map[assetKey] = {
           scales: [],
           files: [],
         };
@@ -176,15 +217,13 @@ class AssetServer {
       const length = record.scales.length;
 
       for (insertIndex = 0; insertIndex < length; insertIndex++) {
-        if (asset.resolution <  record.scales[insertIndex]) {
+        if (resolution <  record.scales[insertIndex]) {
           break;
         }
       }
-      record.scales.splice(insertIndex, 0, asset.resolution);
-      record.files.splice(insertIndex, 0, path.join(dir, file));
+      record.scales.splice(insertIndex, 0, resolution);
+      record.files.splice(insertIndex, 0, assetPath);
     });
-
-    return map;
   }
 }
 

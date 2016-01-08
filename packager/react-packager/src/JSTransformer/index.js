@@ -98,11 +98,11 @@ class Transformer {
         log
           .moat(1)
           .white('Transforming: ')
-          .yellow(filePath)
+          .green(filePath)
           .moat(1);
         return fastfs.readFile(filePath).then(buffer => {
           const sourceCode = buffer.toString('utf8');
-          const transform = this._transform({
+          return this._transform({
             sourceCode,
             filename: filePath,
           }).then(res => {
@@ -141,19 +141,6 @@ class Transformer {
 
             throw formatError(err, filePath);
           });
-
-          transform.always(() => {
-            if (bundle.isAborted()) {
-              return;
-            }
-            log
-              .moat(1)
-              .green('transformed module: ')
-              .white(filePath)
-              .moat(1);
-          });
-
-          return transform;
         });
       });
   }

@@ -36,11 +36,11 @@ const validateOpts = declareOpts({
   },
   projectExts: {
     type: 'array',
-    default: ['js', 'json'],
+    required: true,
   },
-  assetExts: {
-    type: 'array',
-    default: ['png'],
+  assetServer: {
+    type: 'object',
+    required: true,
   },
   blacklistRE: {
     type: 'object', // typeof regex is object
@@ -73,10 +73,6 @@ const validateOpts = declareOpts({
     type: 'object',
     required: true,
   },
-  assetServer: {
-    type: 'object',
-    required: true,
-  },
   transformTimeoutInterval: {
     type: 'number',
     required: false,
@@ -101,7 +97,7 @@ class Bundler {
       internalRoots: opts.internalRoots,
       projectRoots: opts.projectRoots,
       projectExts: opts.projectExts,
-      assetExts: opts.assetExts,
+      assetServer: opts.assetServer,
       blacklistRE: opts.blacklistRE,
       polyfillModuleNames: opts.polyfillModuleNames,
       moduleFormat: opts.moduleFormat,
@@ -145,16 +141,10 @@ class Bundler {
   }
 
   bundle(bundle) {
-    const findEventId = Activity.startEvent('find dependencies');
+    const findActivity = Activity.startEvent('Find Dependencies');
     return this.getDependencies(bundle).then((response) => {
-
-      const isAborted = bundle.isAborted();
-      Activity.endEvent(findEventId, isAborted);
-      if (isAborted) {
-        const abortError = Error('Aborted the bundle.');
-        abortError.type = 'NotFoundError';
-        throw abortError;
-      }
+      Activity.endEvent(findActivity, bundle._aborted);
+      bundle.throwIfAborted();
 
       log
         .moat(1)
@@ -163,7 +153,7 @@ class Bundler {
         .white(' module dependencies!')
         .moat(1);
 
-      let transformEventId = Activity.startEvent('transform');
+      let transformActivity = Activity.startEvent('Transform Dependencies');
 
       bundle.setMainModuleId(response.mainModuleId);
       return Q.all(
@@ -173,12 +163,10 @@ class Bundler {
             response,
             module,
             bundle.platform
-          ).then(transformed => {
-            return transformed;
-          })
+          )
         )
       ).then((results) => {
-        Activity.endEvent(transformEventId, bundle.isAborted());
+        Activity.endEvent(transformActivity, bundle._aborted);
         return results;
       });
     }).then((transformedModules) => {
@@ -188,6 +176,13 @@ class Bundler {
 
       bundle.finalize({ runMainModule: bundle.runModule });
       return bundle;
+    }).fail(error => {
+      log
+        .moat(1)
+        .white('Bundler Error: ')
+        .red(error.message)
+        .moat(1);
+      throw error;
     });
   }
 
@@ -238,6 +233,8 @@ class Bundler {
 
   _transformModule(bundle, response, module, platform = null) {
 
+    bundle.throwIfAborted()
+
     if (module.isNull()) {
       return this._resolver
         .wrapModule(response, module)
@@ -281,12 +278,15 @@ class Bundler {
     );
   }
 
+  refreshModuleCache() {
+    return this._resolver.refreshModuleCache();
+  }
+
   getGraphDebugInfo() {
     return this._resolver.getDebugInfo();
   }
 
   generateAssetModule(bundle, module, platform = null) {
-    console.log('generateAssetModule: ' + module.path);
     const relPath = getPathRelativeToRoot(this._projectRoots, module.path);
 
     return Q.all([

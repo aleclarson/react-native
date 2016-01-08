@@ -15,7 +15,6 @@ const isDescendant = require('../../lib/isDescendant');
 
 class Helpers {
   constructor(options) {
-    this._assetExts = options.assetExts;
     this._internalRoots = options.internalRoots;
   }
 
@@ -31,14 +30,6 @@ class Helpers {
       return false;
     }
     return true;
-  }
-
-  isAssetFile(file) {
-    return this._assetExts.indexOf(this.extname(file)) !== -1;
-  }
-
-  extname(name) {
-    return path.extname(name).replace(/^\./, '');
   }
 
   mergeArrays(arrays) {
