@@ -27,7 +27,6 @@ class Fastfs extends EventEmitter {
     this._roots = roots.map(root => new File(root, { isDir: true }));
     this._fastPaths = Object.create(null);
     this._crawling = crawling;
-    this._resetCaches();
   }
 
   build() {
@@ -198,38 +197,6 @@ class Fastfs extends EventEmitter {
     this._getAndAssertRoot(file.path).addChild(file);
   }
 
-  _cacheResult(fromModule, result, hash) {
-    this._resolved[hash] = result;
-    this._addToNestedCache('_dependers', result.path, hash);
-    this._addToNestedCache('_dependencies', fromModule.path, hash);
-  }
-
-  _resetCaches() {
-    this._resolved = Object.create(null);
-    this._dependers = Object.create(null);
-    this._dependencies = Object.create(null);
-  }
-
-  _addToNestedCache(outerKey, innerKey, value) {
-    const outerCache = this[outerKey];
-    const innerCache = outerCache[innerKey];
-    if (innerCache) {
-      innerCache.push(value);
-    } else {
-      outerCache[innerKey] = [value];
-    }
-  }
-
-  _removeFromNestedCache(obj, key) {
-    const cache = obj[key];
-    delete obj[key];
-    if (cache) {
-      cache.forEach(hash => {
-        delete this._resolved[hash];
-      });
-    }
-  }
-
   _processFileChange(type, filePath, root, fstat) {
 
     if (fstat && fstat.isDirectory()) {
@@ -237,16 +204,12 @@ class Fastfs extends EventEmitter {
     }
 
     const absPath = path.join(root, filePath);
-    if (this._ignore(absPath)) {
+    if (!this._getRoot(absPath) || this._ignore(absPath)) {
       return;
     }
 
-    if (!this._fastPaths[absPath]) {
-      return;
-    }
-
-    // Make sure this event belongs to one of our roots.
-    if (!this._getRoot(absPath)) {
+    const file = this._getFile(absPath);
+    if (!file) {
       return;
     }
 
@@ -264,21 +227,8 @@ class Fastfs extends EventEmitter {
     }
     log.moat(1);
 
-    // Force this file to search for its dependencies again.
-    // This helps in detecting new dependencies and removing old ones.
-    this._removeFromNestedCache(this._dependencies, absPath);
-
-    if (type === 'delete') {
-      // Force dependers to search for this file again.
-      // This helps in catching files that depend on deleted files.
-      this._removeFromNestedCache(this._dependers, absPath);
-    }
-
     if (type === 'delete' || type === 'change') {
-      const file = this._getFile(absPath);
-      if (file) {
-        file.remove();
-      }
+      file.remove();
     }
 
     delete this._fastPaths[absPath];

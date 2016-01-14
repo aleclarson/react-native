@@ -47,7 +47,7 @@ class Package {
     );
   }
 
-  invalidate() {
+  _processFileChange() {
     this._cache.invalidate(this.path);
   }
 

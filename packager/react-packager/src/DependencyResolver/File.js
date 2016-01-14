@@ -14,21 +14,9 @@ class File {
 
   read() {
     if (!this._read) {
-      // var startTime = Date.now();
       this._read = async.read(this.path);
-        // .always(() => {
-        //   var readTime = (Date.now() - startTime) / 1000;
-        //   if (readTime > 0.5) {
-        //     log
-        //       .moat(1)
-        //       .gray.dim(this.path)
-        //       .moat(0)
-        //       .gray('Read time: ')
-        //       .red(readTime)
-        //       .moat(1);
-        //   }
-        // });
     }
+
     return this._read;
   }
 

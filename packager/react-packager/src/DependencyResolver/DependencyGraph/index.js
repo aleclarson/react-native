@@ -17,7 +17,7 @@ const declareOpts = require('../../lib/declareOpts');
 const isDescendant = require('../../lib/isDescendant');
 const getPontentialPlatformExt = require('../../lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
-const {async} = require('io');
+const {sync} = require('io');
 const path = require('path');
 const util = require('util');
 const Helpers = require('./Helpers');
@@ -167,40 +167,23 @@ class DependencyGraph {
 
   // Forces all modules to reload their contents on the next bundle request.
   refreshModuleCache() {
-    log
-      .moat(1)
-      .red('Refreshing the module cache!')
-      .moat(1);
-    this._cache.reset();
-    const cache = this._moduleCache._moduleCache;
-    const modules = Object.keys(cache).map((key) => cache[key]);
-    return async.each(modules, (mod) => this._refreshModule(mod));
+    this._moduleCache.refresh();
   }
 
-  _refreshModule(mod) {
-    if (!mod._reading) {
-      return;
-    }
-    const reading = mod._reading;
-    mod._reading = null;
-
-    const file = this._fastfs._fastPaths[mod.path];
-    file._read = null;
-
-    log
-      .moat(1)
-      .white('Refreshing module: ')
-      .red(mod.path)
-      .moat(1);
-
-    return reading.then(data => {
-      const cache = this._fastfs._resolved;
-      async.each(data.dependencies, name => {
-        const hash = this._helpers.resolutionHash(mod.path, name);
-        const dep = cache[hash];
-        this._refreshModule(dep);
+  getDebugInfo() {
+    var string = '';
+    sync.each(this._moduleCache._moduleCache, (mod, absPath) => {
+      string += '<h3>' + mod.path + '</h3><br/><br/>&nbsp;&nbsp;<h4>Dependencies:</h4><br/>';
+      sync.each(mod._dependencies, (mod) => {
+        string += '&nbsp;&nbsp;&nbsp;&nbsp;' + mod.path + '<br/>';
       });
+      string += '<br/><br/>&nbsp;&nbsp;<h4>Dependers:</h4><br/>';
+      sync.each(mod._dependers, (mod) => {
+        string += '&nbsp;&nbsp;&nbsp;&nbsp;' + mod.path + '<br/>';
+      });
+      string += '<br/><br/>';
     });
+    return string;
   }
 
   _getRequestPlatform(entryPath, platform) {

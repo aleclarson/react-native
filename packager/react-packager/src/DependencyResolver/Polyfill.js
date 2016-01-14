@@ -7,7 +7,7 @@ class Polyfill extends Module {
   constructor({ path, id, dependencies }) {
     super(path);
     this._id = id;
-    this._dependencies = dependencies;
+    this._depNames = dependencies;
   }
 
   isHaste() {
@@ -23,7 +23,7 @@ class Polyfill extends Module {
   }
 
   getDependencies() {
-    return Q(this._dependencies);
+    return Q(this._depNames);
   }
 
   isJSON() {

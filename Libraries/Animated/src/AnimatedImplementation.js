@@ -79,7 +79,7 @@ class AnimatedWithChildren extends Animated {
   __removeChild(child: Animated): void {
     var index = this._children.indexOf(child);
     if (index === -1) {
-      console.warn('Trying to remove a child that doesn\'t exist');
+      // console.warn('Trying to remove a child that doesn\'t exist');
       return;
     }
     this._children.splice(index, 1);
@@ -812,6 +812,67 @@ class AnimatedValueXY extends AnimatedWithChildren {
   }
 }
 
+class AnimatedMap extends Animated {
+  _values: Object;
+  _callback: () => void;
+
+  constructor(
+    values: Object,
+    callback: () => void,
+  ) {
+    super();
+    this._values = values;
+    this._callback = callback;
+    this.__attach();
+  }
+
+  __getValue(): Object {
+    var values = {};
+    for (var key in this._values) {
+      var value = this._values[key];
+      if (value instanceof Animated) {
+        values[key] = value.__getValue();
+      } else {
+        values[key] = value;
+      }
+    }
+    return values;
+  }
+
+  __getAnimatedValue(): Object {
+    var values = {};
+    for (var key in this._values) {
+      var value = this._values[key];
+      if (value instanceof Animated) {
+        values[key] = value.__getAnimatedValue();
+      }
+    }
+    return values;
+  }
+
+  __attach(): void {
+    for (var key in this._values) {
+      var value = this._values[key];
+      if (value instanceof Animated) {
+        value.__addChild(this);
+      }
+    }
+  }
+
+  __detach(): void {
+    for (var key in this._values) {
+      var value = this._values[key];
+      if (value instanceof Animated) {
+        value.__removeChild(this);
+      }
+    }
+  }
+
+  update(): void {
+    this._callback();
+  }
+}
+
 class AnimatedInterpolation extends AnimatedWithChildren {
   _parent: Animated;
   _interpolation: (input: number) => number | string;
@@ -964,7 +1025,7 @@ class AnimatedStyle extends AnimatedWithChildren {
   }
 }
 
-class AnimatedProps extends Animated {
+class AnimatedProps extends AnimatedMap {
   _props: Object;
   _callback: () => void;
 
@@ -972,62 +1033,13 @@ class AnimatedProps extends Animated {
     props: Object,
     callback: () => void,
   ) {
-    super();
     if (props.style) {
       props = {
         ...props,
         style: new AnimatedStyle(props.style),
       };
     }
-    this._props = props;
-    this._callback = callback;
-    this.__attach();
-  }
-
-  __getValue(): Object {
-    var props = {};
-    for (var key in this._props) {
-      var value = this._props[key];
-      if (value instanceof Animated) {
-        props[key] = value.__getValue();
-      } else {
-        props[key] = value;
-      }
-    }
-    return props;
-  }
-
-  __getAnimatedValue(): Object {
-    var props = {};
-    for (var key in this._props) {
-      var value = this._props[key];
-      if (value instanceof Animated) {
-        props[key] = value.__getAnimatedValue();
-      }
-    }
-    return props;
-  }
-
-  __attach(): void {
-    for (var key in this._props) {
-      var value = this._props[key];
-      if (value instanceof Animated) {
-        value.__addChild(this);
-      }
-    }
-  }
-
-  __detach(): void {
-    for (var key in this._props) {
-      var value = this._props[key];
-      if (value instanceof Animated) {
-        value.__removeChild(this);
-      }
-    }
-  }
-
-  update(): void {
-    this._callback();
+    super(props, callback);
   }
 }
 
@@ -1505,6 +1517,11 @@ module.exports = {
    * 2D value class for driving 2D animations, such as pan gestures.
    */
   ValueXY: AnimatedValueXY,
+
+  /**
+   * Standard map class for driving animations.
+   */
+  Map: AnimatedMap,
 
   /**
    * Standard transform class for driving animations.

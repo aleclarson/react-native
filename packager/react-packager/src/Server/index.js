@@ -26,7 +26,7 @@ const url = require('url');
 
 const SERVER_API = require('./api');
 
-const SUPPRESSED_EVENTS = /^\/(assets|read|watcher)\//;
+const SUPPRESSED_EVENTS = /^\/(read|assets|watcher|onchange)\//;
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -166,11 +166,15 @@ class Server {
     const options = this._getOptionsFromUrl(reqUrl);
     const refresh = steal(options, 'refresh');
     const hash = JSON.stringify(options);
+
+    var bundle;
     if (refresh) {
-      return this._bundler.refreshModuleCache()
-        .then(() => this.buildBundle(hash, options)._bundling);
+      this._bundler.refreshModuleCache()
+      bundle = this.buildBundle(hash, options);
+    } else {
+      bundle = this._bundles[hash] ||
+        this.buildBundle(hash, options);
     }
-    var bundle = this._bundles[hash] || this.buildBundle(hash, options);
     return bundle._bundling;
   }
 

@@ -213,8 +213,10 @@ function diffProperties(
           attributeConfig
         );
       } catch(e) {
-        console.log('"' + propKey + '" failed to update');
-        log.format(nextProps);
+        log.format(nextProps, {
+          label: '"' + propKey + '" failed to update: ',
+          maxObjectDepth: 4,
+        });
         throw e;
       }
     }

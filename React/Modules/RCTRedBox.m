@@ -14,7 +14,7 @@
 #import "RCTDefines.h"
 #import "RCTUtils.h"
 
-#if RCT_DEBUG
+// #if RCT_DEBUG
 
 @interface RCTRedBoxWindow : UIWindow <UITableViewDelegate, UITableViewDataSource>
 @end
@@ -328,25 +328,25 @@ RCT_EXPORT_MODULE()
 
 @end
 
-#else // Disabled
+//#else // Disabled
+//
+//@implementation RCTRedBox
+//
+//+ (NSString *)moduleName { return nil; }
+//- (void)showError:(NSError *)message {}
+//- (void)showErrorMessage:(NSString *)message {}
+//- (void)showErrorMessage:(NSString *)message withDetails:(NSString *)details {}
+//- (void)showErrorMessage:(NSString *)message withStack:(NSArray *)stack {}
+//- (void)updateErrorMessage:(NSString *)message withStack:(NSArray *)stack {}
+//- (void)showErrorMessage:(NSString *)message withStack:(NSArray *)stack showIfHidden:(BOOL)shouldShow {}
+//- (void)dismiss {}
+//
+//@end
+//
+//@implementation RCTBridge (RCTRedBox)
+//
+//- (RCTRedBox *)redBox { return nil; }
+//
+//@end
 
-@implementation RCTRedBox
-
-+ (NSString *)moduleName { return nil; }
-- (void)showError:(NSError *)message {}
-- (void)showErrorMessage:(NSString *)message {}
-- (void)showErrorMessage:(NSString *)message withDetails:(NSString *)details {}
-- (void)showErrorMessage:(NSString *)message withStack:(NSArray *)stack {}
-- (void)updateErrorMessage:(NSString *)message withStack:(NSArray *)stack {}
-- (void)showErrorMessage:(NSString *)message withStack:(NSArray *)stack showIfHidden:(BOOL)shouldShow {}
-- (void)dismiss {}
-
-@end
-
-@implementation RCTBridge (RCTRedBox)
-
-- (RCTRedBox *)redBox { return nil; }
-
-@end
-
-#endif
+// #endif

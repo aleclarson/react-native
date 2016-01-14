@@ -108,13 +108,6 @@ function processFileEvent(req, res) {
       this._fileWatcher.emit('all', type, filePath, root, fstat);
     }
   }
-  // else {
-  //   log
-  //     .moat(1)
-  //     .red('Error: ')
-  //     .white('"', filePath, '" is not used by the bundle')
-  //     .moat(1);
-  // }
 
   res.end();
 }

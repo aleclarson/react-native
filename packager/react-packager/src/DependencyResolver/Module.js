@@ -8,10 +8,12 @@
  */
 'use strict';
 
-const docblock = require('./DependencyGraph/docblock');
 const isAbsolutePath = require('absolute-path');
+const {sync} = require('io');
 const path = require('path');
+
 const replacePatterns = require('./replacePatterns');
+const docblock = require('./DependencyGraph/docblock');
 
 class Module {
 
@@ -34,6 +36,9 @@ class Module {
     this._fastfs = fastfs;
     this._moduleCache = moduleCache;
     this._cache = cache;
+
+    this._dependers = Object.create(null);
+    this._dependencies = Object.create(null);
   }
 
   isHaste() {
@@ -75,45 +80,24 @@ class Module {
   }
 
   getDependencies() {
-    return this._cache.get(this.path, 'dependencies', () =>
-      this._read().then(data => data.dependencies)
-    );
+    return this._cache.get(this.path, 'dependencies', () => {
+      return this._read()
+      .then(data => data.dependencies);
+    });
   }
 
-  invalidate() {
-    this._cache.invalidate(this.path);
+  // Get or set a resolved dependency.
+  resolveDependency(name, mod) {
+    const hash = this.path + ':' + name;
+    if (!mod) {
+      return this._dependencies[hash];
+    }
+    mod._dependers[hash] = this;
+    this._dependencies[hash] = mod;
   }
 
   getAsyncDependencies() {
     return this._read().then(data => data.asyncDependencies);
-  }
-
-  _read() {
-    if (!this._reading) {
-      this._reading = this._fastfs.readFile(this.path).then(content => {
-        const data = {};
-        const moduleDocBlock = docblock.parseAsObject(content);
-        if (moduleDocBlock.providesModule || moduleDocBlock.provides) {
-          data.id = /^(\S*)/.exec(
-            moduleDocBlock.providesModule || moduleDocBlock.provides
-          )[1];
-        }
-
-        // Ignore requires in generated code. An example of this is prebuilt
-        // files like the SourceMap library.
-        if ('extern' in moduleDocBlock) {
-          data.dependencies = [];
-        } else {
-          var dependencies = extractRequires(content);
-          data.dependencies = dependencies.sync;
-          data.asyncDependencies = dependencies.async;
-        }
-
-        return data;
-      });
-    }
-
-    return this._reading;
   }
 
   hash() {
@@ -149,6 +133,80 @@ class Module {
       type: this.type,
       path: this.path,
     };
+  }
+
+  _read() {
+    if (!this._reading) {
+      this._reading = this._fastfs.readFile(this.path).then(content => {
+
+        const data = {};
+        const moduleDocBlock = docblock.parseAsObject(content);
+        if (moduleDocBlock.providesModule || moduleDocBlock.provides) {
+          data.id = /^(\S*)/.exec(
+            moduleDocBlock.providesModule || moduleDocBlock.provides
+          )[1];
+        }
+
+        // Ignore requires in generated code. An example of this is prebuilt
+        // files like the SourceMap library.
+        if ('extern' in moduleDocBlock) {
+          data.dependencies = [];
+        } else {
+          var dependencies = extractRequires(content);
+          data.dependencies = dependencies.sync;
+          data.asyncDependencies = dependencies.async;
+        }
+
+        // log
+        //   .moat(1)
+        //   .white('Found dependencies: ')
+        //   .yellow(this.path)
+        //   .moat(0)
+        //   .format(data.dependencies)
+        //   .moat(1);
+
+        return data;
+      });
+    }
+
+    return this._reading;
+  }
+
+  _processFileChange(type) {
+
+    var newModule;
+
+    // Force this Module to recache its data.
+    this._cache.invalidate(this.path);
+
+    // Remove this Module from its ModuleCache.
+    this._moduleCache.removeModule(this.path);
+
+    // Any old dependencies should NOT have this Module
+    // in their `_dependers` hash table.
+    sync.each(this._dependencies, (mod, hash) => {
+      delete mod._dependers[hash];
+    });
+
+    if (type === 'delete') {
+
+      // Catch other Modules still depending on this deleted Module.
+      sync.each(this._dependers, (mod, hash) => {
+        delete mod._dependencies[hash];
+      });
+
+    } else {
+
+      // Force the ModuleCache to regenerate this Module.
+      newModule = this._moduleCache.getModule(this.path);
+
+      // Force any Modules (that depend on the old Module)
+      // to depend on the new Module.
+      sync.each(this._dependers, (mod, hash) => {
+        mod._dependencies[hash] = newModule;
+        newModule._dependers[hash] = mod;
+      });
+    }
   }
 }
 

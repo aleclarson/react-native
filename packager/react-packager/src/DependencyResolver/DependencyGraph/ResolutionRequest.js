@@ -55,35 +55,47 @@ class ResolutionRequest {
         return mod.getDependencies().then(
           depNames => Q.all(
             depNames.map(name => {
-              const result = this.getDependency(mod, name);
+              const result = mod.resolveDependency(name);
               if (result) {
                 return result;
-              } else {
-                return this.resolveDependency(mod, name)
-                .then(result => {
-                  if (result && !failed) {
-                    var displayPath = result.path;
-                    if (result.path[0] === '/') {
-                      displayPath = path.relative(lotus.path, result.path);
-                    }
-                    log
-                      .moat(1)
-                      .gray.dim(path.relative(lotus.path, mod.path), ' ')
-                      .moat(0)
-                      .yellow(name)
-                      .moat(0)
-                      .green(displayPath)
-                      .moat(1);
-                  }
-                  return result;
-                })
-                .fail(error => {
-                  failed = true;
-                  if (error.type !== 'UnableToResolveError') {
-                    throw error;
-                  }
-                });
               }
+
+              return this.resolveDependency(mod, name)
+              .then(result => {
+                if (result && !failed) {
+                  var displayPath = result.path;
+                  if (result.path[0] === '/') {
+                    displayPath = path.relative(lotus.path, result.path);
+                  }
+                  log
+                    .moat(1)
+                    .white('resolved: ')
+                    .green(name)
+                    .moat(0)
+                    .white('into: ')
+                    .cyan(displayPath)
+                    .moat(0)
+                    .white('for: ')
+                    .yellow(path.relative(lotus.path, mod.path))
+                    .moat(1);
+                } else {
+                  log
+                    .moat(1)
+                    .white('failed to resolve: ')
+                    .red(name)
+                    .moat(0)
+                    .white('for: ')
+                    .yellow(path.relative(lotus.path, mod.path))
+                    .moat(1);
+                }
+                return result;
+              })
+              .fail(error => {
+                failed = true;
+                if (error.type !== 'UnableToResolveError') {
+                  throw error;
+                }
+              });
             })
           )
           .then(dependencies => [depNames, dependencies])
@@ -140,19 +152,13 @@ class ResolutionRequest {
     ));
   }
 
-  getDependency(fromModule, toModuleName) {
-    const hash = this._helpers.resolutionHash(fromModule.path, toModuleName);
-    return this._fastfs._resolved[hash];
-  }
-
   resolveDependency(fromModule, toModuleName) {
     return Q.try(() =>
       this._resolveAssetDependency(toModuleName) ||
         this._resolveJSDependency(fromModule, toModuleName))
-    .then(result => {
-      const hash = this._helpers.resolutionHash(fromModule.path, toModuleName);
-      this._fastfs._cacheResult(fromModule, result, hash);
-      return result;
+    .then(resolvedModule => {
+      fromModule.resolveDependency(toModuleName, resolvedModule);
+      return resolvedModule;
     });
   }
 
@@ -208,7 +214,7 @@ class ResolutionRequest {
             .moat(0)
             .red(toModuleName)
             .white(' from ')
-            .red(fromModule.path)
+            .red(path.relative(lotus.path, fromModule.path))
             .moat(1);
         }
         throw error;

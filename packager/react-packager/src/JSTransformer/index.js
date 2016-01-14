@@ -11,6 +11,7 @@
 const ModuleTransport = require('../lib/ModuleTransport');
 const Q = require('q');
 const declareOpts = require('../lib/declareOpts');
+const path = require('path');
 const fs = require('fs');
 const util = require('util');
 const workerFarm = require('worker-farm');
@@ -95,11 +96,6 @@ class Transformer {
       filePath,
       'transformedSource',
       () => {
-        log
-          .moat(1)
-          .white('Transforming: ')
-          .green(filePath)
-          .moat(1);
         return fastfs.readFile(filePath).then(buffer => {
           const sourceCode = buffer.toString('utf8');
           return this._transform({
@@ -141,6 +137,12 @@ class Transformer {
 
             throw formatError(err, filePath);
           });
+        }).always(() => {
+          log
+            .moat(1)
+            .white('transformed: ')
+            .green(path.relative(lotus.path, filePath))
+            .moat(1);
         });
       });
   }

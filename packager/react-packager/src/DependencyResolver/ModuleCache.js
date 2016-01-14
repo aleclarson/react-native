@@ -3,6 +3,7 @@
 const AssetModule = require('./AssetModule');
 const Package = require('./Package');
 const Module = require('./Module');
+const {sync} = require('io');
 const path = require('path');
 
 class ModuleCache {
@@ -73,15 +74,34 @@ class ModuleCache {
     return this.getPackage(packagePath);
   }
 
+  removeModule(filePath) {
+    delete this._moduleCache[filePath];
+  }
+
+  removePackage(filePath) {
+    delete this._packageCache[filePath];
+  }
+
+  refresh() {
+    log
+      .moat(1)
+      .red('Refreshing the module cache!')
+      .moat(1);
+    sync.each(this._moduleCache, (module) => {
+      module._dependers = null;
+      module._dependencies = null;
+    });
+    this._moduleCache = Object.create(null);
+    this._cache.reset();
+  }
+
   _processFileChange(type, filePath, root) {
     const absPath = path.join(root, filePath);
     if (this._moduleCache[absPath]) {
-      this._moduleCache[absPath].invalidate();
-      delete this._moduleCache[absPath];
+      this._moduleCache[absPath]._processFileChange(type);
     }
     if (this._packageCache[absPath]) {
-      this._packageCache[absPath].invalidate();
-      delete this._packageCache[absPath];
+      this._packageCache[absPath]._processFileChange(type);
     }
   }
 }
