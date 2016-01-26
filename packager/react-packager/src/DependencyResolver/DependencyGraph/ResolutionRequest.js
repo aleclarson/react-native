@@ -69,22 +69,13 @@ class ResolutionRequest {
                   }
                   log
                     .moat(1)
-                    .white('resolved: ')
+                    .white('Resolved: ')
                     .green(name)
                     .moat(0)
-                    .white('into: ')
+                    .white('    into: ')
                     .cyan(displayPath)
                     .moat(0)
-                    .white('for: ')
-                    .yellow(path.relative(lotus.path, mod.path))
-                    .moat(1);
-                } else {
-                  log
-                    .moat(1)
-                    .white('failed to resolve: ')
-                    .red(name)
-                    .moat(0)
-                    .white('for: ')
+                    .white('     for: ')
                     .yellow(path.relative(lotus.path, mod.path))
                     .moat(1);
                 }
@@ -211,9 +202,9 @@ class ResolutionRequest {
           log
             .moat(1)
             .white('Failed to resolve: ')
-            .moat(0)
             .red(toModuleName)
-            .white(' from ')
+            .moat(0)
+            .white('              for: ')
             .red(path.relative(lotus.path, fromModule.path))
             .moat(1);
         }

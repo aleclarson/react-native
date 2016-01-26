@@ -10,8 +10,6 @@
  */
 'use strict';
 
-global.printedErrors = [];
-
 function printErrorStack(error, stack) {
 
   var message = '';
@@ -27,11 +25,6 @@ function printErrorStack(error, stack) {
                  '    line: '   + frame.lineNumber + '\n' +
                  '    column: ' + frame.column     + '\n\n';
     }
-  });
-
-  global.printedErrors.push({
-    error: error,
-    stack: stack,
   });
 
   console.log(message);

@@ -70,24 +70,18 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
     RCTExceptionsManager.reportFatalException(error.message, error.stack, currentExceptionID);
   } else {
     RCTExceptionsManager.reportSoftException(error.message, error.stack, currentExceptionID);
+    return;
   }
 
   // if (!__DEV__) {
   //   return;
   // }
 
-  if (!isFatal) {
-    return;
-  }
-
   if (global._bundleSourceMap === null) {
-    console.log('Loading the bundle\'s source map...');
     global._bundleSourceMap = loadSourceMapForBundle();
   }
 
   global._bundleSourceMap.then(bundleSourceMap => {
-
-    console.log('Loaded the bundle\'s source map!');
 
     // Map the bundle to the original JS files.
     parseErrorStack(error, bundleSourceMap);

@@ -205,6 +205,15 @@ NSNumber *RCTConvertMultiEnumValue(const char *typeName, NSDictionary *mapping, 
   return RCTConvertEnumValue(typeName, mapping, defaultValue, json);
 }
 
+RCT_ENUM_CONVERTER(NSLineBreakMode, (@{
+  @"clipping": @(NSLineBreakByClipping),
+  @"word-wrapping": @(NSLineBreakByWordWrapping),
+  @"char-wrapping": @(NSLineBreakByCharWrapping),
+  @"truncating-head": @(NSLineBreakByTruncatingHead),
+  @"truncating-middle": @(NSLineBreakByTruncatingMiddle),
+  @"truncating-tail": @(NSLineBreakByTruncatingTail),
+}), NSLineBreakByWordWrapping, integerValue)
+
 RCT_ENUM_CONVERTER(NSTextAlignment, (@{
   @"auto": @(NSTextAlignmentNatural),
   @"left": @(NSTextAlignmentLeft),

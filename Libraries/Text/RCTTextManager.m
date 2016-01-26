@@ -44,6 +44,7 @@ RCT_EXPORT_SHADOW_PROPERTY(isHighlighted, BOOL)
 RCT_EXPORT_SHADOW_PROPERTY(letterSpacing, CGFloat)
 RCT_EXPORT_SHADOW_PROPERTY(lineHeight, CGFloat)
 RCT_EXPORT_SHADOW_PROPERTY(numberOfLines, NSUInteger)
+RCT_EXPORT_SHADOW_PROPERTY(lineBreakMode, NSLineBreakMode)
 RCT_EXPORT_SHADOW_PROPERTY(shadowOffset, CGSize)
 RCT_EXPORT_SHADOW_PROPERTY(textAlign, NSTextAlignment)
 RCT_EXPORT_SHADOW_PROPERTY(textDecorationStyle, NSUnderlineStyle)
@@ -51,6 +52,77 @@ RCT_EXPORT_SHADOW_PROPERTY(textDecorationColor, UIColor)
 RCT_EXPORT_SHADOW_PROPERTY(textDecorationLine, RCTTextDecorationLineType)
 RCT_EXPORT_SHADOW_PROPERTY(writingDirection, NSWritingDirection)
 RCT_EXPORT_SHADOW_PROPERTY(allowFontScaling, BOOL)
+
+RCT_EXPORT_METHOD(computeWidth:(NSString *)text
+                     textStyle:(NSDictionary *)textStyle
+                      callback:(RCTResponseSenderBlock)callback)
+{
+  UIFont *font = [RCTConvert UIFont:nil
+                         withFamily:textStyle[@"fontFamily"]
+                               size:textStyle[@"fontSize"]
+                             weight:textStyle[@"fontWeight"]
+                              style:textStyle[@"fontStyle"]
+                    scaleMultiplier:1.0];
+
+  CGSize size = [text sizeWithAttributes:@{
+    NSFontAttributeName: font,
+    NSKernAttributeName: textStyle[@"letterSpacing"] ?: @0
+  }];
+
+  callback(@[
+    @(size.width)
+  ]);
+}
+
+RCT_EXPORT_METHOD(computeLines:(NSString *)text
+                     textStyle:(NSDictionary *)textStyle
+                      callback:(RCTResponseSenderBlock)callback)
+{
+  NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:text];
+
+  UIFont *font = [RCTConvert UIFont:nil
+                         withFamily:textStyle[@"fontFamily"]
+                               size:textStyle[@"fontSize"]
+                             weight:textStyle[@"fontWeight"]
+                              style:textStyle[@"fontStyle"]
+                    scaleMultiplier:1.0];
+
+  NSRange textRange = (NSRange){0, attributedString.length};
+  [attributedString addAttribute:NSFontAttributeName value:font range:textRange];
+
+  if (textStyle[@"letterSpacing"]) {
+    [attributedString addAttribute:NSKernAttributeName value:textStyle[@"letterSpacing"] range:textRange];
+  }
+
+  NSLayoutManager *layoutManager = [NSLayoutManager new];
+
+  NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
+  [textStorage addLayoutManager:layoutManager];
+
+  NSTextContainer *textContainer = [NSTextContainer new];
+  textContainer.lineFragmentPadding = 0.0;
+  textContainer.lineBreakMode = (NSLineBreakMode)textStyle[@"lineBreakMode"];
+  textContainer.size = (CGSize){[textStyle[@"width"] doubleValue], CGFLOAT_MAX};
+
+  [layoutManager addTextContainer:textContainer];
+  [layoutManager ensureLayoutForTextContainer:textContainer];
+
+  NSString *line;
+  NSMutableArray *lines = [NSMutableArray new];
+  NSUInteger glyphCount = [layoutManager numberOfGlyphs];
+  NSRange lineRange;
+  for (NSUInteger lineCount = 0, index = 0; index < glyphCount; lineCount++){
+    [layoutManager lineFragmentRectForGlyphAtIndex:index effectiveRange:&lineRange];
+    line = [text substringWithRange:lineRange];
+    line = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    [lines addObject:line];
+    index = NSMaxRange(lineRange);
+  }
+
+  callback(@[
+    lines
+  ]);
+}
 
 - (RCTViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(RCTSparseArray *)shadowViewRegistry
 {

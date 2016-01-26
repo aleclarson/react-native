@@ -99,7 +99,7 @@ function processFileEvent(req, res) {
   var fstat;
 
   // Ensure the 'filePath' cached in the virtual filesystem.
-  if (fs._fastPaths[filePath]) {
+  if (type === 'add' || fs._fastPaths[filePath]) {
     root = fs._getRoot(filePath).path;
     // Ensure the 'root' is not known by the packager's file watcher.
     if (this._fileWatcher._watcherByRoot[root] == null) {

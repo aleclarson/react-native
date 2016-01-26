@@ -53,6 +53,7 @@ var TouchableWithoutFeedback = React.createClass({
     onPress: React.PropTypes.func,
     onPressIn: React.PropTypes.func,
     onPressOut: React.PropTypes.func,
+    onPressTerminate: React.PropTypes.func,
     /**
      * Invoked on mount and layout changes with
      *
@@ -103,6 +104,10 @@ var TouchableWithoutFeedback = React.createClass({
   touchableHandleActivePressOut: function(e: Event) {
     this.props.onPressOut && this.props.onPressOut(e);
   },
+
+  // touchableHandlePressTerminate: function(e: Event) {
+  //   onPressTerminate
+  // }
 
   touchableHandleLongPress: function(e: Event) {
     this.props.onLongPress && this.props.onLongPress(e);

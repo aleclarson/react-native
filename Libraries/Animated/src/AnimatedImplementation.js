@@ -176,12 +176,21 @@ class TimingAnimation extends Animation {
     this.__onEnd = onEnd;
 
     var start = () => {
+      if (this._toValue instanceof AnimatedValue) {
+        this._toAnimatedValue = this._toValue;
+        this._toValue = this._toValue.__getValue();
+      }
       if (this._duration === 0) {
         this._onUpdate(this._toValue);
-        this.__debouncedOnEnd({finished: true});
+        this.onEnd(true);
       } else {
         this._startTime = Date.now();
         this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
+        if (this._toAnimatedValue) {
+          this._toAnimatedValueListener = this._toAnimatedValue.addListener((state) => {
+            this._toValue = state.value;
+          });
+        }
       }
     };
     if (this._delay) {
@@ -201,7 +210,7 @@ class TimingAnimation extends Animation {
           this._fromValue + this._easing(1) * (this._toValue - this._fromValue)
         );
       }
-      this.__debouncedOnEnd({finished: true});
+      this.onEnd(true);
       return;
     }
 
@@ -215,11 +224,18 @@ class TimingAnimation extends Animation {
     }
   }
 
+  onEnd(finished: bool): void {
+    if (this._toAnimatedValue) {
+      this._toAnimatedValue.removeListener(this._toAnimatedValueListener);
+    }
+    this.__debouncedOnEnd({finished: finished});
+  }
+
   stop(): void {
     this.__active = false;
     clearTimeout(this._timeout);
     window.cancelAnimationFrame(this._animationFrame);
-    this.__debouncedOnEnd({finished: false});
+    this.onEnd(false);
   }
 }
 
@@ -401,6 +417,10 @@ class SpringAnimation extends Animation {
     this.__onEnd = onEnd;
     this._lastTime = Date.now();
 
+    if (this._toValue instanceof AnimatedValue) {
+      this._toAnimatedValue = this._toValue;
+      this._toValue = this._toValue.__getValue();
+    }
     if (previousAnimation instanceof SpringAnimation) {
       var internalState = previousAnimation.getInternalState();
       this._lastPosition = internalState.lastPosition;
@@ -412,6 +432,11 @@ class SpringAnimation extends Animation {
       this._lastVelocity = this._initialVelocity;
     }
     this.onUpdate();
+    if (this._toAnimatedValue) {
+      this._toAnimatedValueListener = this._toAnimatedValue.addListener((state) => {
+        this._toValue = state.value;
+      });
+    }
   }
 
   getInternalState(): Object {
@@ -508,16 +533,23 @@ class SpringAnimation extends Animation {
         this._onUpdate(this._toValue);
       }
 
-      this.__debouncedOnEnd({finished: true});
+      this.onEnd(true);
       return;
     }
     this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
   }
 
+  onEnd(finished: bool): void {
+    if (this._toAnimatedValue) {
+      this._toAnimatedValue.removeListener(this._toAnimatedValueListener);
+    }
+    this.__debouncedOnEnd({finished: finished});
+  }
+
   stop(): void {
     this.__active = false;
     window.cancelAnimationFrame(this._animationFrame);
-    this.__debouncedOnEnd({finished: false});
+    this.onEnd(false);
   }
 }
 

@@ -66,10 +66,8 @@ function loadSourceMapForFile(filePath): Q.Promise {
   var promise = global._loadSourceMapForFile[url];
 
   if (!promise) {
-    console.log('Loading: ' + url);
     promise = global._loadSourceMapForFile[url] = fetch(url);
     promise.always(() => {
-      console.log('Finished loading: ' + url);
       delete global._loadSourceMapForFile[url];
     });
   }
@@ -92,11 +90,9 @@ function loadSourceMapForFile(filePath): Q.Promise {
 
 function loadSourceMap(url): Q.Promise {
 
-  console.log('Loading source map: ' + url);
+  console.log('loadSourceMap(' + url + ')');
 
-  global._loadSourceMap = fetch(url);
-
-  return global._loadSourceMap
+  return fetch(url)
 
   .then(res => res.text())
 

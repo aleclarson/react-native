@@ -105,7 +105,6 @@ HasteDependencyResolver.prototype._getPolyfillDependencies = function(isDev) {
     isDev ? 'prelude_dev' : 'prelude',
     'require',
     'polyfills',
-    'console',
     'error-guard',
     'String.prototype.es6',
     'Array.prototype.es6',

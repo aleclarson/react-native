@@ -88,8 +88,8 @@ class ModuleCache {
       .red('Refreshing the module cache!')
       .moat(1);
     sync.each(this._moduleCache, (module) => {
-      module._dependers = null;
-      module._dependencies = null;
+      module._dependers = Object.create(null);
+      module._dependencies = Object.create(null);
     });
     this._moduleCache = Object.create(null);
     this._cache.reset();
