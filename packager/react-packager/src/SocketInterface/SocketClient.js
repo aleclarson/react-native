@@ -8,14 +8,16 @@
  */
 'use strict';
 
-const Bundle = require('../Bundler/Bundle');
 const Q = require('q');
-const bser = require('bser');
-const debug = require('debug')('ReactNativePackager:SocketClient');
 const fs = require('fs');
 const net = require('net');
+const bser = require('bser');
 const path  = require('path');
+const debug = require('debug')('ReactNativePackager:SocketClient');
 const tmpdir = require('os').tmpdir();
+
+const Bundle = require('../Bundler/Bundle');
+const PrepackBundle = require('../Bundler/PrepackBundle');
 
 const LOG_PATH = path.join(tmpdir, 'react-packager.log');
 
@@ -100,6 +102,13 @@ class SocketClient {
     }).then(json => Bundle.fromJSON(json));
   }
 
+  buildPrepackBundle(options) {
+    return this._send({
+      type: 'buildPrepackBundle',
+      data: options,
+    }).then(json => PrepackBundle.fromJSON(json));
+  }
+
   _send(message) {
     message.id = uid();
     this._sock.write(bser.dumpToBuffer(message));
@@ -128,9 +137,12 @@ class SocketClient {
     delete this._resolvers[message.id];
 
     if (message.type === 'error') {
-      resolver.reject(new Error(
-        message.data + '\n' + 'See logs ' + LOG_PATH
-      ));
+      const errorLog =
+        message.data && message.data.indexOf('TimeoutError') === -1
+          ? 'See logs ' + LOG_PATH
+          : getServerLogs();
+
+      resolver.reject(new Error(message.data + '\n' + errorLog));
     } else {
       resolver.resolve(message.data);
     }

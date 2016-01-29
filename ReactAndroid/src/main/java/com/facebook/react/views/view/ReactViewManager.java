@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Map;
 
-import android.graphics.Color;
 import android.os.Build;
 import android.view.View;
 
@@ -25,11 +24,10 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.common.annotations.VisibleForTesting;
-import com.facebook.react.uimanager.CatalystStylesDiffMap;
 import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.PointerEvents;
-import com.facebook.react.uimanager.ReactProp;
-import com.facebook.react.uimanager.ReactPropGroup;
+import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.uimanager.annotations.ReactPropGroup;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.ViewProps;
@@ -47,7 +45,6 @@ public class ReactViewManager extends ViewGroupManager<ReactViewGroup> {
   };
   private static final int CMD_HOTSPOT_UPDATE = 1;
   private static final int CMD_SET_PRESSED = 2;
-  private static final int[] sLocationBuf = new int[2];
 
   @ReactProp(name = "accessible")
   public void setAccessible(ReactViewGroup view, boolean accessible) {
@@ -77,14 +74,6 @@ public class ReactViewManager extends ViewGroupManager<ReactViewGroup> {
   public void setNativeBackground(ReactViewGroup view, @Nullable ReadableMap bg) {
     view.setTranslucentBackgroundDrawable(bg == null ?
             null : ReactDrawableHelper.createDrawableFromJSDescription(view.getContext(), bg));
-  }
-
-  @ReactProp(name = ViewProps.BORDER_WIDTH, defaultFloat = CSSConstants.UNDEFINED)
-  public void setBorderWidth(ReactViewGroup view, float width) {
-    if (!CSSConstants.isUndefined(width)) {
-      width = PixelUtil.toPixelFromDIP(width);
-    }
-    view.setBorderWidth(Spacing.ALL, width);
   }
 
   @ReactProp(name = ReactClippingViewGroupHelper.PROP_REMOVE_CLIPPED_SUBVIEWS)
@@ -122,6 +111,12 @@ public class ReactViewManager extends ViewGroupManager<ReactViewGroup> {
         color == null ? CSSConstants.UNDEFINED : (float) color);
   }
 
+  @ReactProp(name = ViewProps.COLLAPSABLE)
+  public void setCollapsable(ReactViewGroup view, boolean collapsable) {
+    // no-op: it's here only so that "collapsable" property is exported to JS. The value is actually
+    // handled in NativeViewHierarchyOptimizer
+  }
+
   @Override
   public String getName() {
     return REACT_CLASS;
@@ -146,9 +141,8 @@ public class ReactViewManager extends ViewGroupManager<ReactViewGroup> {
               "Illegal number of arguments for 'updateHotspot' command");
         }
         if (Build.VERSION.SDK_INT >= 21) {
-          root.getLocationOnScreen(sLocationBuf);
-          float x = PixelUtil.toPixelFromDIP(args.getDouble(0)) - sLocationBuf[0];
-          float y = PixelUtil.toPixelFromDIP(args.getDouble(1)) - sLocationBuf[1];
+          float x = PixelUtil.toPixelFromDIP(args.getDouble(0));
+          float y = PixelUtil.toPixelFromDIP(args.getDouble(1));
           root.drawableHotspotChanged(x, y);
         }
         break;
@@ -195,16 +189,26 @@ public class ReactViewManager extends ViewGroupManager<ReactViewGroup> {
   }
 
   @Override
-  public void removeView(ReactViewGroup parent, View child) {
+  public void removeViewAt(ReactViewGroup parent, int index) {
     boolean removeClippedSubviews = parent.getRemoveClippedSubviews();
     if (removeClippedSubviews) {
+      View child = getChildAt(parent, index);
       if (child.getParent() != null) {
         parent.removeView(child);
       }
       parent.removeViewWithSubviewClippingEnabled(child);
     } else {
-      parent.removeView(child);
+      parent.removeViewAt(index);
     }
   }
 
+  @Override
+  public void removeAllViews(ReactViewGroup parent) {
+    boolean removeClippedSubviews = parent.getRemoveClippedSubviews();
+    if (removeClippedSubviews) {
+      parent.removeAllViewsWithSubviewClippingEnabled();
+    } else {
+      parent.removeAllViews();
+    }
+  }
 }

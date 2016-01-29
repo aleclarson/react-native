@@ -12,12 +12,12 @@ const isAbsolutePath = require('absolute-path');
 const {sync} = require('io');
 const path = require('path');
 
-const replacePatterns = require('./replacePatterns');
 const docblock = require('./DependencyGraph/docblock');
+const extractRequires = require('./lib/extractRequires');
 
 class Module {
 
-  constructor(file, fastfs, moduleCache, cache) {
+  constructor({ file, fastfs, moduleCache, cache, extractor }) {
     if (file[0] === '.') {
       throw Error('Path cannot be relative: ' + file);
     }
@@ -25,25 +25,20 @@ class Module {
     this.path = file;
     this.type = 'Module';
 
-    // if (!this.isPolyfill() && !this.isNull()) {
-    //   log
-    //     .moat(1)
-    //     .white('Created module: ')
-    //     .cyan(this.path)
-    //     .moat(1);
-    // }
-
     this._fastfs = fastfs;
     this._moduleCache = moduleCache;
     this._cache = cache;
+    this._extractor = extractor;
 
     this._dependers = Object.create(null);
     this._dependencies = Object.create(null);
   }
 
   isHaste() {
-    return this._cache.get(this.path, 'haste', () =>
-      this._read().then(data => !!data.id)
+    return this._cache.get(
+      this.path,
+      'isHaste',
+      () => this.read().then(data => !!data.id)
     );
   }
 
@@ -51,7 +46,7 @@ class Module {
     return this._cache.get(
       this.path,
       'name',
-      () => this._read().then(data => {
+      () => this.read().then(data => {
         if (data.id) {
           return data.id;
         }
@@ -80,10 +75,19 @@ class Module {
   }
 
   getDependencies() {
-    return this._cache.get(this.path, 'dependencies', () => {
-      return this._read()
-      .then(data => data.dependencies);
-    });
+    return this._cache.get(
+      this.path,
+      'dependencies',
+      () => this.read().then(data => data.dependencies)
+    );
+  }
+
+  getAsyncDependencies() {
+    return this._cache.get(
+      this.path,
+      'asyncDependencies',
+      () => this.read().then(data => data.asyncDependencies)
+    );
   }
 
   // Get or set a resolved dependency.
@@ -96,8 +100,45 @@ class Module {
     this._dependencies[hash] = mod;
   }
 
-  getAsyncDependencies() {
-    return this._read().then(data => data.asyncDependencies);
+  invalidate() {
+    this._cache.invalidate(this.path);
+  }
+
+  read() {
+    if (!this._reading) {
+      this._reading = this._fastfs.readFile(this.path).then(content => {
+        const data = {};
+        const moduleDocBlock = docblock.parseAsObject(content);
+        if (moduleDocBlock.providesModule || moduleDocBlock.provides) {
+          data.id = /^(\S*)/.exec(
+            moduleDocBlock.providesModule || moduleDocBlock.provides
+          )[1];
+        }
+
+        // Ignore requires in JSON files or generated code. An example of this
+        // is prebuilt files like the SourceMap library.
+        if (this.isJSON() || 'extern' in moduleDocBlock) {
+          data.dependencies = [];
+          data.asyncDependencies = [];
+        } else {
+          var dependencies = (this._extractor || extractRequires)(content).deps;
+          data.dependencies = dependencies.sync;
+          data.asyncDependencies = dependencies.async;
+        }
+
+        // log
+        //   .moat(1)
+        //   .white('Found dependencies: ')
+        //   .yellow(this.path)
+        //   .moat(0)
+        //   .format(data.dependencies)
+        //   .moat(1);
+
+        return data;
+      });
+    }
+
+    return this._reading;
   }
 
   hash() {
@@ -133,43 +174,6 @@ class Module {
       type: this.type,
       path: this.path,
     };
-  }
-
-  _read() {
-    if (!this._reading) {
-      this._reading = this._fastfs.readFile(this.path).then(content => {
-
-        const data = {};
-        const moduleDocBlock = docblock.parseAsObject(content);
-        if (moduleDocBlock.providesModule || moduleDocBlock.provides) {
-          data.id = /^(\S*)/.exec(
-            moduleDocBlock.providesModule || moduleDocBlock.provides
-          )[1];
-        }
-
-        // Ignore requires in generated code. An example of this is prebuilt
-        // files like the SourceMap library.
-        if ('extern' in moduleDocBlock) {
-          data.dependencies = [];
-        } else {
-          var dependencies = extractRequires(content);
-          data.dependencies = dependencies.sync;
-          data.asyncDependencies = dependencies.async;
-        }
-
-        // log
-        //   .moat(1)
-        //   .white('Found dependencies: ')
-        //   .yellow(this.path)
-        //   .moat(0)
-        //   .format(data.dependencies)
-        //   .moat(1);
-
-        return data;
-      });
-    }
-
-    return this._reading;
   }
 
   _processFileChange(type) {
@@ -208,46 +212,6 @@ class Module {
       });
     }
   }
-}
-
-/**
- * Extract all required modules from a `code` string.
- */
-const blockCommentRe = /\/\*(.|\n)*?\*\//g;
-const lineCommentRe = /\/\/.+(\n|$)/g;
-function extractRequires(code /*: string*/) /*: Array<string>*/ {
-  var deps = {
-    sync: [],
-    async: [],
-  };
-
-  code
-    .replace(blockCommentRe, '')
-    .replace(lineCommentRe, '')
-    // Parse sync dependencies. See comment below for further detils.
-    .replace(replacePatterns.IMPORT_RE, (match, pre, quot, dep, post) => {
-      deps.sync.push(dep);
-      return match;
-    })
-    // Parse the sync dependencies this module has. When the module is
-    // required, all it's sync dependencies will be loaded into memory.
-    // Sync dependencies can be defined either using `require` or the ES6
-    // `import` syntax:
-    //   var dep1 = require('dep1');
-    .replace(replacePatterns.REQUIRE_RE, (match, pre, quot, dep, post) => {
-      deps.sync.push(dep);
-    })
-    // Parse async dependencies this module has. As opposed to what happens
-    // with sync dependencies, when the module is required, it's async
-    // dependencies won't be loaded into memory. This is deferred till the
-    // code path gets to the import statement:
-    //   System.import('dep1')
-    .replace(replacePatterns.SYSTEM_IMPORT_RE, (match, pre, quot, dep, post) => {
-      deps.async.push([dep]);
-      return match;
-    });
-
-  return deps;
 }
 
 module.exports = Module;

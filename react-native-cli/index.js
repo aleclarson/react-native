@@ -39,7 +39,9 @@ var fs = require('fs');
 var path = require('path');
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
+var chalk = require('chalk');
 var prompt = require('prompt');
+var semver = require('semver');
 
 var CLI_MODULE_PATH = function() {
   return path.resolve(
@@ -47,6 +49,15 @@ var CLI_MODULE_PATH = function() {
     'node_modules',
     'react-native',
     'cli.js'
+  );
+};
+
+var REACT_NATIVE_PACKAGE_JSON_PATH = function() {
+  return path.resolve(
+    process.cwd(),
+    'node_modules',
+    'react-native',
+    'package.json'
   );
 };
 
@@ -127,7 +138,7 @@ function createAfterConfirmation(name, verbose) {
 
   var property = {
     name: 'yesno',
-    message: 'Directory ' + name + ' already exist. Continue?',
+    message: 'Directory ' + name + ' already exists. Continue?',
     validator: /y[es]*|n[o]?/,
     warning: 'Must respond yes or no',
     default: 'no'
@@ -161,7 +172,7 @@ function createProject(name, verbose) {
     version: '0.0.1',
     private: true,
     scripts: {
-      start: 'node_modules/react-native/packager/packager.sh'
+      start: 'node node_modules/react-native/local-cli/cli.js start'
     }
   };
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(packageJson));
@@ -185,6 +196,8 @@ function run(root, projectName) {
       process.exit(1);
     }
 
+    checkNodeVersion();
+
     var cli = require(CLI_MODULE_PATH());
     cli.init(root, projectName);
   });
@@ -203,10 +216,30 @@ function runVerbose(root, projectName) {
   });
 }
 
+function checkNodeVersion() {
+  var packageJson = require(REACT_NATIVE_PACKAGE_JSON_PATH());
+  if (!packageJson.engines || !packageJson.engines.node) {
+    return;
+  }
+  if (!semver.satisfies(process.version, packageJson.engines.node)) {
+    console.error(chalk.red(
+        'You are currently running Node %s but React Native requires %s. ' +
+        'Please use a supported version of Node.\n' +
+        'See https://facebook.github.io/react-native/docs/getting-started.html'
+      ),
+      process.version,
+      packageJson.engines.node);
+  }
+}
+
 function checkForVersionArgument() {
   if (process.argv.indexOf('-v') >= 0 || process.argv.indexOf('--version') >= 0) {
-    var pjson = require('./package.json');
-    console.log(pjson.version);
+    console.log('react-native-cli: ' + require('./package.json').version);
+    try {
+      console.log('react-native: ' + require(REACT_NATIVE_PACKAGE_JSON_PATH()).version);
+    } catch (e) {
+      console.log('react-native: n/a - not inside a React Native project directory')
+    }
     process.exit();
   }
 }

@@ -8,23 +8,25 @@ const path = require('path');
 
 class ModuleCache {
 
-  constructor(fastfs, cache) {
+  constructor(fastfs, cache, extractRequires) {
     this._moduleCache = Object.create(null);
     this._packageCache = Object.create(null);
     this._fastfs = fastfs;
     this._cache = cache;
+    this._extractRequires = extractRequires;
     fastfs.on('change', this._processFileChange.bind(this));
   }
 
   getModule(filePath) {
     filePath = path.resolve(filePath);
     if (!this._moduleCache[filePath]) {
-      this._moduleCache[filePath] = new Module(
-        filePath,
-        this._fastfs,
-        this,
-        this._cache,
-      );
+      this._moduleCache[filePath] = new Module({
+        file: filePath,
+        fastfs: this._fastfs,
+        moduleCache: this,
+        cache: this._cache,
+        extractor: this._extractRequires,
+      });
     }
     return this._moduleCache[filePath];
   }
@@ -32,24 +34,24 @@ class ModuleCache {
   getAssetModule(filePath) {
     filePath = path.resolve(filePath);
     if (!this._moduleCache[filePath]) {
-      this._moduleCache[filePath] = new AssetModule(
-        filePath,
-        this._fastfs,
-        this,
-        this._cache,
-      );
+      this._moduleCache[filePath] = new AssetModule({
+        file: filePath,
+        fastfs: this._fastfs,
+        moduleCache: this,
+        cache: this._cache,
+      });
     }
     return this._moduleCache[filePath];
   }
 
   getPackage(filePath) {
     filePath = path.resolve(filePath);
-    if (!this._packageCache[filePath]){
-      this._packageCache[filePath] = new Package(
-        filePath,
-        this._fastfs,
-        this._cache,
-      );
+    if (!this._packageCache[filePath]) {
+      this._packageCache[filePath] = new Package({
+        file: filePath,
+        fastfs: this._fastfs,
+        cache: this._cache,
+      });
     }
     return this._packageCache[filePath];
   }

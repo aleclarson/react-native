@@ -13,6 +13,7 @@ const Q = require('q');
 const declareOpts = require('../lib/declareOpts');
 const path = require('path');
 const fs = require('fs');
+const temp = require('temp');
 const util = require('util');
 const workerFarm = require('worker-farm');
 const debug = require('debug')('ReactNativePackager:JStransformer');
@@ -23,10 +24,10 @@ const debug = require('debug')('ReactNativePackager:JStransformer');
 const MAX_CALLS_PER_WORKER = 600;
 
 // Worker will timeout if one of the callers timeout.
-const DEFAULT_MAX_CALL_TIME = 120000;
+const DEFAULT_MAX_CALL_TIME = 301000;
 
 // How may times can we tolerate failures from the worker.
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 2;
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -48,14 +49,18 @@ const validateOpts = declareOpts({
     type: 'object',
     required: true,
   },
-  resolver: {
+  fastfs: {
     type: 'object',
     required: true,
   },
   transformTimeoutInterval: {
     type: 'number',
     default: DEFAULT_MAX_CALL_TIME,
-  }
+  },
+  disableInternalTransforms: {
+    type: 'boolean',
+    default: false,
+  },
 });
 
 class Transformer {
@@ -63,16 +68,32 @@ class Transformer {
     const opts = this._opts = validateOpts(options);
 
     this._cache = opts.cache;
-    this._resolver = opts.resolver;
+    this._fastfs = opts.fastfs;
+    this._transformModulePath = opts.transformModulePath;
 
     if (opts.transformModulePath != null) {
+      let transformer;
+
+      if (opts.disableInternalTransforms) {
+        transformer = opts.transformModulePath;
+      } else {
+        transformer = this._workerWrapperPath = temp.path();
+        fs.writeFileSync(
+          this._workerWrapperPath,
+          `
+          module.exports = require(${JSON.stringify(require.resolve('./worker'))});
+          require(${JSON.stringify(String(opts.transformModulePath))});
+          `
+        );
+      }
+
       this._workers = workerFarm({
         autoStart: true,
         maxConcurrentCallsPerWorker: 1,
         maxCallsPerWorker: MAX_CALLS_PER_WORKER,
         maxCallTime: opts.transformTimeoutInterval,
         maxRetries: MAX_RETRIES,
-      }, opts.transformModulePath);
+      }, transformer);
 
       this._transform = Q.denodeify(this._workers);
     }
@@ -80,27 +101,38 @@ class Transformer {
 
   kill() {
     this._workers && workerFarm.end(this._workers);
+    if (this._workerWrapperPath &&
+        typeof this._workerWrapperPath === 'string') {
+      fs.unlink(this._workerWrapperPath, () => {}); // we don't care about potential errors here
+    }
   }
 
   invalidateFile(filePath) {
     this._cache.invalidate(filePath);
   }
 
-  loadFileAndTransform(filePath, bundle) {
+  loadFileAndTransform(filePath, options) {
     if (this._transform == null) {
       return Q.reject(new Error('No transfrom module'));
     }
 
-    const fastfs = this._resolver._depGraph._fastfs;
+    debug('transforming file', filePath);
+
+    const optionsJSON = JSON.stringify(options);
+
     return this._cache.get(
       filePath,
-      'transformedSource',
-      () => {
-        return fastfs.readFile(filePath).then(buffer => {
+      'transformedSource-' + optionsJSON,
+      () => this._fastfs.readFile(filePath)
+        .then(buffer => {
           const sourceCode = buffer.toString('utf8');
           return this._transform({
             sourceCode,
             filename: filePath,
+            options: {
+              ...options,
+              externalTransformModulePath: this._transformModulePath,
+            },
           }).then(res => {
             if (res.error) {
               console.warn(
@@ -140,11 +172,11 @@ class Transformer {
         }).always(() => {
           log
             .moat(1)
-            .white('transformed: ')
+            .white('Transformed: ')
             .green(path.relative(lotus.path, filePath))
             .moat(1);
-        });
-      });
+        })
+      );
   }
 }
 

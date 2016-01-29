@@ -11,31 +11,35 @@
  */
 'use strict';
 
-var RCTExceptionsManager = require('NativeModules').ExceptionsManager;
-
-var { loadSourceMapForBundle, loadSourceMapForFile } = require('loadSourceMap');
-var resolveSourceMaps = require('resolveSourceMaps');
-var filterErrorStack = require('filterErrorStack');
-var parseErrorStack = require('parseErrorStack');
-var printErrorStack = require('printErrorStack');
-var stringifySafe = require('stringifySafe');
-var { fetch } = require('fetch');
-var Q = require ('q');
-
 var exceptionID = 0;
 
 global._bundleSourceMap = null;
 global._fatalException = null;
 
+/**
+ * Handles the developer-visible aspect of errors and exceptions
+ */
 function reportException(error: Exception, isFatal: bool, stack?: any) {
 
   // if (!__DEV__) {
   //   return;
   // }
 
-  if (!RCTExceptionsManager || global._fatalException){
+  if (global._fatalException) {
     return;
   }
+
+  var RCTExceptionsManager = require('NativeModules').ExceptionsManager;
+  if (!RCTExceptionsManager) {
+    return;
+  }
+
+  var Q = require ('q');
+  var parseErrorStack = require('parseErrorStack');
+  var printErrorStack = require('printErrorStack');
+  var filterErrorStack = require('filterErrorStack');
+  var resolveSourceMaps = require('resolveSourceMaps');
+  var { loadSourceMapForBundle, loadSourceMapForFile } = require('loadSourceMap');
 
   if (!stack) {
     stack = parseErrorStack(error);
@@ -72,10 +76,6 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
     RCTExceptionsManager.reportSoftException(error.message, error.stack, currentExceptionID);
     return;
   }
-
-  // if (!__DEV__) {
-  //   return;
-  // }
 
   if (global._bundleSourceMap === null) {
     global._bundleSourceMap = loadSourceMapForBundle();
@@ -142,38 +142,4 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
   });
 }
 
-/**
- * Shows a redbox with stacktrace for all console.error messages.  Disable by
- * setting `console.reportErrorsAsExceptions = false;` in your app.
- */
-function installConsoleErrorReporter() {
-  if (console.reportException) {
-    return; // already installed
-  }
-  console.reportException = reportException;
-  console.errorOriginal = console.error.bind(console);
-  console.error = function reactConsoleError() {
-    // Note that when using the built-in context executor on iOS (i.e., not
-    // Chrome debugging), console.error is already stubbed out to cause a
-    // redbox via RCTNativeLoggingHook.
-    console.errorOriginal.apply(null, arguments);
-    if (!console.reportErrorsAsExceptions) {
-      return;
-    }
-    var str = Array.prototype.map.call(arguments, stringifySafe).join(', ');
-    if (str.slice(0, 10) === '"Warning: ') {
-      // React warnings use console.error so that a stack trace is shown, but
-      // we don't (currently) want these to show a redbox
-      // (Note: Logic duplicated in polyfills/console.js.)
-      return;
-    }
-    var error: any = new Error('console.error: ' + str);
-    error.framesToPop = 1;
-    reportException(error, /* isFatal */ false);
-  };
-  if (console.reportErrorsAsExceptions === undefined) {
-    console.reportErrorsAsExceptions = true; // Individual apps can disable this
-  }
-}
-
-module.exports = { reportException, installConsoleErrorReporter };
+module.exports = { reportException };

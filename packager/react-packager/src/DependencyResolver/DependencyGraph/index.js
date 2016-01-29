@@ -8,64 +8,64 @@
  */
 'use strict';
 
-const Activity = require('../../Activity');
-const Fastfs = require('../fastfs');
-const ModuleCache = require('../ModuleCache');
 const Q = require('q');
-const crawl = require('../crawlers');
-const declareOpts = require('../../lib/declareOpts');
-const isDescendant = require('../../lib/isDescendant');
-const getPontentialPlatformExt = require('../../lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
 const {sync} = require('io');
 const path = require('path');
 const util = require('util');
-const Helpers = require('./Helpers');
+
+const crawl = require('../crawlers');
+const Fastfs = require('../fastfs');
+const HasteMap = require('./HasteMap');
+const ModuleCache = require('../ModuleCache');
+const globalConfig = require('../../GlobalConfig');
+const isDescendant = require('../../lib/isDescendant');
 const ResolutionRequest = require('./ResolutionRequest');
 const ResolutionResponse = require('./ResolutionResponse');
-const HasteMap = require('./HasteMap');
+const getPlatformExtension = require('../lib/getPlatformExtension');
 
-const validateOpts = declareOpts({
-  internalRoots: {
-    type: 'array',
-    required: true,
-  },
-  projectRoots: {
-    type: 'array',
-    required: true,
-  },
-  projectExts: {
-    type: 'array',
-    required: true,
-  },
-  assetServer: {
-    type: 'object',
-    required: true,
-  },
-  ignoreFilePath: {
-    type: 'function',
-    default: function(){}
-  },
-  fileWatcher: {
-    type: 'object',
-    required: true,
-  },
-  platforms: {
-    type: 'array',
-    default: ['ios', 'android'],
-  },
-  cache: {
-    type: 'object',
-    required: true,
-  },
-});
+const defaultActivity = {
+  startEvent: () => {},
+  endEvent: () => {},
+};
 
 class DependencyGraph {
-  constructor(options) {
-    this._opts = validateOpts(options);
-    this._cache = this._opts.cache;
-    this._assetServer = this._opts.assetServer;
-    this._helpers = new Helpers(this._opts);
+  constructor({
+    internalRoots,
+    projectRoots,
+    projectExts,
+    assetServer,
+    activity,
+    ignoreFilePath,
+    fileWatcher,
+    providesModuleNodeModules,
+    platforms,
+    preferNativePlatform,
+    cache,
+    extensions,
+    mocksPattern,
+    extractRequires,
+    shouldThrowOnUnresolvedErrors = () => true,
+  }) {
+    this._opts = {
+      internalRoots,
+      projectRoots,
+      projectExts,
+      activity: activity || defaultActivity,
+      ignoreFilePath: ignoreFilePath || (() => {}),
+      fileWatcher,
+      providesModuleNodeModules,
+      platforms: platforms || [],
+      preferNativePlatform: preferNativePlatform || false,
+      extensions: extensions || ['js', 'jsx', 'json'],
+      mocksPattern,
+      extractRequires,
+      shouldThrowOnUnresolvedErrors,
+    };
+
+    this._cache = cache;
+    this._assetServer = assetServer;
+
     this.load().fail((err) => {
       // This only happens at initialization. Live errors are easier to recover from.
       console.error('Error building DependencyGraph:\n', err.stack);
@@ -78,38 +78,41 @@ class DependencyGraph {
       return this._loading;
     }
 
-    const depGraphActivity = Activity.startEvent('Building Dependency Graph');
-    const crawlActivity = Activity.startEvent('Crawling File System');
+    const {activity} = this._opts;
+    const depGraphActivity = activity.startEvent('Building Dependency Graph');
+    const crawlActivity = activity.startEvent('Crawling File System');
 
-    const roots = this._helpers.mergeArrays([
+    const roots = this._mergeArrays([
       this._opts.internalRoots,
       this._opts.projectRoots,
     ]);
 
-    const exts = this._helpers.mergeArrays([
+    const exts = this._mergeArrays([
       this._opts.projectExts,
       this._assetServer._assetExts,
     ]);
 
     const ignorePath = (filepath) =>
       this._opts.ignoreFilePath(filepath) ||
-        !this._helpers.shouldCrawlDir(filepath);
+        !this._shouldCrawlDir(filepath);
 
     this._crawling = crawl(roots, {
       exts: exts,
       ignore: ignorePath,
       fileWatcher: this._opts.fileWatcher,
-    }).then((results) => {
-      Activity.endEvent(crawlActivity);
-      return results;
     });
 
+    this._crawling.then(() =>
+      activity.endEvent(crawlActivity));
+
     this._fastfs = new Fastfs(
+      'JavaScript',
       roots,
       this._opts.fileWatcher,
       {
         ignore: ignorePath,
         crawling: this._crawling,
+        activity: activity,
       }
     );
 
@@ -117,49 +120,76 @@ class DependencyGraph {
 
     this._fastfs.on('change', this._processFileChange.bind(this));
 
-    this._moduleCache = new ModuleCache(this._fastfs, this._cache);
+    this._moduleCache = new ModuleCache(
+      this._fastfs,
+      this._cache,
+      this._opts.extractRequires,
+      this._helpers
+    );
 
     this._hasteMap = new HasteMap({
+      ignore: (file) => !this._shouldCrawlDir(file),
       fastfs: this._fastfs,
+      extensions: this._opts.extensions,
       moduleCache: this._moduleCache,
-      ignore: (file) => !this._helpers.shouldCrawlDir(file),
+      preferNativePlatform: this._opts.preferNativePlatform,
     });
 
     this._loading = this._fastfs.build()
       .then(() => {
-        const hasteActivity = Activity.startEvent('Building Haste Map');
+        const hasteActivity = activity.startEvent('Building Haste Map');
         return this._hasteMap.build()
-          .then(() => Activity.endEvent(hasteActivity));
+          .then(() => activity.endEvent(hasteActivity));
       })
       .then(() => {
-        const assetActivity = Activity.startEvent('Building Asset Map');
+        const assetActivity = activity.startEvent('Building Asset Map');
         this._assetServer._build(this._fastfs);
-        Activity.endEvent(assetActivity);
+        activity.endEvent(assetActivity);
       })
-      .then(() => Activity.endEvent(depGraphActivity));
+      .then(() => activity.endEvent(depGraphActivity));
 
     return this._loading;
   }
 
-  getDependencies(entryPath, { dev, platform }) {
+  /**
+   * Returns a promise with the direct dependencies the module associated to
+   * the given entryPath has.
+   */
+  getShallowDependencies(entryPath) {
+    return this._moduleCache.getModule(entryPath).getDependencies();
+  }
+
+  stat(filePath) {
+    return this._fastfs.stat(filePath);
+  }
+
+  /**
+   * Returns the module object for the given path.
+   */
+  getModuleForPath(entryFile) {
+    return this._moduleCache.getModule(entryFile);
+  }
+
+  getDependencies(entryPath, platform) {
     return this.load().then(() => {
       platform = this._getRequestPlatform(entryPath, platform);
       const absPath = this._getAbsolutePath(entryPath);
       const req = new ResolutionRequest({
-        dev,
         platform,
+        preferNativePlatform: this._opts.preferNativePlatform,
         entryPath: absPath,
         hasteMap: this._hasteMap,
         assetServer: this._assetServer,
         helpers: this._helpers,
         moduleCache: this._moduleCache,
         fastfs: this._fastfs,
+        shouldThrowOnUnresolvedErrors: this._opts.shouldThrowOnUnresolvedErrors,
       });
 
       const response = new ResolutionResponse();
 
       return Q.all([
-        req.getOrderedDependencies(response),
+        req.getOrderedDependencies(response, this._opts.mocksPattern),
         req.getAsyncDependencies(response),
       ]).then(() => response);
     });
@@ -186,9 +216,13 @@ class DependencyGraph {
     return string;
   }
 
+  matchFilesByPattern(pattern) {
+    return this.load().then(() => this._fastfs.matchFilesByPattern(pattern));
+  }
+
   _getRequestPlatform(entryPath, platform) {
     if (platform == null) {
-      platform = getPontentialPlatformExt(entryPath);
+      platform = getPlatformExtension(entryPath);
       if (platform == null || this._opts.platforms.indexOf(platform) === -1) {
         platform = null;
       }
@@ -220,7 +254,7 @@ class DependencyGraph {
 
   _processFileChange(type, filePath, root, fstat) {
     const absPath = path.join(root, filePath);
-    if (!this._helpers.shouldCrawlDir(absPath)) {
+    if (!this._shouldCrawlDir(absPath)) {
       return;
     }
 
@@ -233,9 +267,13 @@ class DependencyGraph {
     // we are in an error state and we should decide to do a full rebuild.
     this._loading = this._loading.always(() => {
       if (this._hasteMapError) {
+        console.warn(
+          'Rebuilding haste map to recover from error:\n' +
+          this._hasteMapError.stack
+        );
         this._hasteMapError = null;
+
         // Rebuild the entire map if last change resulted in an error.
-        console.warn('Rebuilding haste map to recover from error');
         this._loading = this._hasteMap.build();
       } else {
         this._loading = this._hasteMap.processFileChange(type, absPath);
@@ -243,6 +281,32 @@ class DependencyGraph {
       }
       return this._loading;
     });
+  }
+
+  _shouldCrawlDir(filePath) {
+    const internalRoots = this._opts.internalRoots;
+    for (let i = 0; i < internalRoots.length; i++) {
+      if (isDescendant(internalRoots[i], filePath)) {
+        filePath = path.relative(internalRoots[i], filePath);
+      }
+    }
+    const ignoredPatterns = globalConfig.ignoredPatterns;
+    if (ignoredPatterns && ignoredPatterns.test(filePath)) {
+      return false;
+    }
+    return true;
+  }
+
+  _mergeArrays(arrays) {
+    const result = [];
+    arrays.forEach((array) => {
+      if (!Array.isArray(array)) {
+        return;
+      }
+      array.forEach((item) =>
+        result.push(item));
+    });
+    return result;
   }
 }
 

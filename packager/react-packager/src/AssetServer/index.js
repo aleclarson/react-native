@@ -13,8 +13,8 @@ const Q = require('q');
 const crypto = require('crypto');
 const declareOpts = require('../lib/declareOpts');
 const fs = require('fs');
-const getAssetDataFromName = require('../lib/getAssetDataFromName');
 const isAbsolutePath = require('absolute-path');
+const getAssetDataFromName = require('../DependencyResolver/lib/getAssetDataFromName');
 const path = require('path');
 
 const stat = Q.denodeify(fs.stat);

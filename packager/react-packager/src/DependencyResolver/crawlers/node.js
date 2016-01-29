@@ -2,7 +2,7 @@
 
 const Q = require('q');
 const debug = require('debug')('ReactNativePackager:DependencyGraph');
-const fs = require('fs');
+const fs = require('graceful-fs');
 const path = require('path');
 
 const readDir = Q.denodeify(fs.readdir);

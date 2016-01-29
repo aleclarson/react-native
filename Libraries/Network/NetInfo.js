@@ -11,14 +11,14 @@
  */
 'use strict';
 
-var Q = require('q');
-var Map = require('Map');
-var NativeModules = require('NativeModules');
-var Platform = require('Platform');
-var RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
-var RCTNetInfo = NativeModules.NetInfo;
+const Q = require('q');
+const Map = require('Map');
+const NativeModules = require('NativeModules');
+const Platform = require('Platform');
+const RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
+const RCTNetInfo = NativeModules.NetInfo;
 
-var DEVICE_REACHABILITY_EVENT = 'networkDidChange';
+const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
 
 type ChangeEventName = $Enum<{
   change: string;
@@ -54,6 +54,26 @@ type ConnectivityStateAndroid = $Enum<{
   UNKNOWN: string;
 }>;
 
+
+const _subscriptions = new Map();
+
+let _isConnected;
+if (Platform.OS === 'ios') {
+  _isConnected = function(
+    reachability: ReachabilityStateIOS,
+  ): bool {
+    return reachability !== 'none' && reachability !== 'unknown';
+  };
+} else if (Platform.OS === 'android') {
+  _isConnected = function(
+      connectionType: ConnectivityStateAndroid,
+    ): bool {
+    return connectionType !== 'NONE' && connectionType !== 'UNKNOWN';
+  };
+}
+
+const _isConnectedSubscriptions = new Map();
+
 /**
  * NetInfo exposes info about online/offline status
  *
@@ -85,9 +105,14 @@ type ConnectivityStateAndroid = $Enum<{
  *
  * ### Android
  *
+ * To request network info, you need to add the following line to your
+ * app's `AndroidManifest.xml`:
+ *
+ * `<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />`
  * Asynchronously determine if the device is connected and details about that connection.
  *
- * Android Connectivity Types
+ * Android Connectivity Types.
+ *
  * - `NONE` - device is offline
  * - `BLUETOOTH` - The Bluetooth data connection.
  * - `DUMMY` -  Dummy data connection.
@@ -101,16 +126,18 @@ type ConnectivityStateAndroid = $Enum<{
  * - `WIFI` - The WIFI data connection.
  * - `WIMAX` -  The WiMAX data connection.
  * - `UNKNOWN` - Unknown data connection.
+ *
  * The rest ConnectivityStates are hidden by the Android API, but can be used if necessary.
  *
- * ### isConnectionMetered
+ * ### isConnectionExpensive
  *
  * Available on Android. Detect if the current active connection is metered or not. A network is
  * classified as metered when the user is sensitive to heavy data usage on that connection due to
  * monetary costs, data limitations or battery/performance issues.
  *
- * NetInfo.isConnectionMetered((isConnectionMetered) => {
- *   console.log('Connection is ' + (isConnectionMetered ? 'Metered' : 'Not Metered'));
+ * ```
+ * NetInfo.isConnectionExpensive((isConnectionExpensive) => {
+ *   console.log('Connection is ' + (isConnectionExpensive ? 'Expensive' : 'Not Expensive'));
  * });
  * ```
  *
@@ -136,33 +163,13 @@ type ConnectivityStateAndroid = $Enum<{
  * );
  * ```
  */
-
-var _subscriptions = new Map();
-
-if (Platform.OS === 'ios') {
-  var _isConnected = function(
-    reachability: ReachabilityStateIOS
-  ): bool {
-    return reachability !== 'none' &&
-      reachability !== 'unknown';
-  };
-} else if (Platform.OS === 'android') {
-  var _isConnected = function(
-      connectionType: ConnectivityStateAndroid
-    ): bool {
-    return connectionType !== 'NONE' && connectionType !== 'UNKNOWN';
-  };
-}
-
-var _isConnectedSubscriptions = new Map();
-
-var NetInfo = {
-  addEventListener: function (
+const NetInfo = {
+  addEventListener(
     eventName: ChangeEventName,
     handler: Function
   ): void {
-    var listener = RCTDeviceEventEmitter.addListener(
-      DEVICE_REACHABILITY_EVENT,
+    const listener = RCTDeviceEventEmitter.addListener(
+      DEVICE_CONNECTIVITY_EVENT,
       (appStateData) => {
         handler(appStateData.network_info);
       }
@@ -170,11 +177,11 @@ var NetInfo = {
     _subscriptions.set(handler, listener);
   },
 
-  removeEventListener: function(
+  removeEventListener(
     eventName: ChangeEventName,
     handler: Function
   ): void {
-    var listener = _subscriptions.get(handler);
+    const listener = _subscriptions.get(handler);
     if (!listener) {
       return;
     }
@@ -182,9 +189,9 @@ var NetInfo = {
     _subscriptions.delete(handler);
   },
 
-  fetch: function(): Q.Promise {
+  fetch(): Q.Promise {
     return Q.promise((resolve, reject) => {
-      RCTNetInfo.getCurrentReachability(
+      RCTNetInfo.getCurrentConnectivity(
         function(resp) {
           resolve(resp.network_info);
         },
@@ -194,11 +201,11 @@ var NetInfo = {
   },
 
   isConnected: {
-    addEventListener: function (
+    addEventListener(
       eventName: ChangeEventName,
       handler: Function
     ): void {
-      var listener = (connection) => {
+      const listener = (connection) => {
         handler(_isConnected(connection));
       };
       _isConnectedSubscriptions.set(handler, listener);
@@ -208,11 +215,11 @@ var NetInfo = {
       );
     },
 
-    removeEventListener: function(
+    removeEventListener(
       eventName: ChangeEventName,
       handler: Function
     ): void {
-      var listener = _isConnectedSubscriptions.get(handler);
+      const listener = _isConnectedSubscriptions.get(handler);
       NetInfo.removeEventListener(
         eventName,
         listener
@@ -220,22 +227,23 @@ var NetInfo = {
       _isConnectedSubscriptions.delete(handler);
     },
 
-    fetch: function(): Q.Promise {
+    fetch(): Q.Promise {
       return NetInfo.fetch().then(
         (connection) => _isConnected(connection)
       );
     },
   },
 
-  isConnectionMetered: ({}: {} | (callback:Function) => void),
+  isConnectionExpensive(callback: (metered: ?boolean, error?: string) => void): void {
+    if (Platform.OS === 'android') {
+      RCTNetInfo.isConnectionMetered((_isMetered) => {
+        callback(_isMetered);
+      });
+    } else {
+      // TODO t9296080 consider polyfill and more features later on
+      callback(null, "Unsupported");
+    }
+  },
 };
-
-if (Platform.OS === 'android') {
-  NetInfo.isConnectionMetered = function(callback): void {
-    RCTNetInfo.isConnectionMetered((_isMetered) => {
-      callback(_isMetered);
-    });
-  };
-}
 
 module.exports = NetInfo;

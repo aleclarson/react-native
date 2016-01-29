@@ -4,8 +4,8 @@ const Q = require('q');
 const Module = require('./Module');
 
 class NullModule extends Module {
-  constructor(file, fastfs, moduleCache, cache) {
-    super(file, fastfs, moduleCache, cache);
+  constructor(opts) {
+    super(opts);
     this.code = 'module.exports = null;';
   }
 

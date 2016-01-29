@@ -39,15 +39,14 @@ function loadSourceMapForBundle(): Q.Promise {
     return Q.reject(new Error('RCTNetworking module is not available'));
   }
 
-  return Q.promise((resolve, reject) =>
-    RCTSourceCode.getScriptText(resolve, reject))
+  return Q.promise(RCTSourceCode.getScriptText)
 
   .then(extractSourceMapURL)
 
   .then(({ fullURL, baseURL, mapURL }) => {
     if (fullURL) { return fullURL }
     if (mapURL) { return baseURL + mapURL }
-    throw Error('No source map URL found.');
+    throw Error('No source map URL found.  May be running from bundled file.');
   })
 
   .then(loadSourceMap);

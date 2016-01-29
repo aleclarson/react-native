@@ -2,7 +2,7 @@
 
 const Module = require('./Module');
 const Q = require('q');
-const getAssetDataFromName = require('../lib/getAssetDataFromName');
+const getAssetDataFromName = require('./lib/getAssetDataFromName');
 
 class AssetModule extends Module {
   constructor(...args) {
@@ -25,7 +25,7 @@ class AssetModule extends Module {
     return Q([]);
   }
 
-  _read() {
+  read() {
     return Q({});
   }
 
