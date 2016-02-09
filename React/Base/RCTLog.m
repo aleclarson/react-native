@@ -199,7 +199,7 @@ void _RCTLogNativeInternal(RCTLogLevel level, const char *fileName, int lineNumb
       logFunction(level, RCTLogSourceNative, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message);
     }
 
-#if RCT_DEBUG
+//#if RCT_DEBUG
 
     // Log to red box in debug mode.
     if ([UIApplication sharedApplication] && level >= RCTLOG_REDBOX_LEVEL) {
@@ -229,7 +229,7 @@ void _RCTLogNativeInternal(RCTLogLevel level, const char *fileName, int lineNumb
     // Log to JS executor
     [[RCTBridge currentBridge] logMessage:message level:level ? @(RCTLogLevels[level]) : @"info"];
 
-#endif
+//#endif
 
   }
 }

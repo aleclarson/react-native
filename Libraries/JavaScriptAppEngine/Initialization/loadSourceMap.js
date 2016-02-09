@@ -39,7 +39,8 @@ function loadSourceMapForBundle(): Q.Promise {
     return Q.reject(new Error('RCTNetworking module is not available'));
   }
 
-  return Q.promise(RCTSourceCode.getScriptText)
+  return Q.promise((resolve, reject) =>
+    RCTSourceCode.getScriptText(resolve, reject))
 
   .then(extractSourceMapURL)
 
@@ -88,8 +89,6 @@ function loadSourceMapForFile(filePath): Q.Promise {
 }
 
 function loadSourceMap(url): Q.Promise {
-
-  console.log('loadSourceMap(' + url + ')');
 
   return fetch(url)
 

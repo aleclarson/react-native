@@ -77,23 +77,23 @@ class ResolutionRequest {
 
               return this.resolveDependency(mod, name)
               .then(result => {
-                if (result && !failed) {
-                  var displayPath = result.path;
-                  if (result.path[0] === '/') {
-                    displayPath = path.relative(lotus.path, result.path);
-                  }
-                  log
-                    .moat(1)
-                    .white('Resolved: ')
-                    .green(name)
-                    .moat(0)
-                    .white('    into: ')
-                    .cyan(displayPath)
-                    .moat(0)
-                    .white('     for: ')
-                    .yellow(path.relative(lotus.path, mod.path))
-                    .moat(1);
-                }
+                // if (result && !failed) {
+                //   var displayPath = result.path;
+                //   if (result.path[0] === '/') {
+                //     displayPath = path.relative(lotus.path, result.path);
+                //   }
+                //   log
+                //     .moat(1)
+                //     .white('Resolved: ')
+                //     .green(name)
+                //     .moat(0)
+                //     .white('    into: ')
+                //     .cyan(displayPath)
+                //     .moat(0)
+                //     .white('     for: ')
+                //     .yellow(path.relative(lotus.path, mod.path))
+                //     .moat(1);
+                // }
                 return result;
               })
               .fail(error => {

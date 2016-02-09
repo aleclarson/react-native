@@ -50,7 +50,7 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
   if (error.computation) {
     stack = stack.concat(
       '--- Below is the stack trace of an invalidated Tracker.Computation ---',
-      error.computation.stack
+      error.computation.getStack()
     );
   }
 
@@ -112,7 +112,7 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
       error.stack.map(frame =>
         loadSourceMapForFile(frame.file)
           // Ignore file-specific loading failures.
-          .fail(error => console.log(error.message))
+          .fail(error => null) // console.log(error.message))
       )
     )
 
@@ -137,8 +137,8 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
   })
 
   .fail(error => {
-    console.log('Failed to load the bundle\'s source map!');
-    printErrorStack(error, parseErrorStack(error));
+    // console.log('Failed to load the bundle\'s source map!');
+    // printErrorStack(error, parseErrorStack(error));
   });
 }
 

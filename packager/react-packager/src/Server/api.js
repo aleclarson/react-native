@@ -25,6 +25,7 @@ module.exports = {
   'onchange': onFileChange,
   'profile': dumpProfileInfo,
   'debug': debug,
+  'debug/lastBundle': debugLastBundle,
   'debug/bundles': debugBundles,
   'debug/graph': debugGraph,
 };
@@ -91,21 +92,20 @@ function readSpecificAsset(req, res) {
 }
 
 function processFileEvent(req, res) {
-  const fs = this._bundler._resolver._depGraph._fastfs;
-  const urlObj = url.parse(req.url, true);
-  const type = urlObj.query.event;
-  var filePath = urlObj.pathname.replace(/^\/watcher/, '');
-  var root;
-  var fstat;
 
-  // Ensure the 'filePath' cached in the virtual filesystem.
-  if (type === 'add' || fs._fastPaths[filePath]) {
-    root = fs._getRoot(filePath).path;
-    // Ensure the 'root' is not known by the packager's file watcher.
+  const urlObj = url.parse(req.url, true);
+  const event = urlObj.query.event;
+  const force = urlObj.query.force === 'true';
+  const absPath = urlObj.pathname.replace(/^\/watcher/, '');
+  const fs = this._bundler._resolver._depGraph._fastfs;
+
+  if (force || event === 'add' || fs._fastPaths[absPath]) {
+    const fstat = sync.stats(absPath);
+    const root = fs._getRoot(absPath).path;
+    // Only process events for files that aren't already handled by the packager.
     if (this._fileWatcher._watcherByRoot[root] == null) {
-      fstat = sync.stats(filePath);
-      filePath = path.relative(root, filePath);
-      this._fileWatcher.emit('all', type, filePath, root, fstat);
+      const relPath = path.relative(root, absPath);
+      this._fileWatcher.emit('all', event, relPath, root, fstat);
     }
   }
 
@@ -171,14 +171,56 @@ function debug(req, res) {
   res.end(ret);
 }
 
+function debugLastBundle(req, res) {
+  var ret = '<!doctype html>';
+  ret += '<h1> Most Recent Bundle </h1>';
+  const bundle = this._bundles[this._lastBundle];
+  const options = JSON.parse(this._lastBundle);
+  if (!bundle) {
+    res.writeHead(404);
+    res.end('No bundle found!');
+    return;
+  }
+  return bundle.then(b => {
+    return this._bundler.getDependencies(
+      options.entryFile,
+      options.dev,
+      options.platform
+    ).then(
+      (resolved) => {
+        var newline = '<br/>';
+        Object.keys(resolved._mappings).forEach(hash => {
+          var mappings = resolved._mappings[hash];
+          ret += hash + newline;
+          if (mappings.length === 0) {
+            ret += 'No dependencies found!' + newline;
+          } else {
+            mappings.forEach(mapping => {
+              ret += mapping[0] + newline;
+              ret += mapping[1].path + newline;
+              ret += newline;
+            });
+          }
+          ret += newline;
+        });
+        res.end(ret);
+      },
+      e => {
+        res.writeHead(500);
+        res.end('Internal Error');
+        console.log(e.stack);
+      }
+    );
+  });
+}
+
 function debugBundles(req, res) {
   var ret = '<!doctype html>';
   ret += '<h1> Cached Bundles </h1>';
   Q.all(
-    Object.keys(this._bundles).map(bundleID => {
-      var bundle = this._bundles[bundleID];
-      return bundle._bundling.then(p => {
-        ret += '<div><h2>' + bundleID + '</h2>';
+    Object.keys(this._bundles).map(hash => {
+      return this._bundles[hash].then(p => {
+        ret += '<div><h2>' + hash + '</h2>';
         ret += p.getDebugInfo();
       });
     })

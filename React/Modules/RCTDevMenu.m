@@ -640,11 +640,11 @@ RCT_EXPORT_METHOD(reloadWithCallback:(RCTResponseSenderBlock)callback)
 
 - (RCTDevMenu *)devMenu
 {
-#if RCT_DEV
+//#if RCT_DEV
   return [self moduleForClass:[RCTDevMenu class]];
-#else
-  return nil;
-#endif
+//#else
+//  return nil;
+//#endif
 }
 
 @end

@@ -213,6 +213,16 @@ class Fastfs extends EventEmitter {
     this._getAndAssertRoot(file.path).addChild(file);
   }
 
+  // _didAbortFileEvent(absPath, reason) {
+  //   log
+  //     .moat(1)
+  //     .red('File event aborted: ')
+  //     .gray(absPath)
+  //     .moat(0)
+  //     .white(reason)
+  //     .moat(1);
+  // }
+
   _processFileChange(type, filePath, root, fstat) {
 
     if (fstat && fstat.isDirectory()) {
@@ -220,12 +230,19 @@ class Fastfs extends EventEmitter {
     }
 
     const absPath = path.join(root, filePath);
-    if (!this._getRoot(absPath) || this._ignore(absPath)) {
+    if (!this._getRoot(absPath)) {
+      // this._didAbortFileEvent(absPath, 'This path has an invalid root!');
+      return;
+    }
+
+    if (this._ignore(absPath)) {
+      // this._didAbortFileEvent(absPath, 'This path is ignored by the packager!');
       return;
     }
 
     const file = this._getFile(absPath);
     if (!file) {
+      // this._didAbortFileEvent(absPath, 'This path is not cached in the filesystem!');
       return;
     }
 

@@ -49,6 +49,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
   sessionConfig.timeoutIntervalForRequest = 300;
 
+//  NSLog(@"");
+
   // Load remote script file
   NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:scriptURL completionHandler:
                                 ^(NSData *data, NSURLResponse *response, NSError *error) {

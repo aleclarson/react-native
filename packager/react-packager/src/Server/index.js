@@ -26,7 +26,7 @@ const declareOpts = require('../lib/declareOpts');
 const FileWatcher = require('../DependencyResolver/FileWatcher');
 const getPlatformExtension = require('../DependencyResolver/lib/getPlatformExtension');
 
-const SUPPRESSED_EVENTS = /^\/(read|assets|watcher|onchange)\//;
+const SUPPRESSED_EVENTS = /^\/(read|assets|watcher|onchange|debug)\//;
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -157,6 +157,7 @@ class Server {
 
     this._projectRoots = opts.projectRoots;
     this._bundles = Object.create(null);
+    this._lastBundle = null;
     this._changeWatchers = [];
     this._fileChangeListeners = [];
 
@@ -183,7 +184,8 @@ class Server {
 
     this._debouncedFileChangeHandler = _.debounce(filePath => {
       const onFileChange = () => {
-        this._rebuildBundles(filePath);
+        // this._rebuildBundles(filePath);
+        this._bundles = Object.create(null);
         this._informChangeWatchers();
       };
 
@@ -241,6 +243,10 @@ class Server {
     const hash = JSON.stringify(options);
 
     if (refresh) {
+      log
+        .moat(1)
+        .white('Refreshing module cache!')
+        .moat(1);
       this._bundler.refreshModuleCache();
       this._bundles[hash] = null;
     }
@@ -250,6 +256,7 @@ class Server {
         .moat(1)
         .format(options, { label: 'Building bundle: ', unlimited: true })
         .moat(1);
+      this._lastBundle = hash;
       this._bundles[hash] = this.buildBundle(options);
     }
 
@@ -302,11 +309,15 @@ class Server {
     const buildBundle = this.buildBundle.bind(this);
     const bundles = this._bundles;
 
-    Object.keys(bundles).forEach(optionsJson => {
-      const options = JSON.parse(optionsJson);
-      // Wait for a previous build (if exists) to finish.
-      bundles[optionsJson] = (bundles[optionsJson] || Q()).always(() => {
-        bundles[optionsJson] = buildBundle(options).then(bundle => {
+    Object.keys(bundles).forEach(hash => {
+
+      const options = JSON.parse(hash);
+      const buildBundle = () => {
+        log
+          .moat(1)
+          .format(options, { label: 'Rebuilding bundle: ', unlimited: true })
+          .moat(1);
+        return this.buildBundle(options).then(bundle => {
           // Make a throwaway call to getSource to cache the source string.
           bundle.getSource({
             inlineSourceMap: options.inlineSourceMap,
@@ -315,8 +326,13 @@ class Server {
           });
           return bundle;
         });
-      });
-      return bundles[optionsJson];
+      };
+
+      this._lastBundle = hash;
+
+      // Wait for a previous build (if exists) to finish.
+      return bundles[hash] = (bundles[hash] || Q())
+        .then(buildBundle, buildBundle);
     });
   }
 

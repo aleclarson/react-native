@@ -30,7 +30,7 @@
 {
   if ((self = [super initWithFrame:frame])) {
     self.windowLevel = UIWindowLevelAlert + 1000;
-    self.backgroundColor = [UIColor colorWithRed:0.8 green:0 blue:0 alpha:1];
+    self.backgroundColor = [UIColor colorWithRed:1 green:0 blue:(98/255) alpha:1];
     self.hidden = YES;
 
     UIViewController *rootController = [UIViewController new];
@@ -94,7 +94,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   NSData *stackFrameJSON = [RCTJSONStringify(stackFrame, nil) dataUsingEncoding:NSUTF8StringEncoding];
   NSString *postLength = [NSString stringWithFormat:@"%tu", stackFrameJSON.length];
   NSMutableURLRequest *request = [NSMutableURLRequest new];
-  request.URL = [RCTConvert NSURL:@"http://localhost:8081/open-stack-frame"];
+  request.URL = [RCTConvert NSURL:@"http://192.168.0.2:8081/open-stack-frame"];
   request.HTTPMethod = @"POST";
   request.HTTPBody = stackFrameJSON;
   [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
