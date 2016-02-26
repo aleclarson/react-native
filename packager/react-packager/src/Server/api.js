@@ -8,6 +8,8 @@
  */
 'use strict';
 
+const lotus = require('lotus-require');
+
 const Q = require('q');
 const url = require('url');
 const path = require('path');
@@ -98,6 +100,12 @@ function processFileEvent(req, res) {
   const force = urlObj.query.force === 'true';
   const absPath = urlObj.pathname.replace(/^\/watcher/, '');
   const fs = this._bundler._resolver._depGraph._fastfs;
+
+  log
+    .moat(1)
+    .white('File event: ')
+    .yellow(path.relative(lotus.path, absPath))
+    .moat(1);
 
   if (force || event === 'add' || fs._fastPaths[absPath]) {
     const fstat = sync.stats(absPath);

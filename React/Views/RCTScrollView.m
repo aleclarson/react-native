@@ -718,6 +718,7 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, RCTScrollEventTypeMove)
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
+  NSLog(@"scrollViewShouldScrollToTop");
   if ([_nativeScrollDelegate respondsToSelector:_cmd]) {
     return [_nativeScrollDelegate scrollViewShouldScrollToTop:scrollView];
   }

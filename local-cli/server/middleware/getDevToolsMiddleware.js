@@ -46,7 +46,7 @@ module.exports = function(options, isDebuggerConnected) {
         res.end('OK');
         return;
       }
-      var debuggerURL = 'http://192.168.0.2:' + options.port + '/debugger-ui';
+      var debuggerURL = 'http://192.168.0.4:' + options.port + '/debugger-ui';
       opn(debuggerURL, {app: [getChromeAppName()]}, function(err) {
         if (err) {
           console.error('Google Chrome exited with error:', err);

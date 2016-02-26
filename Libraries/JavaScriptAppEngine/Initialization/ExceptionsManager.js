@@ -70,6 +70,7 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
   };
 
   if (isFatal) {
+    console.warn('FATAL: ' + error.message);
     global._fatalException = error;
     RCTExceptionsManager.reportFatalException(error.message, error.stack, currentExceptionID);
   } else {

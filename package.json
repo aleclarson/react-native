@@ -150,6 +150,7 @@
     "immutable": "^3.7.5",
     "in-array": "^0.1.0",
     "io": "aleclarson/io#1.0.0",
+    "ip": "^1.1.0",
     "joi": "^6.6.1",
     "json5": "^0.4.0",
     "jstransform": "^11.0.3",

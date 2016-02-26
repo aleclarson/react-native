@@ -8,15 +8,17 @@
  */
 'use strict';
 
-// require('lotus-require');
+const path = require('path');
+const Promise = require('promise');
 
-const log = require('lotus-log');
 const checkNodeVersion = require('./checkNodeVersion');
 const formatBanner = require('./formatBanner');
 const parseCommandLine = require('../util/parseCommandLine');
-const path = require('path');
-const Promise = require('promise');
 const runServer = require('./runServer');
+
+const log = require('lotus-log');
+log.clear();
+log.indent = 2;
 
 /**
  * Starts the React Native Packager Server.
@@ -97,11 +99,12 @@ function _server(argv, config, resolve, reject) {
 }
 
 function startServer(args, config) {
+  var ip = require('ip');
   runServer(args, config, () =>
     log
       .moat(1)
       .white('Server started: ')
-      .yellow('http://localhost:', args.port)
+      .yellow('http://', ip.address(), ':', args.port)
       .moat(1)
   );
 }

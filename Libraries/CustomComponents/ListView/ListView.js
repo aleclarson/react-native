@@ -267,6 +267,7 @@ var ListView = React.createClass({
   },
 
   getInitialState: function() {
+    console.log('getInitialState: rowsToRender = ' + this.props.initialListSize);
     return {
       curRenderedRowsCount: this.props.initialListSize,
       highlightedRow: {},
@@ -299,25 +300,29 @@ var ListView = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    if (this.props.dataSource !== nextProps.dataSource) {
-      this._sentEndForContentLength = null;
-      this.setState((state, props) => {
-        this._prevRenderedRowsCount = 0;
-        return {
-          curRenderedRowsCount: Math.min(
-            state.curRenderedRowsCount + props.pageSize,
-            props.dataSource.getRowCount()
-          ),
-        };
-      });
-    }
+    // if (this.props.dataSource !== nextProps.dataSource) {
+    //   this._sentEndForContentLength = null;
+    //   this.setState((state, props) => {
+    //     this._prevRenderedRowsCount = 0;
+    //     var rowsToRender = Math.min(
+    //       state.curRenderedRowsCount + props.pageSize,
+    //       props.dataSource.getRowCount()
+    //     );
+    //     console.log('willReceiveProps(1): rowsToRender = ' + rowsToRender);
+    //     return {
+    //       curRenderedRowsCount: rowsToRender,
+    //     };
+    //   });
+    // }
     if (this.props.initialListSize !== nextProps.initialListSize) {
       this.setState((state, props) => {
+        var rowsToRender =  Math.max(
+          state.curRenderedRowsCount,
+          props.initialListSize
+        );
+        console.log('willReceiveProps(2): rowsToRender = ' + rowsToRender);
         return {
-          curRenderedRowsCount: Math.max(
-            state.curRenderedRowsCount,
-            props.initialListSize
-          ),
+          curRenderedRowsCount: rowsToRender,
         };
       });
     }
@@ -413,12 +418,8 @@ var ListView = React.createClass({
       }
     }
 
-    if (this.props.DEBUG) {
-      log.format({
-        rowCount: rowCount,
-        renderedRows: this.state.curRenderedRowsCount,
-      });
-    }
+    console.log('rowsRendered == ' + rowCount);
+    console.log('rowsToRender == ' + this.state.curRenderedRowsCount);
 
     var {
       renderScrollComponent,
@@ -475,6 +476,7 @@ var ListView = React.createClass({
     if (contentLength !== this.scrollProperties.contentLength) {
       this.scrollProperties.contentLength = contentLength;
       this._updateVisibleRows();
+      console.log('ListView.onContentSizeChange(width: ' + width + ', height: ' + height + ') -> _renderMoreRowsIfNeeded()');
       this._renderMoreRowsIfNeeded();
     }
     this.props.onContentSizeChange && this.props.onContentSizeChange(width, height);
@@ -486,6 +488,7 @@ var ListView = React.createClass({
     if (visibleLength !== this.scrollProperties.visibleLength) {
       this.scrollProperties.visibleLength = visibleLength;
       this._updateVisibleRows();
+      console.log('ListView.onLayout(width: ' + width + ', height: ' + height + ') -> _renderMoreRowsIfNeeded()');
       this._renderMoreRowsIfNeeded();
     }
     this.props.onLayout && this.props.onLayout(event);
@@ -504,14 +507,24 @@ var ListView = React.createClass({
   },
 
   _renderMoreRowsIfNeeded: function() {
-    if (this.scrollProperties.contentLength === null ||
-      this.scrollProperties.visibleLength === null ||
-      this.state.curRenderedRowsCount === this.props.dataSource.getRowCount()) {
+    if (this.scrollProperties.contentLength === null) {
+      console.log('contentLength === null');
+      this._maybeCallOnEndReached();
+      return;
+    }
+    if (this.scrollProperties.visibleLength === null) {
+      console.log('visibleLength === null');
+      this._maybeCallOnEndReached();
+      return;
+    }
+    if (this.state.curRenderedRowsCount === this.props.dataSource.getRowCount()) {
+      console.log('curRenderedRowsCount === dataSource.getRowCount()');
       this._maybeCallOnEndReached();
       return;
     }
 
     var distanceFromEnd = this._getDistanceFromEnd(this.scrollProperties);
+    console.log('distanceFromEnd = ' + distanceFromEnd);
     if (distanceFromEnd < this.props.scrollRenderAheadDistance) {
       if (this.props.DEBUG) {
         log.format({
@@ -527,6 +540,7 @@ var ListView = React.createClass({
 
   _pageInNewRows: function() {
     this.setState((state, props) => {
+      this._prevRenderedRowsCount = state.curRenderedRowsCount;
       var rowsToRender = Math.min(
         state.curRenderedRowsCount + props.pageSize,
         Math.min(
@@ -534,7 +548,7 @@ var ListView = React.createClass({
           props.dataSource.getRowCount(),
         )
       );
-      this._prevRenderedRowsCount = state.curRenderedRowsCount;
+      console.log('_pageInNewRows: rowsToRender = ' + rowsToRender);
       return {
         curRenderedRowsCount: rowsToRender
       };
@@ -632,6 +646,7 @@ var ListView = React.createClass({
     this.scrollProperties.offset = e.nativeEvent.contentOffset[
       isVertical ? 'y' : 'x'
     ];
+    GLOBAL.updatedChildFrames = e.nativeEvent.updatedChildFrames;
     this._updateVisibleRows(e.nativeEvent.updatedChildFrames);
     if (!this._maybeCallOnEndReached(e)) {
       this._renderMoreRowsIfNeeded();

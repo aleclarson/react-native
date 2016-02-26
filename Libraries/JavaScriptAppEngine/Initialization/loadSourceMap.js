@@ -61,7 +61,7 @@ function loadSourceMapForFile(filePath): Q.Promise {
 
   var dirPath = filePath.slice(0, filePath.lastIndexOf('/'));
 
-  var url = 'http://192.168.0.2:8081/read' + filePath;
+  var url = 'http://192.168.0.4:8081/read' + filePath;
 
   var promise = global._loadSourceMapForFile[url];
 
