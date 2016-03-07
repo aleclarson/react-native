@@ -35,7 +35,6 @@ var StaticRenderer = require('StaticRenderer');
 var TimerMixin = require('react-timer-mixin');
 
 var isEmpty = require('isEmpty');
-var logError = require('logError');
 var merge = require('merge');
 
 var PropTypes = React.PropTypes;
@@ -300,31 +299,20 @@ var ListView = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    // if (this.props.dataSource !== nextProps.dataSource) {
-    //   this._sentEndForContentLength = null;
-    //   this.setState((state, props) => {
-    //     this._prevRenderedRowsCount = 0;
-    //     var rowsToRender = Math.min(
-    //       state.curRenderedRowsCount + props.pageSize,
-    //       props.dataSource.getRowCount()
-    //     );
-    //     console.log('willReceiveProps(1): rowsToRender = ' + rowsToRender);
-    //     return {
-    //       curRenderedRowsCount: rowsToRender,
-    //     };
-    //   });
-    // }
-    if (this.props.initialListSize !== nextProps.initialListSize) {
+    if (this.props.dataSource !== nextProps.dataSource ||
+        this.props.initialListSize !== nextProps.initialListSize) {
       this.setState((state, props) => {
-        var rowsToRender =  Math.max(
-          state.curRenderedRowsCount,
-          props.initialListSize
-        );
-        console.log('willReceiveProps(2): rowsToRender = ' + rowsToRender);
+        this._prevRenderedRowsCount = 0;
         return {
-          curRenderedRowsCount: rowsToRender,
+          curRenderedRowsCount: Math.min(
+            Math.max(
+              state.curRenderedRowsCount,
+              props.initialListSize
+            ),
+            props.dataSource.getRowCount()
+          ),
         };
-      });
+      }, () => this._renderMoreRowsIfNeeded());
     }
   },
 
@@ -379,17 +367,20 @@ var ListView = React.createClass({
         var comboID = sectionID + '_' + rowID;
         var shouldUpdateRow = rowCount >= this._prevRenderedRowsCount &&
           dataSource.rowShouldUpdate(sectionIdx, rowIdx);
+        var rowData = dataSource.getRowData(sectionIdx, rowIdx);
         var row =
           <StaticRenderer
             key={'r_' + comboID}
             shouldUpdate={!!shouldUpdateRow}
-            render={this.props.renderRow.bind(
-              null,
-              dataSource.getRowData(sectionIdx, rowIdx),
-              sectionID,
-              rowID,
-              this.onRowHighlighted
-            )}
+            render={(function(sectionID, rowID, rowData) {
+              console.log('ListView.renderRow(s: ' + sectionID + ', r: ' + rowID + ')');
+              return this.props.renderRow(
+                rowData,
+                sectionID,
+                rowID,
+                this.onRowHighlighted
+              );
+            }).bind(this, sectionID, rowID, rowData)}
           />;
         bodyComponents.push(row);
         totalIndex++;
@@ -419,7 +410,6 @@ var ListView = React.createClass({
     }
 
     console.log('rowsRendered == ' + rowCount);
-    console.log('rowsToRender == ' + this.state.curRenderedRowsCount);
 
     var {
       renderScrollComponent,
@@ -507,23 +497,16 @@ var ListView = React.createClass({
   },
 
   _renderMoreRowsIfNeeded: function() {
-    if (this.scrollProperties.contentLength === null) {
-      console.log('contentLength === null');
-      this._maybeCallOnEndReached();
-      return;
-    }
-    if (this.scrollProperties.visibleLength === null) {
-      console.log('visibleLength === null');
-      this._maybeCallOnEndReached();
-      return;
-    }
-    if (this.state.curRenderedRowsCount === this.props.dataSource.getRowCount()) {
-      console.log('curRenderedRowsCount === dataSource.getRowCount()');
+    if (this.scrollProperties.contentLength === null ||
+        this.scrollProperties.visibleLength === null ||
+        this.state.curRenderedRowsCount === this.props.dataSource.getRowCount()) {
       this._maybeCallOnEndReached();
       return;
     }
 
     var distanceFromEnd = this._getDistanceFromEnd(this.scrollProperties);
+    console.log('contentLength = ' + this.scrollProperties.contentLength);
+    console.log('visibleLength = ' + this.scrollProperties.visibleLength);
     console.log('distanceFromEnd = ' + distanceFromEnd);
     if (distanceFromEnd < this.props.scrollRenderAheadDistance) {
       if (this.props.DEBUG) {

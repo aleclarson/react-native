@@ -241,7 +241,12 @@ class Fastfs extends EventEmitter {
     }
 
     const file = this._getFile(absPath);
-    if (!file) {
+    if (file) {
+      file.remove();
+      delete this._fastPaths[absPath];
+    }
+
+    else if (type !== 'add') {
       // this._didAbortFileEvent(absPath, 'This path is not cached in the filesystem!');
       return;
     }
@@ -259,12 +264,6 @@ class Fastfs extends EventEmitter {
       log.cyan(relPath);
     }
     log.moat(1);
-
-    if (type === 'delete' || type === 'change') {
-      file.remove();
-    }
-
-    delete this._fastPaths[absPath];
 
     if (type !== 'delete') {
       this._add(new File(absPath, { isDir: false }));

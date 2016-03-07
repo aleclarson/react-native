@@ -202,6 +202,28 @@ class Server {
 
       onFileChange();
     }, 50);
+
+    log
+      .moat(1)
+      .white('Watching roots: ')
+      .moat(0)
+      .plusIndent(2);
+    opts.projectRoots.forEach(root =>
+      log.yellow(root).moat(0));
+    opts.internalRoots.forEach(root =>
+      log.gray(root).moat(0));
+    log.popIndent();
+
+    log
+      .moat(1)
+      .white('Watching extensions: ')
+      .moat(0)
+      .plusIndent(2);
+    opts.projectExts.forEach(ext =>
+      log.yellow(ext).moat(0));
+    opts.assetExts.forEach(ext =>
+      log.cyan(ext).moat(0));
+    log.popIndent();
   }
 
   end() {

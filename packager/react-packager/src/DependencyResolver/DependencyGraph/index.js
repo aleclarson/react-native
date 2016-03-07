@@ -68,7 +68,8 @@ class DependencyGraph {
 
     this.load().fail((err) => {
       // This only happens at initialization. Live errors are easier to recover from.
-      console.error('Error building DependencyGraph:\n', err.stack);
+      console.log('Error building DependencyGraph:\n');
+      console.log(err.stack);
       process.exit(1);
     });
   }

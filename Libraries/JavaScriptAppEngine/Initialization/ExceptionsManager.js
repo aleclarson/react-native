@@ -14,7 +14,6 @@
 var exceptionID = 0;
 
 global._bundleSourceMap = null;
-global._fatalException = null;
 
 /**
  * Handles the developer-visible aspect of errors and exceptions
@@ -25,10 +24,6 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
   //   return;
   // }
 
-  if (global._fatalException) {
-    return;
-  }
-
   var RCTExceptionsManager = require('NativeModules').ExceptionsManager;
   if (!RCTExceptionsManager) {
     return;
@@ -36,7 +31,6 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
 
   var Q = require ('q');
   var parseErrorStack = require('parseErrorStack');
-  var printErrorStack = require('printErrorStack');
   var filterErrorStack = require('filterErrorStack');
   var resolveSourceMaps = require('resolveSourceMaps');
   var { loadSourceMapForBundle, loadSourceMapForFile } = require('loadSourceMap');
@@ -47,31 +41,14 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
 
   var currentExceptionID = ++exceptionID;
 
-  if (error.computation) {
-    stack = stack.concat(
-      '--- Below is the stack trace of an invalidated Tracker.Computation ---',
-      error.computation.getStack()
-    );
-  }
-
-  if (error.promise) {
-    stack = stack.concat(
-      '--- Below is the stack trace of the previous Promise ---',
-      error.promise.stack
-    );
-  }
-
   error = {
     message: error.message,
-    framesToPop: error.framesToPop,
     stack: stack.filter(frame =>
       frame instanceof Object
     ),
   };
 
   if (isFatal) {
-    console.warn('FATAL: ' + error.message);
-    global._fatalException = error;
     RCTExceptionsManager.reportFatalException(error.message, error.stack, currentExceptionID);
   } else {
     RCTExceptionsManager.reportSoftException(error.message, error.stack, currentExceptionID);
@@ -113,7 +90,7 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
       error.stack.map(frame =>
         loadSourceMapForFile(frame.file)
           // Ignore file-specific loading failures.
-          .fail(error => null) // console.log(error.message))
+          .fail(error => null)
       )
     )
 
@@ -125,8 +102,6 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
         }
       });
 
-      printErrorStack(error, stack);
-
       RCTExceptionsManager.updateExceptionMessage(
         error.message,
         error.stack,
@@ -135,11 +110,6 @@ function reportException(error: Exception, isFatal: bool, stack?: any) {
     })
 
     .done();
-  })
-
-  .fail(error => {
-    // console.log('Failed to load the bundle\'s source map!');
-    // printErrorStack(error, parseErrorStack(error));
   });
 }
 

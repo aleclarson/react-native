@@ -22,7 +22,7 @@
       ErrorUtils._globalHandler = fun;
     },
     reportError: function(error) {
-      ErrorUtils._globalHandler && ErrorUtils._globalHandler(error);
+      ErrorUtils._globalHandler && ErrorUtils._globalHandler(error, false);
     },
     reportFatalError: function(error) {
       ErrorUtils._globalHandler && ErrorUtils._globalHandler(error, true);

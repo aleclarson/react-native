@@ -80,26 +80,6 @@ function getPackagerServer(args, config) {
   ].map(internalPath =>
     path.resolve(__dirname, '../../' + internalPath));
 
-  log
-    .moat(1)
-    .format(internalRoots, { label: 'Internal roots: ', unlimited: true })
-    .moat(1);
-
-  log
-    .moat(1)
-    .format(args.projectRoots, { label: 'Project roots: ', unlimited: true })
-    .moat(1);
-
-  log
-    .moat(1)
-    .format(globalConfig.projectExts, { label: 'Project extensions: ', unlimited: true })
-    .moat(1);
-
-  log
-    .moat(1)
-    .format(globalConfig.assetExts, { label: 'Asset extensions: ', unlimited: true })
-    .moat(1);
-
   return ReactPackager.createServer({
     internalRoots: internalRoots,
     projectRoots: args.projectRoots,

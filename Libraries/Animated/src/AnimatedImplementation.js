@@ -292,11 +292,13 @@ class DecayAnimation extends Animation {
   }
 
   onUpdate(): void {
-    var now = Date.now();
+    var elapsedTime = Date.now() - this._startTime;
+    var remainder = 1 - this._deceleration;
+    var kv = Math.exp(0 - elapsedTime * remainder);
 
-    var value = this._fromValue +
-      (this._velocity / (1 - this._deceleration)) *
-      (1 - Math.exp(-(1 - this._deceleration) * (now - this._startTime)));
+    var value = this._fromValue + (this._velocity / remainder) * (1 - kv);
+
+    this._lastVelocity = this._velocity * kv;
 
     if (this._clampValue != null && this._shouldClamp(value)) {
       this._onUpdate(this._clampValue);
@@ -312,6 +314,7 @@ class DecayAnimation extends Animation {
     }
 
     this._lastValue = value;
+
     if (this.__active) {
       this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
     }
@@ -510,6 +513,9 @@ class SpringAnimation extends Animation {
       position += dxdt * step;
       velocity += dvdt * step;
     }
+
+    // console.log('position = ' + position);
+    // console.log('velocity = ' + velocity);
 
     this._lastTime = now;
     this._lastPosition = position;

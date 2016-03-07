@@ -99,7 +99,8 @@
     "start": "/usr/bin/env bash -c './packager/packager.sh \"$@\" || true' --"
   },
   "bin": {
-    "react-native": "local-cli/wrong-react-native.js"
+    "react-native": "local-cli/wrong-react-native.js",
+    "react-native-start": "local-cli/react-native-start.sh"
   },
   "dependencies": {
     "absolute-path": "^0.0.0",

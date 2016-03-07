@@ -101,19 +101,25 @@ function processFileEvent(req, res) {
   const absPath = urlObj.pathname.replace(/^\/watcher/, '');
   const fs = this._bundler._resolver._depGraph._fastfs;
 
-  log
-    .moat(1)
-    .white('File event: ')
-    .yellow(path.relative(lotus.path, absPath))
-    .moat(1);
-
-  if (force || event === 'add' || fs._fastPaths[absPath]) {
+  const file = fs._fastPaths[absPath];
+  if (file && event !== 'delete') {
     const fstat = sync.stats(absPath);
-    const root = fs._getRoot(absPath).path;
+  }
+
+  if (force || file || event === 'add') {
+    const root = fs._getRoot(absPath);
+    if (!root) {
+      log
+        .moat(1)
+        .white('Invalid root: ')
+        .red(absPath)
+        .moat(1);
+    }
+
     // Only process events for files that aren't already handled by the packager.
-    if (this._fileWatcher._watcherByRoot[root] == null) {
-      const relPath = path.relative(root, absPath);
-      this._fileWatcher.emit('all', event, relPath, root, fstat);
+    else if (this._fileWatcher._watcherByRoot[root.path] == null) {
+      const relPath = path.relative(root.path, absPath);
+      this._fileWatcher.emit('all', event, relPath, root.path, fstat);
     }
   }
 

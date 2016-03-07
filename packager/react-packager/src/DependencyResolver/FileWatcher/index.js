@@ -43,11 +43,6 @@ class FileWatcher extends EventEmitter {
       rootConfigs.map(createWatcher)
     ).then(watchers => {
       watchers.forEach((watcher, i) => {
-        log
-          .moat(1)
-          .white('Watching root: ')
-          .cyan(rootConfigs[i].dir)
-          .moat(1);
         this._watcherByRoot[rootConfigs[i].dir] = watcher;
         watcher.on(
           'all',

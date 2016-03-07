@@ -166,7 +166,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
   if (_source && self.frame.size.width > 0 && self.frame.size.height > 0) {
     if (_onLoadStart) {
-      _onLoadStart(nil);
+      _onLoadStart(@{
+        @"width": @(self.bounds.size.width),
+        @"height": @(self.bounds.size.height),
+      });
     }
 
     RCTImageLoaderProgressBlock progressHandler = nil;

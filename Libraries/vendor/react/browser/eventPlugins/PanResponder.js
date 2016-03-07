@@ -335,7 +335,6 @@ var PanResponder = {
 
       onResponderRelease: function(e) {
         config.onPanResponderRelease && config.onPanResponderRelease(e, gestureState);
-        PanResponder._initializeGestureState(gestureState);
       },
 
       onResponderStart: function(e) {

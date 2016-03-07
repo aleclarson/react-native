@@ -64,23 +64,6 @@ function polyfillGlobal(name, newValue, scope = GLOBAL) {
   Object.defineProperty(scope, name, {...descriptor, value: newValue});
 }
 
-function setUpErrorHandler() {
-  if (global.__fbDisableExceptionsManager) {
-    return;
-  }
-
-  function handleError(e, isFatal) {
-    try {
-      require('ExceptionsManager').reportException(e, isFatal);
-    } catch(ee) {
-      console.log('Failed to print error: ', ee.message);
-    }
-  }
-
-  var ErrorUtils = require('ErrorUtils');
-  ErrorUtils.setGlobalHandler(handleError);
-}
-
 function setUpFlowChecker() {
   // if (__DEV__) {
   //   var checkFlowAtRuntime = require('checkFlowAtRuntime');
@@ -189,7 +172,6 @@ setUpProcessEnv();
 setUpTimers();
 setUpAlert();
 setUpPromise();
-setUpErrorHandler();
 setUpXHR();
 setUpGeolocation();
 setUpProduct();
