@@ -24,6 +24,8 @@
 
 require('regenerator/runtime');
 
+require('isReactNative').set(true);
+
 if (typeof GLOBAL === 'undefined') {
   GLOBAL = this;
 }
@@ -64,13 +66,6 @@ function polyfillGlobal(name, newValue, scope = GLOBAL) {
   Object.defineProperty(scope, name, {...descriptor, value: newValue});
 }
 
-function setUpFlowChecker() {
-  // if (__DEV__) {
-  //   var checkFlowAtRuntime = require('checkFlowAtRuntime');
-  //   checkFlowAtRuntime();
-  // }
-}
-
 /**
  * Sets up a set of window environment wrappers that ensure that the
  * BatchedBridge is flushed after each tick. In both the case of the
@@ -104,8 +99,6 @@ function setUpAlert() {
 }
 
 function setUpPromise() {
-  // The native Promise implementation throws the following error:
-  // ERROR: Event loop not supported.
   GLOBAL.Promise = require('q').Promise;
 }
 
@@ -122,6 +115,12 @@ function setUpXHR() {
   polyfillGlobal('Response', fetchPolyfill.Response);
 }
 
+function setUpAnimated() {
+  var Animated = require('Animated');
+  Animated.inject.FlattenStyle(require('flattenStyle'));
+  Animated.inject.InteractionManager(require('InteractionManager'));
+}
+
 function setUpGeolocation() {
   GLOBAL.navigator = GLOBAL.navigator || {};
   polyfillGlobal('geolocation', require('Geolocation'), GLOBAL.navigator);
@@ -130,7 +129,6 @@ function setUpGeolocation() {
 function setUpProduct() {
   Object.defineProperty(GLOBAL.navigator, 'product', {value: 'ReactNative'});
 }
-
 
 function setUpWebSockets() {
   polyfillGlobal('WebSocket', require('WebSocket'));
@@ -173,11 +171,11 @@ setUpTimers();
 setUpAlert();
 setUpPromise();
 setUpXHR();
+setUpAnimated();
 setUpGeolocation();
 setUpProduct();
 setUpWebSockets();
 setUpProfile();
-setUpFlowChecker();
 setUpNumber();
 setUpDevTools();
 

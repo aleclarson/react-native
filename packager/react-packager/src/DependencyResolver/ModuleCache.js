@@ -3,7 +3,7 @@
 const AssetModule = require('./AssetModule');
 const Package = require('./Package');
 const Module = require('./Module');
-const {sync} = require('io');
+const sync = require('sync');
 const path = require('path');
 
 class ModuleCache {
@@ -85,10 +85,9 @@ class ModuleCache {
   }
 
   refresh() {
-    log
-      .moat(1)
-      .red('Refreshing the module cache!')
-      .moat(1);
+    log.moat(1);
+    log.red('Refreshing the module cache!');
+    log.moat(1);
     sync.each(this._moduleCache, (module) => {
       module._dependers = Object.create(null);
       module._dependencies = Object.create(null);

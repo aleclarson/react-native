@@ -1,5 +1,4 @@
 
-const {sync} = require('io');
 const path = require('path');
 const File = require('./File');
 

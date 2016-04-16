@@ -137,15 +137,15 @@
           "from": "https://registry.npmjs.org/babylon/-/babylon-5.8.29.tgz",
           "resolved": "https://registry.npmjs.org/babylon/-/babylon-5.8.29.tgz"
         },
-        "globals": {
-          "version": "6.4.1",
-          "from": "https://registry.npmjs.org/globals/-/globals-6.4.1.tgz",
-          "resolved": "https://registry.npmjs.org/globals/-/globals-6.4.1.tgz"
-        },
         "js-tokens": {
           "version": "1.0.1",
           "from": "https://registry.npmjs.org/js-tokens/-/js-tokens-1.0.1.tgz",
           "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-1.0.1.tgz"
+        },
+        "globals": {
+          "version": "6.4.1",
+          "from": "https://registry.npmjs.org/globals/-/globals-6.4.1.tgz",
+          "resolved": "https://registry.npmjs.org/globals/-/globals-6.4.1.tgz"
         },
         "recast": {
           "version": "0.10.33",
@@ -1278,55 +1278,50 @@
           "from": "ansi@~0.3.0",
           "resolved": "https://registry.npmjs.org/ansi/-/ansi-0.3.0.tgz"
         },
-        "ansi-styles": {
-          "version": "2.1.0",
-          "from": "ansi-styles@^2.1.0",
-          "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-2.1.0.tgz"
-        },
-        "asn1": {
-          "version": "0.1.11",
-          "from": "asn1@0.1.11",
-          "resolved": "https://registry.npmjs.org/asn1/-/asn1-0.1.11.tgz"
-        },
         "ansi-regex": {
           "version": "2.0.0",
           "from": "ansi-regex@^2.0.0",
           "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-2.0.0.tgz"
-        },
-        "assert-plus": {
-          "version": "0.1.5",
-          "from": "assert-plus@^0.1.5",
-          "resolved": "https://registry.npmjs.org/assert-plus/-/assert-plus-0.1.5.tgz"
         },
         "are-we-there-yet": {
           "version": "1.0.4",
           "from": "are-we-there-yet@~1.0.0",
           "resolved": "https://registry.npmjs.org/are-we-there-yet/-/are-we-there-yet-1.0.4.tgz"
         },
-        "aws-sign2": {
-          "version": "0.6.0",
-          "from": "aws-sign2@~0.6.0",
-          "resolved": "https://registry.npmjs.org/aws-sign2/-/aws-sign2-0.6.0.tgz"
+        "asn1": {
+          "version": "0.1.11",
+          "from": "asn1@0.1.11",
+          "resolved": "https://registry.npmjs.org/asn1/-/asn1-0.1.11.tgz"
+        },
+        "assert-plus": {
+          "version": "0.1.5",
+          "from": "assert-plus@^0.1.5",
+          "resolved": "https://registry.npmjs.org/assert-plus/-/assert-plus-0.1.5.tgz"
         },
         "async": {
           "version": "1.5.0",
           "from": "async@^1.4.0",
           "resolved": "https://registry.npmjs.org/async/-/async-1.5.0.tgz"
         },
-        "boom": {
-          "version": "2.10.1",
-          "from": "boom@^2.8.x",
-          "resolved": "https://registry.npmjs.org/boom/-/boom-2.10.1.tgz"
+        "ansi-styles": {
+          "version": "2.1.0",
+          "from": "ansi-styles@^2.1.0",
+          "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-2.1.0.tgz"
+        },
+        "aws-sign2": {
+          "version": "0.6.0",
+          "from": "aws-sign2@~0.6.0",
+          "resolved": "https://registry.npmjs.org/aws-sign2/-/aws-sign2-0.6.0.tgz"
         },
         "block-stream": {
           "version": "0.0.8",
           "from": "block-stream@*",
           "resolved": "https://registry.npmjs.org/block-stream/-/block-stream-0.0.8.tgz"
         },
-        "caseless": {
-          "version": "0.11.0",
-          "from": "caseless@~0.11.0",
-          "resolved": "https://registry.npmjs.org/caseless/-/caseless-0.11.0.tgz"
+        "boom": {
+          "version": "2.10.1",
+          "from": "boom@^2.8.x",
+          "resolved": "https://registry.npmjs.org/boom/-/boom-2.10.1.tgz"
         },
         "chalk": {
           "version": "1.1.1",
@@ -1338,40 +1333,40 @@
           "from": "combined-stream@~1.0.5",
           "resolved": "https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.5.tgz"
         },
-        "core-util-is": {
-          "version": "1.0.1",
-          "from": "core-util-is@~1.0.0",
-          "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.1.tgz"
-        },
         "commander": {
           "version": "2.9.0",
           "from": "commander@^2.8.1",
           "resolved": "https://registry.npmjs.org/commander/-/commander-2.9.0.tgz"
         },
-        "cryptiles": {
-          "version": "2.0.5",
-          "from": "cryptiles@2.x.x",
-          "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-2.0.5.tgz"
+        "core-util-is": {
+          "version": "1.0.1",
+          "from": "core-util-is@~1.0.0",
+          "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.1.tgz"
         },
         "ctype": {
           "version": "0.5.3",
           "from": "ctype@0.5.3",
           "resolved": "https://registry.npmjs.org/ctype/-/ctype-0.5.3.tgz"
         },
+        "cryptiles": {
+          "version": "2.0.5",
+          "from": "cryptiles@2.x.x",
+          "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-2.0.5.tgz"
+        },
         "debug": {
           "version": "0.7.4",
           "from": "debug@~0.7.2",
           "resolved": "https://registry.npmjs.org/debug/-/debug-0.7.4.tgz"
         },
-        "deep-extend": {
-          "version": "0.2.11",
-          "from": "deep-extend@~0.2.5",
-          "resolved": "https://registry.npmjs.org/deep-extend/-/deep-extend-0.2.11.tgz"
-        },
         "balanced-match": {
           "version": "0.2.1",
           "from": "balanced-match@>=0.2.0 <0.3.0",
           "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-0.2.1.tgz"
+        },
+        "deep-extend": {
+          "version": "0.2.11",
+          "from": "deep-extend@~0.2.5",
+          "resolved": "https://registry.npmjs.org/deep-extend/-/deep-extend-0.2.11.tgz"
         },
         "delayed-stream": {
           "version": "1.0.0",
@@ -1383,65 +1378,70 @@
           "from": "delegates@^0.1.0",
           "resolved": "https://registry.npmjs.org/delegates/-/delegates-0.1.0.tgz"
         },
-        "brace-expansion": {
-          "version": "1.1.1",
-          "from": "brace-expansion@>=1.0.0 <2.0.0",
-          "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.1.tgz"
-        },
         "escape-string-regexp": {
           "version": "1.0.3",
           "from": "escape-string-regexp@^1.0.2",
           "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.3.tgz"
         },
-        "concat-map": {
-          "version": "0.0.1",
-          "from": "concat-map@0.0.1",
-          "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz"
+        "brace-expansion": {
+          "version": "1.1.1",
+          "from": "brace-expansion@>=1.0.0 <2.0.0",
+          "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.1.tgz"
         },
         "extend": {
           "version": "3.0.0",
           "from": "extend@~3.0.0",
           "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.0.tgz"
         },
-        "forever-agent": {
-          "version": "0.6.1",
-          "from": "forever-agent@~0.6.1",
-          "resolved": "https://registry.npmjs.org/forever-agent/-/forever-agent-0.6.1.tgz"
-        },
         "form-data": {
           "version": "1.0.0-rc3",
           "from": "form-data@~1.0.0-rc3",
           "resolved": "https://registry.npmjs.org/form-data/-/form-data-1.0.0-rc3.tgz"
         },
-        "gauge": {
-          "version": "1.2.2",
-          "from": "gauge@~1.2.0",
-          "resolved": "https://registry.npmjs.org/gauge/-/gauge-1.2.2.tgz"
+        "forever-agent": {
+          "version": "0.6.1",
+          "from": "forever-agent@~0.6.1",
+          "resolved": "https://registry.npmjs.org/forever-agent/-/forever-agent-0.6.1.tgz"
         },
         "fstream": {
           "version": "1.0.8",
           "from": "fstream@^1.0.2",
           "resolved": "https://registry.npmjs.org/fstream/-/fstream-1.0.8.tgz"
         },
+        "concat-map": {
+          "version": "0.0.1",
+          "from": "concat-map@0.0.1",
+          "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz"
+        },
+        "caseless": {
+          "version": "0.11.0",
+          "from": "caseless@~0.11.0",
+          "resolved": "https://registry.npmjs.org/caseless/-/caseless-0.11.0.tgz"
+        },
         "generate-function": {
           "version": "2.0.0",
           "from": "generate-function@^2.0.0",
           "resolved": "https://registry.npmjs.org/generate-function/-/generate-function-2.0.0.tgz"
+        },
+        "gauge": {
+          "version": "1.2.2",
+          "from": "gauge@~1.2.0",
+          "resolved": "https://registry.npmjs.org/gauge/-/gauge-1.2.2.tgz"
         },
         "generate-object-property": {
           "version": "1.2.0",
           "from": "generate-object-property@^1.1.0",
           "resolved": "https://registry.npmjs.org/generate-object-property/-/generate-object-property-1.2.0.tgz"
         },
-        "graceful-fs": {
-          "version": "4.1.2",
-          "from": "graceful-fs@4.1",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.2.tgz"
-        },
         "graceful-readlink": {
           "version": "1.0.1",
           "from": "graceful-readlink@>= 1.0.0",
           "resolved": "https://registry.npmjs.org/graceful-readlink/-/graceful-readlink-1.0.1.tgz"
+        },
+        "graceful-fs": {
+          "version": "4.1.2",
+          "from": "graceful-fs@4.1",
+          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.2.tgz"
         },
         "har-validator": {
           "version": "2.0.2",
@@ -1463,35 +1463,35 @@
           "from": "hawk@~3.1.0",
           "resolved": "https://registry.npmjs.org/hawk/-/hawk-3.1.0.tgz"
         },
-        "http-signature": {
-          "version": "0.11.0",
-          "from": "http-signature@~0.11.0",
-          "resolved": "https://registry.npmjs.org/http-signature/-/http-signature-0.11.0.tgz"
-        },
         "hoek": {
           "version": "2.16.3",
           "from": "hoek@2.x.x",
           "resolved": "https://registry.npmjs.org/hoek/-/hoek-2.16.3.tgz"
         },
-        "ini": {
-          "version": "1.3.4",
-          "from": "ini@~1.3.0",
-          "resolved": "https://registry.npmjs.org/ini/-/ini-1.3.4.tgz"
+        "http-signature": {
+          "version": "0.11.0",
+          "from": "http-signature@~0.11.0",
+          "resolved": "https://registry.npmjs.org/http-signature/-/http-signature-0.11.0.tgz"
         },
         "is-my-json-valid": {
           "version": "2.12.2",
           "from": "is-my-json-valid@^2.12.2",
           "resolved": "https://registry.npmjs.org/is-my-json-valid/-/is-my-json-valid-2.12.2.tgz"
         },
-        "is-property": {
-          "version": "1.0.2",
-          "from": "is-property@^1.0.0",
-          "resolved": "https://registry.npmjs.org/is-property/-/is-property-1.0.2.tgz"
+        "ini": {
+          "version": "1.3.4",
+          "from": "ini@~1.3.0",
+          "resolved": "https://registry.npmjs.org/ini/-/ini-1.3.4.tgz"
         },
         "isarray": {
           "version": "0.0.1",
           "from": "isarray@0.0.1",
           "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
+        },
+        "is-property": {
+          "version": "1.0.2",
+          "from": "is-property@^1.0.0",
+          "resolved": "https://registry.npmjs.org/is-property/-/is-property-1.0.2.tgz"
         },
         "isstream": {
           "version": "0.1.2",
@@ -1543,15 +1543,15 @@
           "from": "mime-db@~1.19.0",
           "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.19.0.tgz"
         },
-        "mime-types": {
-          "version": "2.1.7",
-          "from": "mime-types@~2.1.7",
-          "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.7.tgz"
-        },
         "inherits": {
           "version": "2.0.1",
           "from": "inherits@*",
           "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
+        },
+        "mime-types": {
+          "version": "2.1.7",
+          "from": "mime-types@~2.1.7",
+          "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.7.tgz"
         },
         "node-uuid": {
           "version": "1.4.3",
@@ -1578,15 +1578,15 @@
           "from": "pinkie@^1.0.0",
           "resolved": "https://registry.npmjs.org/pinkie/-/pinkie-1.0.0.tgz"
         },
-        "pinkie-promise": {
-          "version": "1.0.0",
-          "from": "pinkie-promise@^1.0.0",
-          "resolved": "https://registry.npmjs.org/pinkie-promise/-/pinkie-promise-1.0.0.tgz"
-        },
         "qs": {
           "version": "5.2.0",
           "from": "qs@~5.2.0",
           "resolved": "https://registry.npmjs.org/qs/-/qs-5.2.0.tgz"
+        },
+        "pinkie-promise": {
+          "version": "1.0.0",
+          "from": "pinkie-promise@^1.0.0",
+          "resolved": "https://registry.npmjs.org/pinkie-promise/-/pinkie-promise-1.0.0.tgz"
         },
         "minimist": {
           "version": "0.0.8",
@@ -1618,20 +1618,10 @@
           "from": "string_decoder@~0.10.x",
           "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-0.10.31.tgz"
         },
-        "strip-ansi": {
-          "version": "3.0.0",
-          "from": "strip-ansi@^3.0.0",
-          "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-3.0.0.tgz"
-        },
         "stringstream": {
           "version": "0.0.5",
           "from": "stringstream@~0.0.4",
           "resolved": "https://registry.npmjs.org/stringstream/-/stringstream-0.0.5.tgz"
-        },
-        "path-is-absolute": {
-          "version": "1.0.0",
-          "from": "path-is-absolute@>=1.0.0 <2.0.0",
-          "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.0.tgz"
         },
         "strip-json-comments": {
           "version": "0.1.3",
@@ -1658,10 +1648,20 @@
           "from": "tunnel-agent@~0.4.1",
           "resolved": "https://registry.npmjs.org/tunnel-agent/-/tunnel-agent-0.4.1.tgz"
         },
+        "strip-ansi": {
+          "version": "3.0.0",
+          "from": "strip-ansi@^3.0.0",
+          "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-3.0.0.tgz"
+        },
         "uid-number": {
           "version": "0.0.3",
           "from": "uid-number@0.0.3",
           "resolved": "https://registry.npmjs.org/uid-number/-/uid-number-0.0.3.tgz"
+        },
+        "path-is-absolute": {
+          "version": "1.0.0",
+          "from": "path-is-absolute@>=1.0.0 <2.0.0",
+          "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.0.tgz"
         },
         "xtend": {
           "version": "4.0.1",
@@ -1689,6 +1689,17 @@
             }
           }
         },
+        "inflight": {
+          "version": "1.0.4",
+          "from": "inflight@>=1.0.4 <2.0.0",
+          "resolved": "https://registry.npmjs.org/inflight/-/inflight-1.0.4.tgz",
+          "dependencies": {
+            "once": {
+              "version": "1.3.2",
+              "from": "once@>=1.3.0 <2.0.0"
+            }
+          }
+        },
         "rc": {
           "version": "1.1.2",
           "from": "rc@~1.1.0",
@@ -1698,17 +1709,6 @@
               "version": "1.2.0",
               "from": "minimist@^1.1.2",
               "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz"
-            }
-          }
-        },
-        "inflight": {
-          "version": "1.0.4",
-          "from": "inflight@>=1.0.4 <2.0.0",
-          "resolved": "https://registry.npmjs.org/inflight/-/inflight-1.0.4.tgz",
-          "dependencies": {
-            "once": {
-              "version": "1.3.2",
-              "from": "once@>=1.3.0 <2.0.0"
             }
           }
         },
@@ -1722,15 +1722,15 @@
               "from": "glob@>=5.0.14 <6.0.0",
               "resolved": "https://registry.npmjs.org/glob/-/glob-5.0.15.tgz"
             },
-            "minimatch": {
-              "version": "3.0.0",
-              "from": "minimatch@>=2.0.0 <3.0.0||>=3.0.0 <4.0.0",
-              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.0.0.tgz"
-            },
             "once": {
               "version": "1.3.2",
               "from": "once@>=1.3.0 <2.0.0",
               "resolved": "https://registry.npmjs.org/once/-/once-1.3.2.tgz"
+            },
+            "minimatch": {
+              "version": "3.0.0",
+              "from": "minimatch@>=2.0.0 <3.0.0||>=3.0.0 <4.0.0",
+              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.0.0.tgz"
             }
           }
         },
@@ -3210,7 +3210,7 @@
     "lotus-log": {
       "version": "1.0.0",
       "from": "aleclarson/lotus-log#1.0.0",
-      "resolved": "git://github.com/aleclarson/lotus-log.git#a3368e06be1d49acc05a126ad7cbb9c17374a517",
+      "resolved": "git://github.com/aleclarson/lotus-log.git#1bd4cbcb99c2fb81a93cda694ffcdde887f324d7",
       "dependencies": {
         "ansi-256-colors": {
           "version": "1.1.0",
@@ -3230,7 +3230,7 @@
         "define": {
           "version": "1.0.0",
           "from": "aleclarson/define#1.0.0",
-          "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+          "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
           "dependencies": {
             "computed-var": {
               "version": "1.0.0",
@@ -3240,24 +3240,63 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "set-type": {
                   "version": "1.0.0",
                   "from": "aleclarson/set-type#1.0.0",
-                  "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                 }
               }
             },
-            "has": {
-              "version": "1.0.1",
-              "from": "has@>=1.0.1 <2.0.0",
-              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+            "failure": {
+              "version": "1.0.0",
+              "from": "aleclarson/failure#1.0.0",
+              "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
               "dependencies": {
-                "function-bind": {
-                  "version": "1.0.2",
-                  "from": "function-bind@>=1.0.2 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                "isReactNative": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/isReactNative#1.0.0",
+                  "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                },
+                "lotus-require": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/lotus-require#1.0.0",
+                  "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                  "dependencies": {
+                    "parse-bool": {
+                      "version": "0.0.1",
+                      "from": "aleclarson/parse-bool#0.0.1",
+                      "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                    }
+                  }
+                },
+                "named-function": {
+                  "version": "1.0.3",
+                  "from": "aleclarson/named-function#1.0.3",
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                },
+                "parseErrorStack": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/parseErrorStack#1.0.0",
+                  "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                  "dependencies": {
+                    "resolveSourceMaps": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/resolveSourceMaps#1.0.0",
+                      "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                    }
+                  }
+                },
+                "set-type": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/set-type#1.0.0",
+                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                },
+                "steal": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/steal#1.0.0",
+                  "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                 }
               }
             },
@@ -3269,7 +3308,7 @@
             "lazy-var": {
               "version": "1.0.0",
               "from": "aleclarson/lazy-var#1.0.0",
-              "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+              "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
               "dependencies": {
                 "internalize": {
                   "version": "1.0.0",
@@ -3279,12 +3318,12 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "set-type": {
                   "version": "1.0.0",
                   "from": "aleclarson/set-type#1.0.0",
-                  "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                 }
               }
             },
@@ -3303,7 +3342,7 @@
             "named-function": {
               "version": "1.0.3",
               "from": "aleclarson/named-function#1.0.3",
-              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
             },
             "reactive-var": {
               "version": "1.0.6",
@@ -3348,6 +3387,57 @@
           "from": "aleclarson/exit#1.0.0",
           "resolved": "git://github.com/aleclarson/exit.git#5e858e7445e44da3fe8f6106dce791e59691c10a"
         },
+        "failure": {
+          "version": "1.0.0",
+          "from": "aleclarson/failure#1.0.0",
+          "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
+          "dependencies": {
+            "isReactNative": {
+              "version": "1.0.0",
+              "from": "aleclarson/isReactNative#1.0.0",
+              "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+            },
+            "lotus-require": {
+              "version": "1.0.0",
+              "from": "aleclarson/lotus-require#1.0.0",
+              "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+              "dependencies": {
+                "parse-bool": {
+                  "version": "0.0.1",
+                  "from": "aleclarson/parse-bool#0.0.1",
+                  "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                }
+              }
+            },
+            "named-function": {
+              "version": "1.0.3",
+              "from": "aleclarson/named-function#1.0.3",
+              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+            },
+            "parseErrorStack": {
+              "version": "1.0.0",
+              "from": "aleclarson/parseErrorStack#1.0.0",
+              "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+              "dependencies": {
+                "resolveSourceMaps": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/resolveSourceMaps#1.0.0",
+                  "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                }
+              }
+            },
+            "set-type": {
+              "version": "1.0.0",
+              "from": "aleclarson/set-type#1.0.0",
+              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+            },
+            "steal": {
+              "version": "1.0.0",
+              "from": "aleclarson/steal#1.0.0",
+              "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
+            }
+          }
+        },
         "finder": {
           "version": "1.0.0",
           "from": "aleclarson/finder#1.0.0",
@@ -3356,7 +3446,7 @@
             "define": {
               "version": "1.0.0",
               "from": "aleclarson/define#1.0.0",
-              "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+              "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
               "dependencies": {
                 "computed-var": {
                   "version": "1.0.0",
@@ -3366,24 +3456,63 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                "failure": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/failure#1.0.0",
+                  "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                   "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                    "isReactNative": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/isReactNative#1.0.0",
+                      "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                    },
+                    "lotus-require": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/lotus-require#1.0.0",
+                      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                      "dependencies": {
+                        "parse-bool": {
+                          "version": "0.0.1",
+                          "from": "aleclarson/parse-bool#0.0.1",
+                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                        }
+                      }
+                    },
+                    "named-function": {
+                      "version": "1.0.3",
+                      "from": "aleclarson/named-function#1.0.3",
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                    },
+                    "parseErrorStack": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/parseErrorStack#1.0.0",
+                      "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                      "dependencies": {
+                        "resolveSourceMaps": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/resolveSourceMaps#1.0.0",
+                          "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                        }
+                      }
+                    },
+                    "set-type": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/set-type#1.0.0",
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                    },
+                    "steal": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/steal#1.0.0",
+                      "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                     }
                   }
                 },
@@ -3395,7 +3524,7 @@
                 "lazy-var": {
                   "version": "1.0.0",
                   "from": "aleclarson/lazy-var#1.0.0",
-                  "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                  "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                   "dependencies": {
                     "internalize": {
                       "version": "1.0.0",
@@ -3405,12 +3534,12 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
@@ -3429,7 +3558,7 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "reactive-var": {
                   "version": "1.0.6",
@@ -3469,18 +3598,6 @@
               "from": "aleclarson/lotus-require#1.0.0",
               "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
               "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                },
                 "parse-bool": {
                   "version": "0.0.1",
                   "from": "aleclarson/parse-bool#0.0.1",
@@ -3491,12 +3608,12 @@
             "type-utils": {
               "version": "1.0.0",
               "from": "aleclarson/type-utils#1.0.0",
-              "resolved": "git://github.com/aleclarson/type-utils.git#f374f6012e2f1dd391033a97ba655d6a105f546e",
+              "resolved": "git://github.com/aleclarson/type-utils.git#cd5e7e66388d8ad70b453cecad41a306ff4eb6c1",
               "dependencies": {
                 "define": {
                   "version": "1.0.0",
                   "from": "aleclarson/define#1.0.0",
-                  "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+                  "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
                   "dependencies": {
                     "computed-var": {
                       "version": "1.0.0",
@@ -3506,24 +3623,63 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         },
                         "set-type": {
                           "version": "1.0.0",
                           "from": "aleclarson/set-type#1.0.0",
-                          "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                          "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                         }
                       }
                     },
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                    "failure": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/failure#1.0.0",
+                      "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                       "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                        "isReactNative": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/isReactNative#1.0.0",
+                          "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                        },
+                        "lotus-require": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/lotus-require#1.0.0",
+                          "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                          "dependencies": {
+                            "parse-bool": {
+                              "version": "0.0.1",
+                              "from": "aleclarson/parse-bool#0.0.1",
+                              "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                            }
+                          }
+                        },
+                        "named-function": {
+                          "version": "1.0.3",
+                          "from": "aleclarson/named-function#1.0.3",
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                        },
+                        "parseErrorStack": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/parseErrorStack#1.0.0",
+                          "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                          "dependencies": {
+                            "resolveSourceMaps": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/resolveSourceMaps#1.0.0",
+                              "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                            }
+                          }
+                        },
+                        "set-type": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/set-type#1.0.0",
+                          "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                        },
+                        "steal": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/steal#1.0.0",
+                          "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                         }
                       }
                     },
@@ -3535,7 +3691,7 @@
                     "lazy-var": {
                       "version": "1.0.0",
                       "from": "aleclarson/lazy-var#1.0.0",
-                      "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                      "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                       "dependencies": {
                         "internalize": {
                           "version": "1.0.0",
@@ -3545,12 +3701,12 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         },
                         "set-type": {
                           "version": "1.0.0",
                           "from": "aleclarson/set-type#1.0.0",
-                          "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                          "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                         }
                       }
                     },
@@ -3569,7 +3725,7 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "reactive-var": {
                       "version": "1.0.6",
@@ -3609,23 +3765,62 @@
                   "from": "aleclarson/emptyFunction#1.0.0",
                   "resolved": "git://github.com/aleclarson/emptyFunction.git#c9f67143b6cb2515ec9c90631e9279f1c498ebf0"
                 },
+                "failure": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/failure#1.0.0",
+                  "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
+                  "dependencies": {
+                    "isReactNative": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/isReactNative#1.0.0",
+                      "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                    },
+                    "lotus-require": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/lotus-require#1.0.0",
+                      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                      "dependencies": {
+                        "parse-bool": {
+                          "version": "0.0.1",
+                          "from": "aleclarson/parse-bool#0.0.1",
+                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                        }
+                      }
+                    },
+                    "named-function": {
+                      "version": "1.0.3",
+                      "from": "aleclarson/named-function#1.0.3",
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                    },
+                    "parseErrorStack": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/parseErrorStack#1.0.0",
+                      "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                      "dependencies": {
+                        "resolveSourceMaps": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/resolveSourceMaps#1.0.0",
+                          "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                        }
+                      }
+                    },
+                    "set-type": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/set-type#1.0.0",
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                    },
+                    "steal": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/steal#1.0.0",
+                      "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
+                    }
+                  }
+                },
                 "lotus-require": {
                   "version": "1.0.0",
                   "from": "aleclarson/lotus-require#1.0.0",
                   "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                   "dependencies": {
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                      "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                        }
-                      }
-                    },
                     "parse-bool": {
                       "version": "0.0.1",
                       "from": "aleclarson/parse-bool#0.0.1",
@@ -3636,12 +3831,12 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "set-type": {
                   "version": "1.0.0",
                   "from": "aleclarson/set-type#1.0.0",
-                  "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                 }
               }
             }
@@ -3652,20 +3847,15 @@
           "from": "hooker@>=0.2.3 <0.3.0",
           "resolved": "https://registry.npmjs.org/hooker/-/hooker-0.2.3.tgz"
         },
-        "in-array": {
-          "version": "0.1.0",
-          "from": "in-array@>=0.1.0 <0.2.0",
-          "resolved": "https://registry.npmjs.org/in-array/-/in-array-0.1.0.tgz"
-        },
         "io": {
           "version": "1.0.0",
           "from": "aleclarson/io#1.0.0",
-          "resolved": "git://github.com/aleclarson/io.git#ae5afeaaf0d7b5c7819be9c3377be3a0a6583caa",
+          "resolved": "git://github.com/aleclarson/io.git#44f486faa470c9a4fc4f0ca58ae612b4725acc85",
           "dependencies": {
             "define": {
               "version": "1.0.0",
               "from": "aleclarson/define#1.0.0",
-              "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+              "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
               "dependencies": {
                 "computed-var": {
                   "version": "1.0.0",
@@ -3675,24 +3865,63 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                "failure": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/failure#1.0.0",
+                  "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                   "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                    "isReactNative": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/isReactNative#1.0.0",
+                      "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                    },
+                    "lotus-require": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/lotus-require#1.0.0",
+                      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                      "dependencies": {
+                        "parse-bool": {
+                          "version": "0.0.1",
+                          "from": "aleclarson/parse-bool#0.0.1",
+                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                        }
+                      }
+                    },
+                    "named-function": {
+                      "version": "1.0.3",
+                      "from": "aleclarson/named-function#1.0.3",
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                    },
+                    "parseErrorStack": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/parseErrorStack#1.0.0",
+                      "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                      "dependencies": {
+                        "resolveSourceMaps": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/resolveSourceMaps#1.0.0",
+                          "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                        }
+                      }
+                    },
+                    "set-type": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/set-type#1.0.0",
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                    },
+                    "steal": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/steal#1.0.0",
+                      "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                     }
                   }
                 },
@@ -3704,7 +3933,7 @@
                 "lazy-var": {
                   "version": "1.0.0",
                   "from": "aleclarson/lazy-var#1.0.0",
-                  "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                  "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                   "dependencies": {
                     "internalize": {
                       "version": "1.0.0",
@@ -3714,12 +3943,12 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
@@ -3738,7 +3967,7 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "reactive-var": {
                   "version": "1.0.6",
@@ -3805,18 +4034,6 @@
               "from": "aleclarson/lotus-require#1.0.0",
               "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
               "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                },
                 "parse-bool": {
                   "version": "0.0.1",
                   "from": "aleclarson/parse-bool#0.0.1",
@@ -3839,18 +4056,6 @@
                   "from": "aleclarson/lotus-require#1.0.0",
                   "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                   "dependencies": {
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                      "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                        }
-                      }
-                    },
                     "parse-bool": {
                       "version": "0.0.1",
                       "from": "aleclarson/parse-bool#0.0.1",
@@ -3871,26 +4076,12 @@
                     "combine": {
                       "version": "1.0.0",
                       "from": "aleclarson/combine#1.0.0",
-                      "resolved": "git://github.com/aleclarson/combine.git#3abebdd31d7fb9311a1acb7994b5cb844ccb7a00",
-                      "dependencies": {
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        }
-                      }
+                      "resolved": "git://github.com/aleclarson/combine.git#cac38f16b4602fabd43a74e4690219bac07e33d5"
                     },
                     "define": {
                       "version": "1.0.0",
                       "from": "aleclarson/define#1.0.0",
-                      "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+                      "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
                       "dependencies": {
                         "computed-var": {
                           "version": "1.0.0",
@@ -3900,24 +4091,63 @@
                             "named-function": {
                               "version": "1.0.3",
                               "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                             },
                             "set-type": {
                               "version": "1.0.0",
                               "from": "aleclarson/set-type#1.0.0",
-                              "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                             }
                           }
                         },
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                        "failure": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/failure#1.0.0",
+                          "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                           "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                            "isReactNative": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/isReactNative#1.0.0",
+                              "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                            },
+                            "lotus-require": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/lotus-require#1.0.0",
+                              "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                              "dependencies": {
+                                "parse-bool": {
+                                  "version": "0.0.1",
+                                  "from": "aleclarson/parse-bool#0.0.1",
+                                  "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                                }
+                              }
+                            },
+                            "named-function": {
+                              "version": "1.0.3",
+                              "from": "aleclarson/named-function#1.0.3",
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                            },
+                            "parseErrorStack": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/parseErrorStack#1.0.0",
+                              "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                              "dependencies": {
+                                "resolveSourceMaps": {
+                                  "version": "1.0.0",
+                                  "from": "aleclarson/resolveSourceMaps#1.0.0",
+                                  "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                                }
+                              }
+                            },
+                            "set-type": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/set-type#1.0.0",
+                              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                            },
+                            "steal": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/steal#1.0.0",
+                              "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                             }
                           }
                         },
@@ -3929,7 +4159,7 @@
                         "lazy-var": {
                           "version": "1.0.0",
                           "from": "aleclarson/lazy-var#1.0.0",
-                          "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                          "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                           "dependencies": {
                             "internalize": {
                               "version": "1.0.0",
@@ -3939,12 +4169,12 @@
                             "named-function": {
                               "version": "1.0.3",
                               "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                             },
                             "set-type": {
                               "version": "1.0.0",
                               "from": "aleclarson/set-type#1.0.0",
-                              "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                             }
                           }
                         },
@@ -3963,7 +4193,7 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         },
                         "reactive-var": {
                           "version": "1.0.6",
@@ -4008,18 +4238,6 @@
                       "from": "aleclarson/lotus-require#1.0.0",
                       "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                       "dependencies": {
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        },
                         "parse-bool": {
                           "version": "0.0.1",
                           "from": "aleclarson/parse-bool#0.0.1",
@@ -4030,7 +4248,7 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "node-paths": {
                       "version": "0.0.1",
@@ -4081,18 +4299,6 @@
                           "from": "aleclarson/lotus-require#1.0.0",
                           "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                           "dependencies": {
-                            "has": {
-                              "version": "1.0.1",
-                              "from": "has@>=1.0.1 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                              "dependencies": {
-                                "function-bind": {
-                                  "version": "1.0.2",
-                                  "from": "function-bind@>=1.0.2 <2.0.0",
-                                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                                }
-                              }
-                            },
                             "parse-bool": {
                               "version": "0.0.1",
                               "from": "aleclarson/parse-bool#0.0.1",
@@ -4103,7 +4309,7 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         }
                       }
                     }
@@ -4155,18 +4361,6 @@
                   "from": "aleclarson/lotus-require#1.0.0",
                   "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                   "dependencies": {
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                      "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                        }
-                      }
-                    },
                     "parse-bool": {
                       "version": "0.0.1",
                       "from": "aleclarson/parse-bool#0.0.1",
@@ -4199,18 +4393,6 @@
                       "from": "aleclarson/lotus-require#1.0.0",
                       "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                       "dependencies": {
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        },
                         "parse-bool": {
                           "version": "0.0.1",
                           "from": "aleclarson/parse-bool#0.0.1",
@@ -4231,26 +4413,12 @@
                         "combine": {
                           "version": "1.0.0",
                           "from": "aleclarson/combine#1.0.0",
-                          "resolved": "git://github.com/aleclarson/combine.git#3abebdd31d7fb9311a1acb7994b5cb844ccb7a00",
-                          "dependencies": {
-                            "has": {
-                              "version": "1.0.1",
-                              "from": "has@>=1.0.1 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                              "dependencies": {
-                                "function-bind": {
-                                  "version": "1.0.2",
-                                  "from": "function-bind@>=1.0.2 <2.0.0",
-                                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                                }
-                              }
-                            }
-                          }
+                          "resolved": "git://github.com/aleclarson/combine.git#cac38f16b4602fabd43a74e4690219bac07e33d5"
                         },
                         "define": {
                           "version": "1.0.0",
                           "from": "aleclarson/define#1.0.0",
-                          "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+                          "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
                           "dependencies": {
                             "computed-var": {
                               "version": "1.0.0",
@@ -4260,24 +4428,63 @@
                                 "named-function": {
                                   "version": "1.0.3",
                                   "from": "aleclarson/named-function#1.0.3",
-                                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                                 },
                                 "set-type": {
                                   "version": "1.0.0",
                                   "from": "aleclarson/set-type#1.0.0",
-                                  "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                                 }
                               }
                             },
-                            "has": {
-                              "version": "1.0.1",
-                              "from": "has@>=1.0.1 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                            "failure": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/failure#1.0.0",
+                              "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                               "dependencies": {
-                                "function-bind": {
-                                  "version": "1.0.2",
-                                  "from": "function-bind@>=1.0.2 <2.0.0",
-                                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                                "isReactNative": {
+                                  "version": "1.0.0",
+                                  "from": "aleclarson/isReactNative#1.0.0",
+                                  "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                                },
+                                "lotus-require": {
+                                  "version": "1.0.0",
+                                  "from": "aleclarson/lotus-require#1.0.0",
+                                  "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                                  "dependencies": {
+                                    "parse-bool": {
+                                      "version": "0.0.1",
+                                      "from": "aleclarson/parse-bool#0.0.1",
+                                      "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                                    }
+                                  }
+                                },
+                                "named-function": {
+                                  "version": "1.0.3",
+                                  "from": "aleclarson/named-function#1.0.3",
+                                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                                },
+                                "parseErrorStack": {
+                                  "version": "1.0.0",
+                                  "from": "aleclarson/parseErrorStack#1.0.0",
+                                  "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                                  "dependencies": {
+                                    "resolveSourceMaps": {
+                                      "version": "1.0.0",
+                                      "from": "aleclarson/resolveSourceMaps#1.0.0",
+                                      "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                                    }
+                                  }
+                                },
+                                "set-type": {
+                                  "version": "1.0.0",
+                                  "from": "aleclarson/set-type#1.0.0",
+                                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                                },
+                                "steal": {
+                                  "version": "1.0.0",
+                                  "from": "aleclarson/steal#1.0.0",
+                                  "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                                 }
                               }
                             },
@@ -4289,7 +4496,7 @@
                             "lazy-var": {
                               "version": "1.0.0",
                               "from": "aleclarson/lazy-var#1.0.0",
-                              "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                              "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                               "dependencies": {
                                 "internalize": {
                                   "version": "1.0.0",
@@ -4299,12 +4506,12 @@
                                 "named-function": {
                                   "version": "1.0.3",
                                   "from": "aleclarson/named-function#1.0.3",
-                                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                                 },
                                 "set-type": {
                                   "version": "1.0.0",
                                   "from": "aleclarson/set-type#1.0.0",
-                                  "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                                 }
                               }
                             },
@@ -4323,7 +4530,7 @@
                             "named-function": {
                               "version": "1.0.3",
                               "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                             },
                             "reactive-var": {
                               "version": "1.0.6",
@@ -4368,18 +4575,6 @@
                           "from": "aleclarson/lotus-require#1.0.0",
                           "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                           "dependencies": {
-                            "has": {
-                              "version": "1.0.1",
-                              "from": "has@>=1.0.1 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                              "dependencies": {
-                                "function-bind": {
-                                  "version": "1.0.2",
-                                  "from": "function-bind@>=1.0.2 <2.0.0",
-                                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                                }
-                              }
-                            },
                             "parse-bool": {
                               "version": "0.0.1",
                               "from": "aleclarson/parse-bool#0.0.1",
@@ -4390,7 +4585,7 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         },
                         "node-paths": {
                           "version": "0.0.1",
@@ -4441,18 +4636,6 @@
                               "from": "aleclarson/lotus-require#1.0.0",
                               "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                               "dependencies": {
-                                "has": {
-                                  "version": "1.0.1",
-                                  "from": "has@>=1.0.1 <2.0.0",
-                                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                                  "dependencies": {
-                                    "function-bind": {
-                                      "version": "1.0.2",
-                                      "from": "function-bind@>=1.0.2 <2.0.0",
-                                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                                    }
-                                  }
-                                },
                                 "parse-bool": {
                                   "version": "0.0.1",
                                   "from": "aleclarson/parse-bool#0.0.1",
@@ -4463,7 +4646,7 @@
                             "named-function": {
                               "version": "1.0.3",
                               "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                             }
                           }
                         }
@@ -4506,26 +4689,26 @@
               }
             },
             "rimraf": {
-              "version": "2.5.1",
+              "version": "2.5.2",
               "from": "rimraf@>=2.4.3 <3.0.0",
-              "resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.5.1.tgz",
+              "resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.5.2.tgz",
               "dependencies": {
                 "glob": {
-                  "version": "6.0.4",
-                  "from": "glob@>=6.0.1 <7.0.0",
-                  "resolved": "https://registry.npmjs.org/glob/-/glob-6.0.4.tgz"
+                  "version": "7.0.3",
+                  "from": "glob@>=7.0.0 <8.0.0",
+                  "resolved": "https://registry.npmjs.org/glob/-/glob-7.0.3.tgz"
                 }
               }
             },
             "type-utils": {
               "version": "1.0.0",
               "from": "aleclarson/type-utils#1.0.0",
-              "resolved": "git://github.com/aleclarson/type-utils.git#f374f6012e2f1dd391033a97ba655d6a105f546e",
+              "resolved": "git://github.com/aleclarson/type-utils.git#cd5e7e66388d8ad70b453cecad41a306ff4eb6c1",
               "dependencies": {
                 "define": {
                   "version": "1.0.0",
                   "from": "aleclarson/define#1.0.0",
-                  "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+                  "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
                   "dependencies": {
                     "computed-var": {
                       "version": "1.0.0",
@@ -4535,24 +4718,63 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         },
                         "set-type": {
                           "version": "1.0.0",
                           "from": "aleclarson/set-type#1.0.0",
-                          "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                          "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                         }
                       }
                     },
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                    "failure": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/failure#1.0.0",
+                      "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                       "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                        "isReactNative": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/isReactNative#1.0.0",
+                          "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                        },
+                        "lotus-require": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/lotus-require#1.0.0",
+                          "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                          "dependencies": {
+                            "parse-bool": {
+                              "version": "0.0.1",
+                              "from": "aleclarson/parse-bool#0.0.1",
+                              "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                            }
+                          }
+                        },
+                        "named-function": {
+                          "version": "1.0.3",
+                          "from": "aleclarson/named-function#1.0.3",
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                        },
+                        "parseErrorStack": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/parseErrorStack#1.0.0",
+                          "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                          "dependencies": {
+                            "resolveSourceMaps": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/resolveSourceMaps#1.0.0",
+                              "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                            }
+                          }
+                        },
+                        "set-type": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/set-type#1.0.0",
+                          "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                        },
+                        "steal": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/steal#1.0.0",
+                          "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                         }
                       }
                     },
@@ -4564,7 +4786,7 @@
                     "lazy-var": {
                       "version": "1.0.0",
                       "from": "aleclarson/lazy-var#1.0.0",
-                      "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                      "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                       "dependencies": {
                         "internalize": {
                           "version": "1.0.0",
@@ -4574,12 +4796,12 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         },
                         "set-type": {
                           "version": "1.0.0",
                           "from": "aleclarson/set-type#1.0.0",
-                          "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                          "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                         }
                       }
                     },
@@ -4598,7 +4820,7 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "reactive-var": {
                       "version": "1.0.6",
@@ -4638,23 +4860,62 @@
                   "from": "aleclarson/emptyFunction#1.0.0",
                   "resolved": "git://github.com/aleclarson/emptyFunction.git#c9f67143b6cb2515ec9c90631e9279f1c498ebf0"
                 },
+                "failure": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/failure#1.0.0",
+                  "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
+                  "dependencies": {
+                    "isReactNative": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/isReactNative#1.0.0",
+                      "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                    },
+                    "lotus-require": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/lotus-require#1.0.0",
+                      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                      "dependencies": {
+                        "parse-bool": {
+                          "version": "0.0.1",
+                          "from": "aleclarson/parse-bool#0.0.1",
+                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                        }
+                      }
+                    },
+                    "named-function": {
+                      "version": "1.0.3",
+                      "from": "aleclarson/named-function#1.0.3",
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                    },
+                    "parseErrorStack": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/parseErrorStack#1.0.0",
+                      "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                      "dependencies": {
+                        "resolveSourceMaps": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/resolveSourceMaps#1.0.0",
+                          "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                        }
+                      }
+                    },
+                    "set-type": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/set-type#1.0.0",
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                    },
+                    "steal": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/steal#1.0.0",
+                      "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
+                    }
+                  }
+                },
                 "lotus-require": {
                   "version": "1.0.0",
                   "from": "aleclarson/lotus-require#1.0.0",
                   "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                   "dependencies": {
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                      "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                        }
-                      }
-                    },
                     "parse-bool": {
                       "version": "0.0.1",
                       "from": "aleclarson/parse-bool#0.0.1",
@@ -4665,12 +4926,12 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "set-type": {
                   "version": "1.0.0",
                   "from": "aleclarson/set-type#1.0.0",
-                  "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                 }
               }
             }
@@ -4691,18 +4952,6 @@
           "from": "aleclarson/lotus-require#1.0.0",
           "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
           "dependencies": {
-            "has": {
-              "version": "1.0.1",
-              "from": "has@>=1.0.1 <2.0.0",
-              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-              "dependencies": {
-                "function-bind": {
-                  "version": "1.0.2",
-                  "from": "function-bind@>=1.0.2 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                }
-              }
-            },
             "parse-bool": {
               "version": "0.0.1",
               "from": "aleclarson/parse-bool#0.0.1",
@@ -4713,7 +4962,7 @@
         "named-function": {
           "version": "1.0.3",
           "from": "aleclarson/named-function#1.0.3",
-          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
         },
         "no-op": {
           "version": "1.0.3",
@@ -4742,18 +4991,6 @@
               "from": "aleclarson/lotus-require#1.0.0",
               "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
               "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                },
                 "parse-bool": {
                   "version": "0.0.1",
                   "from": "aleclarson/parse-bool#0.0.1",
@@ -4786,18 +5023,6 @@
                   "from": "aleclarson/lotus-require#1.0.0",
                   "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                   "dependencies": {
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                      "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                        }
-                      }
-                    },
                     "parse-bool": {
                       "version": "0.0.1",
                       "from": "aleclarson/parse-bool#0.0.1",
@@ -4818,26 +5043,12 @@
                     "combine": {
                       "version": "1.0.0",
                       "from": "aleclarson/combine#1.0.0",
-                      "resolved": "git://github.com/aleclarson/combine.git#3abebdd31d7fb9311a1acb7994b5cb844ccb7a00",
-                      "dependencies": {
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        }
-                      }
+                      "resolved": "git://github.com/aleclarson/combine.git#cac38f16b4602fabd43a74e4690219bac07e33d5"
                     },
                     "define": {
                       "version": "1.0.0",
                       "from": "aleclarson/define#1.0.0",
-                      "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+                      "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
                       "dependencies": {
                         "computed-var": {
                           "version": "1.0.0",
@@ -4847,24 +5058,63 @@
                             "named-function": {
                               "version": "1.0.3",
                               "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                             },
                             "set-type": {
                               "version": "1.0.0",
                               "from": "aleclarson/set-type#1.0.0",
-                              "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                             }
                           }
                         },
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                        "failure": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/failure#1.0.0",
+                          "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                           "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                            "isReactNative": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/isReactNative#1.0.0",
+                              "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                            },
+                            "lotus-require": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/lotus-require#1.0.0",
+                              "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                              "dependencies": {
+                                "parse-bool": {
+                                  "version": "0.0.1",
+                                  "from": "aleclarson/parse-bool#0.0.1",
+                                  "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                                }
+                              }
+                            },
+                            "named-function": {
+                              "version": "1.0.3",
+                              "from": "aleclarson/named-function#1.0.3",
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                            },
+                            "parseErrorStack": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/parseErrorStack#1.0.0",
+                              "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                              "dependencies": {
+                                "resolveSourceMaps": {
+                                  "version": "1.0.0",
+                                  "from": "aleclarson/resolveSourceMaps#1.0.0",
+                                  "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                                }
+                              }
+                            },
+                            "set-type": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/set-type#1.0.0",
+                              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                            },
+                            "steal": {
+                              "version": "1.0.0",
+                              "from": "aleclarson/steal#1.0.0",
+                              "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                             }
                           }
                         },
@@ -4876,7 +5126,7 @@
                         "lazy-var": {
                           "version": "1.0.0",
                           "from": "aleclarson/lazy-var#1.0.0",
-                          "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                          "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                           "dependencies": {
                             "internalize": {
                               "version": "1.0.0",
@@ -4886,12 +5136,12 @@
                             "named-function": {
                               "version": "1.0.3",
                               "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                             },
                             "set-type": {
                               "version": "1.0.0",
                               "from": "aleclarson/set-type#1.0.0",
-                              "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                             }
                           }
                         },
@@ -4910,7 +5160,7 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         },
                         "reactive-var": {
                           "version": "1.0.6",
@@ -4955,18 +5205,6 @@
                       "from": "aleclarson/lotus-require#1.0.0",
                       "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                       "dependencies": {
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        },
                         "parse-bool": {
                           "version": "0.0.1",
                           "from": "aleclarson/parse-bool#0.0.1",
@@ -4977,7 +5215,7 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "node-paths": {
                       "version": "0.0.1",
@@ -5028,18 +5266,6 @@
                           "from": "aleclarson/lotus-require#1.0.0",
                           "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                           "dependencies": {
-                            "has": {
-                              "version": "1.0.1",
-                              "from": "has@>=1.0.1 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                              "dependencies": {
-                                "function-bind": {
-                                  "version": "1.0.2",
-                                  "from": "function-bind@>=1.0.2 <2.0.0",
-                                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                                }
-                              }
-                            },
                             "parse-bool": {
                               "version": "0.0.1",
                               "from": "aleclarson/parse-bool#0.0.1",
@@ -5050,7 +5276,7 @@
                         "named-function": {
                           "version": "1.0.3",
                           "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                          "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                         }
                       }
                     }
@@ -5092,368 +5318,6 @@
             }
           }
         },
-        "report-failure": {
-          "version": "1.0.0",
-          "from": "aleclarson/report-failure#1.0.0",
-          "resolved": "git://github.com/aleclarson/report-failure.git#1090d0038d2c5823385222f31bd50d586d90917f",
-          "dependencies": {
-            "lotus-require": {
-              "version": "1.0.0",
-              "from": "aleclarson/lotus-require#1.0.0",
-              "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
-              "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                },
-                "parse-bool": {
-                  "version": "0.0.1",
-                  "from": "aleclarson/parse-bool#0.0.1",
-                  "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                }
-              }
-            },
-            "q": {
-              "version": "1.0.0",
-              "from": "aleclarson/q#1.0.0",
-              "resolved": "git://github.com/aleclarson/q.git#b532da69c36b908ff50c2840b7b7188019105eb1",
-              "dependencies": {
-                "is-node-env": {
-                  "version": "1.0.0",
-                  "from": "aleclarson/is-node-env#1.0.0",
-                  "resolved": "git://github.com/aleclarson/is-node-env.git#3a10cc5b88584a6eb96fc0e6800082d1e102dbf0"
-                },
-                "lotus-require": {
-                  "version": "1.0.0",
-                  "from": "aleclarson/lotus-require#1.0.0",
-                  "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
-                  "dependencies": {
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                      "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                        }
-                      }
-                    },
-                    "parse-bool": {
-                      "version": "0.0.1",
-                      "from": "aleclarson/parse-bool#0.0.1",
-                      "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                    }
-                  }
-                },
-                "parse-bool": {
-                  "version": "0.0.1",
-                  "from": "aleclarson/parse-bool#0.0.1",
-                  "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                },
-                "stack": {
-                  "version": "1.0.0",
-                  "from": "aleclarson/stack#1.0.0",
-                  "resolved": "git://github.com/aleclarson/stack.git#7f20b9c0a5c9dc2ef89fe390b557dc034b9ab92b",
-                  "dependencies": {
-                    "combine": {
-                      "version": "1.0.0",
-                      "from": "aleclarson/combine#1.0.0",
-                      "resolved": "git://github.com/aleclarson/combine.git#3abebdd31d7fb9311a1acb7994b5cb844ccb7a00",
-                      "dependencies": {
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "define": {
-                      "version": "1.0.0",
-                      "from": "aleclarson/define#1.0.0",
-                      "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
-                      "dependencies": {
-                        "computed-var": {
-                          "version": "1.0.0",
-                          "from": "aleclarson/computed-var#1.0.0",
-                          "resolved": "git://github.com/aleclarson/computed-var.git#a79b7b0e41475673a50b9d0794c71e984bba7b93",
-                          "dependencies": {
-                            "named-function": {
-                              "version": "1.0.3",
-                              "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
-                            },
-                            "set-type": {
-                              "version": "1.0.0",
-                              "from": "aleclarson/set-type#1.0.0",
-                              "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
-                            }
-                          }
-                        },
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        },
-                        "is-node-env": {
-                          "version": "1.0.0",
-                          "from": "aleclarson/is-node-env#1.0.0",
-                          "resolved": "git://github.com/aleclarson/is-node-env.git#3a10cc5b88584a6eb96fc0e6800082d1e102dbf0"
-                        },
-                        "lazy-var": {
-                          "version": "1.0.0",
-                          "from": "aleclarson/lazy-var#1.0.0",
-                          "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
-                          "dependencies": {
-                            "internalize": {
-                              "version": "1.0.0",
-                              "from": "aleclarson/internalize#1.0.0",
-                              "resolved": "git://github.com/aleclarson/internalize.git#6fe760f5d914323276bb4714707bdd83bdf1fd07"
-                            },
-                            "named-function": {
-                              "version": "1.0.3",
-                              "from": "aleclarson/named-function#1.0.3",
-                              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
-                            },
-                            "set-type": {
-                              "version": "1.0.0",
-                              "from": "aleclarson/set-type#1.0.0",
-                              "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
-                            }
-                          }
-                        },
-                        "lotus-require": {
-                          "version": "1.0.0",
-                          "from": "aleclarson/lotus-require#1.0.0",
-                          "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
-                          "dependencies": {
-                            "parse-bool": {
-                              "version": "0.0.1",
-                              "from": "aleclarson/parse-bool#0.0.1",
-                              "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                            }
-                          }
-                        },
-                        "named-function": {
-                          "version": "1.0.3",
-                          "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
-                        },
-                        "reactive-var": {
-                          "version": "1.0.6",
-                          "from": "aleclarson/reactive-var#1.0.6",
-                          "resolved": "git://github.com/aleclarson/reactive-var.git#6d953cb8d09dc7c837864d337e63a17656ba2238",
-                          "dependencies": {
-                            "tracker": {
-                              "version": "1.0.8",
-                              "from": "aleclarson/tracker#1.0.8",
-                              "resolved": "git://github.com/aleclarson/tracker.git#79027074fad65b6a7afc480eea8a460f5bda2ffb",
-                              "dependencies": {
-                                "meteor-client": {
-                                  "version": "1.1.7",
-                                  "from": "aleclarson/meteor-client#1.1.7",
-                                  "resolved": "git://github.com/aleclarson/meteor-client.git#c300eb1792bdb0a776e2487cce70f40edeaa4faa",
-                                  "dependencies": {
-                                    "is-node-env": {
-                                      "version": "1.0.0",
-                                      "from": "aleclarson/is-node-env#1.0.0",
-                                      "resolved": "git://github.com/aleclarson/is-node-env.git#3a10cc5b88584a6eb96fc0e6800082d1e102dbf0"
-                                    },
-                                    "underscore": {
-                                      "version": "1.5.2",
-                                      "from": "aleclarson/underscore#1.5.2",
-                                      "resolved": "git://github.com/aleclarson/underscore.git#512c3caccc2fff018e7b51c695873f1f595fda56"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "is-node-env": {
-                      "version": "1.0.0",
-                      "from": "aleclarson/is-node-env#1.0.0",
-                      "resolved": "git://github.com/aleclarson/is-node-env.git#3a10cc5b88584a6eb96fc0e6800082d1e102dbf0"
-                    },
-                    "lotus-require": {
-                      "version": "1.0.0",
-                      "from": "aleclarson/lotus-require#1.0.0",
-                      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
-                      "dependencies": {
-                        "has": {
-                          "version": "1.0.1",
-                          "from": "has@>=1.0.1 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                          "dependencies": {
-                            "function-bind": {
-                              "version": "1.0.2",
-                              "from": "function-bind@>=1.0.2 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                            }
-                          }
-                        },
-                        "parse-bool": {
-                          "version": "0.0.1",
-                          "from": "aleclarson/parse-bool#0.0.1",
-                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                        }
-                      }
-                    },
-                    "named-function": {
-                      "version": "1.0.3",
-                      "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
-                    },
-                    "node-paths": {
-                      "version": "0.0.1",
-                      "from": "aleclarson/node-paths#0.0.1",
-                      "resolved": "git://github.com/aleclarson/node-paths.git#ba3aae9b045cb22643e32182667cca63787845f3"
-                    },
-                    "node-source-map": {
-                      "version": "0.2.11",
-                      "from": "aleclarson/source-map",
-                      "resolved": "git://github.com/aleclarson/source-map.git#da44d99f217261d0593ddd41a1ecb9c44cce2a31",
-                      "dependencies": {
-                        "source-map": {
-                          "version": "0.1.32",
-                          "from": "source-map@0.1.32",
-                          "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.32.tgz"
-                        }
-                      }
-                    },
-                    "temp-log": {
-                      "version": "1.0.0",
-                      "from": "aleclarson/temp-log#1.0.0",
-                      "resolved": "git://github.com/aleclarson/temp-log.git#ebd9f3f7997dacf416cf7a43796f68f07e85986e",
-                      "dependencies": {
-                        "capitalize": {
-                          "version": "1.0.0",
-                          "from": "capitalize@>=1.0.0 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/capitalize/-/capitalize-1.0.0.tgz"
-                        },
-                        "is-node-env": {
-                          "version": "1.0.0",
-                          "from": "aleclarson/is-node-env#1.0.0",
-                          "resolved": "git://github.com/aleclarson/is-node-env.git#3a10cc5b88584a6eb96fc0e6800082d1e102dbf0"
-                        },
-                        "parse-bool": {
-                          "version": "0.0.1",
-                          "from": "aleclarson/parse-bool#0.0.1",
-                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                        }
-                      }
-                    },
-                    "weak-map": {
-                      "version": "1.0.1",
-                      "from": "aleclarson/weak-map#1.0.1",
-                      "resolved": "git://github.com/aleclarson/weak-map.git#2c2c286c0bf20885f7db0a128acc925bb5b81d38",
-                      "dependencies": {
-                        "lotus-require": {
-                          "version": "1.0.0",
-                          "from": "aleclarson/lotus-require#1.0.0",
-                          "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
-                          "dependencies": {
-                            "has": {
-                              "version": "1.0.1",
-                              "from": "has@>=1.0.1 <2.0.0",
-                              "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                              "dependencies": {
-                                "function-bind": {
-                                  "version": "1.0.2",
-                                  "from": "function-bind@>=1.0.2 <2.0.0",
-                                  "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                                }
-                              }
-                            },
-                            "parse-bool": {
-                              "version": "0.0.1",
-                              "from": "aleclarson/parse-bool#0.0.1",
-                              "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                            }
-                          }
-                        },
-                        "named-function": {
-                          "version": "1.0.3",
-                          "from": "aleclarson/named-function#1.0.3",
-                          "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
-                        }
-                      }
-                    }
-                  }
-                },
-                "temp-log": {
-                  "version": "1.0.0",
-                  "from": "aleclarson/temp-log#1.0.0",
-                  "resolved": "git://github.com/aleclarson/temp-log.git#ebd9f3f7997dacf416cf7a43796f68f07e85986e",
-                  "dependencies": {
-                    "capitalize": {
-                      "version": "1.0.0",
-                      "from": "capitalize@>=1.0.0 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/capitalize/-/capitalize-1.0.0.tgz"
-                    },
-                    "is-node-env": {
-                      "version": "1.0.0",
-                      "from": "aleclarson/is-node-env#1.0.0",
-                      "resolved": "git://github.com/aleclarson/is-node-env.git#3a10cc5b88584a6eb96fc0e6800082d1e102dbf0"
-                    },
-                    "parse-bool": {
-                      "version": "0.0.1",
-                      "from": "aleclarson/parse-bool#0.0.1",
-                      "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                    }
-                  }
-                }
-              }
-            },
-            "temp-log": {
-              "version": "1.0.0",
-              "from": "aleclarson/temp-log#1.0.0",
-              "resolved": "git://github.com/aleclarson/temp-log.git#ebd9f3f7997dacf416cf7a43796f68f07e85986e",
-              "dependencies": {
-                "capitalize": {
-                  "version": "1.0.0",
-                  "from": "capitalize@>=1.0.0 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/capitalize/-/capitalize-1.0.0.tgz"
-                },
-                "is-node-env": {
-                  "version": "1.0.0",
-                  "from": "aleclarson/is-node-env#1.0.0",
-                  "resolved": "git://github.com/aleclarson/is-node-env.git#3a10cc5b88584a6eb96fc0e6800082d1e102dbf0"
-                },
-                "parse-bool": {
-                  "version": "0.0.1",
-                  "from": "aleclarson/parse-bool#0.0.1",
-                  "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
-                }
-              }
-            }
-          }
-        },
         "signal-exit": {
           "version": "1.3.1",
           "from": "signal-exit@>=1.3.1 <2.0.0",
@@ -5467,26 +5331,12 @@
             "combine": {
               "version": "1.0.0",
               "from": "aleclarson/combine#1.0.0",
-              "resolved": "git://github.com/aleclarson/combine.git#3abebdd31d7fb9311a1acb7994b5cb844ccb7a00",
-              "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                }
-              }
+              "resolved": "git://github.com/aleclarson/combine.git#cac38f16b4602fabd43a74e4690219bac07e33d5"
             },
             "define": {
               "version": "1.0.0",
               "from": "aleclarson/define#1.0.0",
-              "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+              "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
               "dependencies": {
                 "computed-var": {
                   "version": "1.0.0",
@@ -5496,24 +5346,63 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                "failure": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/failure#1.0.0",
+                  "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                   "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                    "isReactNative": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/isReactNative#1.0.0",
+                      "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                    },
+                    "lotus-require": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/lotus-require#1.0.0",
+                      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                      "dependencies": {
+                        "parse-bool": {
+                          "version": "0.0.1",
+                          "from": "aleclarson/parse-bool#0.0.1",
+                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                        }
+                      }
+                    },
+                    "named-function": {
+                      "version": "1.0.3",
+                      "from": "aleclarson/named-function#1.0.3",
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                    },
+                    "parseErrorStack": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/parseErrorStack#1.0.0",
+                      "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                      "dependencies": {
+                        "resolveSourceMaps": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/resolveSourceMaps#1.0.0",
+                          "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                        }
+                      }
+                    },
+                    "set-type": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/set-type#1.0.0",
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                    },
+                    "steal": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/steal#1.0.0",
+                      "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                     }
                   }
                 },
@@ -5525,7 +5414,7 @@
                 "lazy-var": {
                   "version": "1.0.0",
                   "from": "aleclarson/lazy-var#1.0.0",
-                  "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                  "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                   "dependencies": {
                     "internalize": {
                       "version": "1.0.0",
@@ -5535,12 +5424,12 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
@@ -5559,7 +5448,7 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "reactive-var": {
                   "version": "1.0.6",
@@ -5604,18 +5493,6 @@
               "from": "aleclarson/lotus-require#1.0.0",
               "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
               "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                },
                 "parse-bool": {
                   "version": "0.0.1",
                   "from": "aleclarson/parse-bool#0.0.1",
@@ -5626,7 +5503,7 @@
             "named-function": {
               "version": "1.0.3",
               "from": "aleclarson/named-function#1.0.3",
-              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
             },
             "node-paths": {
               "version": "0.0.1",
@@ -5677,18 +5554,6 @@
                   "from": "aleclarson/lotus-require#1.0.0",
                   "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
                   "dependencies": {
-                    "has": {
-                      "version": "1.0.1",
-                      "from": "has@>=1.0.1 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                      "dependencies": {
-                        "function-bind": {
-                          "version": "1.0.2",
-                          "from": "function-bind@>=1.0.2 <2.0.0",
-                          "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                        }
-                      }
-                    },
                     "parse-bool": {
                       "version": "0.0.1",
                       "from": "aleclarson/parse-bool#0.0.1",
@@ -5699,7 +5564,7 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 }
               }
             }
@@ -5742,12 +5607,12 @@
         "type-utils": {
           "version": "1.0.0",
           "from": "aleclarson/type-utils#1.0.0",
-          "resolved": "git://github.com/aleclarson/type-utils.git#f374f6012e2f1dd391033a97ba655d6a105f546e",
+          "resolved": "git://github.com/aleclarson/type-utils.git#cd5e7e66388d8ad70b453cecad41a306ff4eb6c1",
           "dependencies": {
             "define": {
               "version": "1.0.0",
               "from": "aleclarson/define#1.0.0",
-              "resolved": "git://github.com/aleclarson/define.git#fdf7d9c1a7f6b002ffff7f7f6996d5c3dc71b88e",
+              "resolved": "git://github.com/aleclarson/define.git#2cd626c84238f339f3eef3e585b1c61ecd910cd6",
               "dependencies": {
                 "computed-var": {
                   "version": "1.0.0",
@@ -5757,24 +5622,63 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
+                "failure": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/failure#1.0.0",
+                  "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
                   "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
+                    "isReactNative": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/isReactNative#1.0.0",
+                      "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                    },
+                    "lotus-require": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/lotus-require#1.0.0",
+                      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                      "dependencies": {
+                        "parse-bool": {
+                          "version": "0.0.1",
+                          "from": "aleclarson/parse-bool#0.0.1",
+                          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                        }
+                      }
+                    },
+                    "named-function": {
+                      "version": "1.0.3",
+                      "from": "aleclarson/named-function#1.0.3",
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                    },
+                    "parseErrorStack": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/parseErrorStack#1.0.0",
+                      "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                      "dependencies": {
+                        "resolveSourceMaps": {
+                          "version": "1.0.0",
+                          "from": "aleclarson/resolveSourceMaps#1.0.0",
+                          "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                        }
+                      }
+                    },
+                    "set-type": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/set-type#1.0.0",
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                    },
+                    "steal": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/steal#1.0.0",
+                      "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
                     }
                   }
                 },
@@ -5786,7 +5690,7 @@
                 "lazy-var": {
                   "version": "1.0.0",
                   "from": "aleclarson/lazy-var#1.0.0",
-                  "resolved": "git://github.com/aleclarson/lazy-var.git#5c43460bec51c7899a91c98413dbdd22373e0b7b",
+                  "resolved": "git://github.com/aleclarson/lazy-var.git#13d10a882741497b8eea7b474eb3f611c9ff3e05",
                   "dependencies": {
                     "internalize": {
                       "version": "1.0.0",
@@ -5796,12 +5700,12 @@
                     "named-function": {
                       "version": "1.0.3",
                       "from": "aleclarson/named-function#1.0.3",
-                      "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                      "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                     },
                     "set-type": {
                       "version": "1.0.0",
                       "from": "aleclarson/set-type#1.0.0",
-                      "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+                      "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
                     }
                   }
                 },
@@ -5820,7 +5724,7 @@
                 "named-function": {
                   "version": "1.0.3",
                   "from": "aleclarson/named-function#1.0.3",
-                  "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
                 },
                 "reactive-var": {
                   "version": "1.0.6",
@@ -5860,23 +5764,62 @@
               "from": "aleclarson/emptyFunction#1.0.0",
               "resolved": "git://github.com/aleclarson/emptyFunction.git#c9f67143b6cb2515ec9c90631e9279f1c498ebf0"
             },
+            "failure": {
+              "version": "1.0.0",
+              "from": "aleclarson/failure#1.0.0",
+              "resolved": "git://github.com/aleclarson/failure.git#1daa99c7237c9c09eaab67ff1ac6cb5824e20444",
+              "dependencies": {
+                "isReactNative": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/isReactNative#1.0.0",
+                  "resolved": "git://github.com/aleclarson/isReactNative.git#5f5093d138e2a1058aaf96433e25fd81de061609"
+                },
+                "lotus-require": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/lotus-require#1.0.0",
+                  "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
+                  "dependencies": {
+                    "parse-bool": {
+                      "version": "0.0.1",
+                      "from": "aleclarson/parse-bool#0.0.1",
+                      "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944"
+                    }
+                  }
+                },
+                "named-function": {
+                  "version": "1.0.3",
+                  "from": "aleclarson/named-function#1.0.3",
+                  "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
+                },
+                "parseErrorStack": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/parseErrorStack#1.0.0",
+                  "resolved": "git://github.com/aleclarson/parseErrorStack.git#a21d70e5dee1d478ddaadc7adf17d581a54873bb",
+                  "dependencies": {
+                    "resolveSourceMaps": {
+                      "version": "1.0.0",
+                      "from": "aleclarson/resolveSourceMaps#1.0.0",
+                      "resolved": "git://github.com/aleclarson/resolveSourceMaps.git#9a7a13cfab4de5ca0343355804918f474f440f75"
+                    }
+                  }
+                },
+                "set-type": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/set-type#1.0.0",
+                  "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
+                },
+                "steal": {
+                  "version": "1.0.0",
+                  "from": "aleclarson/steal#1.0.0",
+                  "resolved": "git://github.com/aleclarson/steal.git#2f584f2b1800f430d43b51ef9e7eb92457bb2fab"
+                }
+              }
+            },
             "lotus-require": {
               "version": "1.0.0",
               "from": "aleclarson/lotus-require#1.0.0",
               "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
               "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                },
                 "parse-bool": {
                   "version": "0.0.1",
                   "from": "aleclarson/parse-bool#0.0.1",
@@ -5887,12 +5830,12 @@
             "named-function": {
               "version": "1.0.3",
               "from": "aleclarson/named-function#1.0.3",
-              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
+              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
             },
             "set-type": {
               "version": "1.0.0",
               "from": "aleclarson/set-type#1.0.0",
-              "resolved": "git://github.com/aleclarson/set-type.git#80a73de9bea64dda5151aaae99bf3f64140b1b77"
+              "resolved": "git://github.com/aleclarson/set-type.git#22e1d7989f9d09444d09c9fc592414c409352da6"
             }
           }
         },
@@ -5906,18 +5849,6 @@
               "from": "aleclarson/lotus-require#1.0.0",
               "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
               "dependencies": {
-                "has": {
-                  "version": "1.0.1",
-                  "from": "has@>=1.0.1 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-                  "dependencies": {
-                    "function-bind": {
-                      "version": "1.0.2",
-                      "from": "function-bind@>=1.0.2 <2.0.0",
-                      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-                    }
-                  }
-                },
                 "parse-bool": {
                   "version": "0.0.1",
                   "from": "aleclarson/parse-bool#0.0.1",
@@ -5928,38 +5859,7 @@
             "named-function": {
               "version": "1.0.3",
               "from": "aleclarson/named-function#1.0.3",
-              "resolved": "git://github.com/aleclarson/named-function.git#25ca1ecc6613feb984ce85c0e8e492529a710fca"
-            }
-          }
-        }
-      }
-    },
-    "lotus-require": {
-      "version": "1.0.0",
-      "from": "aleclarson/lotus-require#1.0.0",
-      "resolved": "git://github.com/aleclarson/lotus-require.git#192110145ab64e7a6263262b8998547ae623a5bf",
-      "dependencies": {
-        "has": {
-          "version": "1.0.1",
-          "from": "has@>=1.0.1 <2.0.0",
-          "resolved": "https://registry.npmjs.org/has/-/has-1.0.1.tgz",
-          "dependencies": {
-            "function-bind": {
-              "version": "1.0.2",
-              "from": "function-bind@>=1.0.2 <2.0.0",
-              "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.0.2.tgz"
-            }
-          }
-        },
-        "parse-bool": {
-          "version": "0.0.1",
-          "from": "aleclarson/parse-bool#0.0.1",
-          "resolved": "git://github.com/aleclarson/parse-bool.git#637ab66e37f33e8a674e9bedd3b9459e87ada944",
-          "dependencies": {
-            "in-array": {
-              "version": "0.1.0",
-              "from": "in-array@>=0.1.0 <0.2.0",
-              "resolved": "https://registry.npmjs.org/in-array/-/in-array-0.1.0.tgz"
+              "resolved": "git://github.com/aleclarson/named-function.git#15676ebee200710b2c99a14c8f8812ff0a3336f8"
             }
           }
         }

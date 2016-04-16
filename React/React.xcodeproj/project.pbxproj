@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		000E6CEB1AB0E980000CDF4D /* RCTSourceCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 000E6CEA1AB0E980000CDF4D /* RCTSourceCode.m */; };
+		115E35131C8F1EB3002243BF /* RCTServerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 115E35121C8F1EB3002243BF /* RCTServerUtils.m */; };
 		131B6AF41AF1093D00FFC3E0 /* RCTSegmentedControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 131B6AF11AF1093D00FFC3E0 /* RCTSegmentedControl.m */; };
 		131B6AF51AF1093D00FFC3E0 /* RCTSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 131B6AF31AF1093D00FFC3E0 /* RCTSegmentedControlManager.m */; };
 		133CAE8E1B8E5CFD00F6AD92 /* RCTDatePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 133CAE8D1B8E5CFD00F6AD92 /* RCTDatePicker.m */; };
@@ -108,6 +109,9 @@
 /* Begin PBXFileReference section */
 		000E6CE91AB0E97F000CDF4D /* RCTSourceCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSourceCode.h; sourceTree = "<group>"; };
 		000E6CEA1AB0E980000CDF4D /* RCTSourceCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSourceCode.m; sourceTree = "<group>"; };
+		115E35111C8F1EB3002243BF /* RCTServerUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTServerUtils.h; sourceTree = "<group>"; };
+		115E35121C8F1EB3002243BF /* RCTServerUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTServerUtils.m; sourceTree = "<group>"; };
+		115E35141C8F1EDF002243BF /* RCTIPAddress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTIPAddress.h; sourceTree = "<group>"; };
 		131B6AF01AF1093D00FFC3E0 /* RCTSegmentedControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSegmentedControl.h; sourceTree = "<group>"; };
 		131B6AF11AF1093D00FFC3E0 /* RCTSegmentedControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSegmentedControl.m; sourceTree = "<group>"; };
 		131B6AF21AF1093D00FFC3E0 /* RCTSegmentedControlManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSegmentedControlManager.h; sourceTree = "<group>"; };
@@ -340,8 +344,11 @@
 				13A0C2881B74F71200B29F6F /* RCTDevMenu.m */,
 				13B07FE91A69327A00A75B9A /* RCTExceptionsManager.h */,
 				13B07FEA1A69327A00A75B9A /* RCTExceptionsManager.m */,
+				115E35141C8F1EDF002243BF /* RCTIPAddress.h */,
 				13F17A831B8493E5007D4C75 /* RCTRedBox.h */,
 				13F17A841B8493E5007D4C75 /* RCTRedBox.m */,
+				115E35111C8F1EB3002243BF /* RCTServerUtils.h */,
+				115E35121C8F1EB3002243BF /* RCTServerUtils.m */,
 				000E6CE91AB0E97F000CDF4D /* RCTSourceCode.h */,
 				000E6CEA1AB0E980000CDF4D /* RCTSourceCode.m */,
 				13723B4E1A82FD3C00F88898 /* RCTStatusBarManager.h */,
@@ -566,7 +573,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 83CBBA3F1A601D0F00E9B192 /* Build configuration list for PBXNativeTarget "React" */;
 			buildPhases = (
-				006B79A01A781F38006873D1 /* ShellScript */,
+				006B79A01A781F38006873D1 /* Start the React Packager */,
 				83CBBA2A1A601D0E00E9B192 /* Sources */,
 				83CBBA2B1A601D0E00E9B192 /* Frameworks */,
 				83CBBA2C1A601D0E00E9B192 /* Copy Files */,
@@ -614,18 +621,19 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		006B79A01A781F38006873D1 /* ShellScript */ = {
+		006B79A01A781F38006873D1 /* Start the React Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Start the React Packager";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if nc -w 5 -z localhost 8081 ; then\n  if ! curl -s \"http://localhost:8081/status\" | grep -q \"packager-status:running\" ; then\n    echo \"Port 8081 already in use, packager is either not running or not running correctly\"\n    exit 2\n  fi\nelse\n  open \"$SRCROOT/../packager/launchPackager.command\" || echo \"Can't start packager automatically\"\nfi";
+			shellScript = "sh \"${SRCROOT}/../local-cli/start_packager.sh\"";
 		};
 		142C4F7F1B582EA6001F0B58 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -659,6 +667,7 @@
 				131B6AF41AF1093D00FFC3E0 /* RCTSegmentedControl.m in Sources */,
 				830A229E1A66C68A008503DA /* RCTRootView.m in Sources */,
 				13B07FF01A69327A00A75B9A /* RCTExceptionsManager.m in Sources */,
+				115E35131C8F1EB3002243BF /* RCTServerUtils.m in Sources */,
 				13B202041BFB948C00C07393 /* RCTMapAnnotation.m in Sources */,
 				13A0C28A1B74F71200B29F6F /* RCTDevMenu.m in Sources */,
 				14C2CA711B3AC63800E6CBB2 /* RCTModuleMethod.m in Sources */,

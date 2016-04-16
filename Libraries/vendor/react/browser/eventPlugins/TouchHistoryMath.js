@@ -59,7 +59,9 @@ var TouchHistoryMath = {
         }
       }
     }
-    return count > 0 ? total / count : TouchHistoryMath.noCentroid;
+    return count > 0 ?
+      total / count :
+      TouchHistoryMath.noCentroid;
   },
 
   currentCentroidXOfTouchesChangedAfter: function(touchHistory, touchesChangedAfter) {

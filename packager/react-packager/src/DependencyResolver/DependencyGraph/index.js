@@ -10,7 +10,7 @@
 
 const Q = require('q');
 const isAbsolutePath = require('absolute-path');
-const {sync} = require('io');
+const sync = require('sync');
 const path = require('path');
 const util = require('util');
 

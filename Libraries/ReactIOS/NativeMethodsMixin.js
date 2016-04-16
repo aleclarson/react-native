@@ -41,17 +41,19 @@ type MeasureLayoutOnSuccessCallback = (
   height: number
 ) => void
 
-function warnForStyleProps(props, validAttributes) {
-  for (var key in validAttributes.style) {
-    if (!(validAttributes[key] || props[key] === undefined)) {
-      console.error(
-        'You are setting the style `{ ' + key + ': ... }` as a prop. You ' +
-        'should nest it in a style object. ' +
-        'E.g. `{ style: { ' + key + ': ... } }`'
-      );
-    }
-  }
-}
+// if (__DEV__) {
+//   function warnForStyleProps(props, validAttributes) {
+//     for (var key in validAttributes.style) {
+//       if (!(validAttributes[key] || props[key] === undefined)) {
+//         console.error(
+//           'You are setting the style `{ ' + key + ': ... }` as a prop. You ' +
+//           'should nest it in a style object. ' +
+//           'E.g. `{ style: { ' + key + ': ... } }`'
+//         );
+//       }
+//     }
+//   }
+// }
 
 /**
  * `NativeMethodsMixin` provides methods to access the underlying native
@@ -140,9 +142,9 @@ var NativeMethodsMixin = {
    * Manipulation](/react-native/docs/direct-manipulation.html)).
    */
   setNativeProps: function(nativeProps: Object) {
-    if (__DEV__) {
-      warnForStyleProps(nativeProps, this.viewConfig.validAttributes);
-    }
+    // if (__DEV__) {
+    //   warnForStyleProps(nativeProps, this.viewConfig.validAttributes);
+    // }
 
     var updatePayload = ReactNativeAttributePayload.create(
       nativeProps,
@@ -172,36 +174,36 @@ var NativeMethodsMixin = {
   }
 };
 
-function throwOnStylesProp(component, props) {
-  if (props.styles !== undefined) {
-    var owner = component._owner || null;
-    var name = component.constructor.displayName;
-    var msg = '`styles` is not a supported property of `' + name + '`, did ' +
-      'you mean `style` (singular)?';
-    if (owner && owner.constructor && owner.constructor.displayName) {
-      msg += '\n\nCheck the `' + owner.constructor.displayName + '` parent ' +
-        ' component.';
-    }
-    throw new Error(msg);
-  }
-}
-if (__DEV__) {
-  // hide this from Flow since we can't define these properties outside of
-  // __DEV__ without actually implementing them (setting them to undefined
-  // isn't allowed by ReactClass)
-  var NativeMethodsMixin_DEV = (NativeMethodsMixin: any);
-  invariant(
-    !NativeMethodsMixin_DEV.componentWillMount &&
-    !NativeMethodsMixin_DEV.componentWillReceiveProps,
-    'Do not override existing functions.'
-  );
-  NativeMethodsMixin_DEV.componentWillMount = function () {
-    throwOnStylesProp(this, this.props);
-  };
-  NativeMethodsMixin_DEV.componentWillReceiveProps = function (newProps) {
-    throwOnStylesProp(this, newProps);
-  };
-}
+// function throwOnStylesProp(component, props) {
+//   if (props.styles !== undefined) {
+//     var owner = component._owner || null;
+//     var name = component.constructor.displayName;
+//     var msg = '`styles` is not a supported property of `' + name + '`, did ' +
+//       'you mean `style` (singular)?';
+//     if (owner && owner.constructor && owner.constructor.displayName) {
+//       msg += '\n\nCheck the `' + owner.constructor.displayName + '` parent ' +
+//         ' component.';
+//     }
+//     throw new Error(msg);
+//   }
+// }
+// if (__DEV__) {
+//   // hide this from Flow since we can't define these properties outside of
+//   // __DEV__ without actually implementing them (setting them to undefined
+//   // isn't allowed by ReactClass)
+//   var NativeMethodsMixin_DEV = (NativeMethodsMixin: any);
+//   invariant(
+//     !NativeMethodsMixin_DEV.componentWillMount &&
+//     !NativeMethodsMixin_DEV.componentWillReceiveProps,
+//     'Do not override existing functions.'
+//   );
+//   NativeMethodsMixin_DEV.componentWillMount = function () {
+//     throwOnStylesProp(this, this.props);
+//   };
+//   NativeMethodsMixin_DEV.componentWillReceiveProps = function (newProps) {
+//     throwOnStylesProp(this, newProps);
+//   };
+// }
 
 /**
  * In the future, we should cleanup callbacks by cancelling them instead of

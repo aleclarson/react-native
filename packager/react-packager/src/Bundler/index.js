@@ -178,12 +178,11 @@ class Bundler {
     return this.getDependencies(entryFile, isDev, platform).then((response) => {
       Activity.endEvent(findEventId);
 
-      log
-        .moat(1)
-        .white('Bundle has ')
-        .pink(response.dependencies.length)
-        .white(' module dependencies!')
-        .moat(1);
+      log.moat(1);
+      log.white('Bundle has ');
+      log.pink(response.dependencies.length);
+      log.white(' module dependencies!');
+      log.moat(1);
 
       transformEventId = Activity.startEvent('Transform dependencies');
 

@@ -51,11 +51,10 @@ class AssetServer {
 
       const dirname = path.dirname(assetPath);
       if (!fastfs.dirExists(dirname)) {
-        log
-          .moat(1)
-          .white('Error: ')
-          .red(`Directory '${dirname}' does not exist!`)
-          .moat(1);
+        log.moat(1)
+        log.white('Error: ')
+        log.red(`Directory '${dirname}' does not exist!`)
+        log.moat(1);
         return;
       }
 
@@ -88,11 +87,10 @@ class AssetServer {
         if (asset) {
           return asset.files[0];
         } else {
-          log
-            .moat(1)
-            .white('Error: ')
-            .red(`Asset '${assetName}' does not exist!`)
-            .moat(1);
+          log.moat(1);
+          log.white('Error: ');
+          log.red(`Asset '${assetName}' does not exist!`);
+          log.moat(1);
         }
       }
     }

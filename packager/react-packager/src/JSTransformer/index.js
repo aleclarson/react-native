@@ -169,12 +169,6 @@ class Transformer {
 
             throw formatError(err, filePath);
           });
-        }).always(() => {
-          log
-            .moat(1)
-            .white('Transformed: ')
-            .green(path.relative(lotus.path, filePath))
-            .moat(1);
         })
       );
   }

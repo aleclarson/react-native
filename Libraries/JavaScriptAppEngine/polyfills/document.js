@@ -23,10 +23,6 @@
       throw getInvalidGlobalUseError('Image');
     }
   };
-  // Force `ExecutionEnvironment.canUseDOM` to be false.
-  if (GLOBAL.document) {
-    GLOBAL.document.createElement = null;
-  }
 
   // There is no DOM so MutationObserver doesn't make sense. It is used
   // as feature detection in Bluebird Promise implementation

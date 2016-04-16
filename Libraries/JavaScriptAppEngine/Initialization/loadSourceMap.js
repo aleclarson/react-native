@@ -22,7 +22,12 @@ var { fetch } = require('fetch');
 var RCTSourceCode = NativeModules.SourceCode;
 var RCTNetworking = NativeModules.Networking;
 
-global._loadSourceMapForFile = Object.create(null);
+global.loadingFileMaps = Object.create(null);
+
+module.exports = loadSourceMap;
+
+loadSourceMap.forBundle = loadSourceMapForBundle;
+loadSourceMap.forFile = loadSourceMapForFile;
 
 function loadSourceMapForBundle(): Q.Promise {
 
@@ -63,12 +68,12 @@ function loadSourceMapForFile(filePath): Q.Promise {
 
   var url = 'http://192.168.0.4:8081/read' + filePath;
 
-  var promise = global._loadSourceMapForFile[url];
+  var promise = global.loadingFileMaps[url];
 
   if (!promise) {
-    promise = global._loadSourceMapForFile[url] = fetch(url);
+    promise = global.loadingFileMaps[url] = fetch(url);
     promise.always(() => {
-      delete global._loadSourceMapForFile[url];
+      delete global.loadingFileMaps[url];
     });
   }
 
@@ -104,9 +109,3 @@ function extractSourceMapURL({ url, text, fullSourceMappingURL }): ?string {
     mapURL: SourceMapURL.getFrom(text) || null,
   };
 }
-
-module.exports = {
-  loadSourceMap: loadSourceMap,
-  loadSourceMapForBundle: loadSourceMapForBundle,
-  loadSourceMapForFile: loadSourceMapForFile,
-};

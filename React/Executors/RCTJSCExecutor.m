@@ -493,7 +493,7 @@ static void RCTInstallJSCProfiler(RCTBridge *bridge, JSContextRef context)
   RCTAssertParam(sourceURL);
 
   __weak RCTJSCExecutor *weakSelf = self;
-  [self executeBlockOnJavaScriptQueue:RCTProfileBlock((^{
+  [self executeBlockOnJavaScriptQueue:^{
     RCTJSCExecutor *strongSelf = weakSelf;
     if (!strongSelf || !strongSelf.isValid) {
       return;
@@ -522,7 +522,7 @@ static void RCTInstallJSCProfiler(RCTBridge *bridge, JSContextRef context)
       }
       onComplete(error);
     }
-  }), 0, @"js_call", (@{ @"url": sourceURL.absoluteString }))];
+  }];
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block

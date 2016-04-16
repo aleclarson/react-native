@@ -80,6 +80,18 @@ var InteractionManager = {
     interactionComplete: true,
   }),
 
+  get _taskQueue() {
+    return _taskQueue;
+  },
+
+  get _interactionSet() {
+    return _interactionSet;
+  },
+
+  get interactionCount() {
+    return _interactionSet.size;
+  },
+
   /**
    * Schedule a function to run after all interactions have completed.
    */

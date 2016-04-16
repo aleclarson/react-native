@@ -72,27 +72,25 @@ function _writeAction(action) {
 
   switch (action.action) {
     case 'startEvent':
-      log
-        .moat(1)
-        .gray.dim(fmtTime)
-        .yellow(' START ')
-        .gray.dim(action.eventName)
-        .gray.dim(data)
-        .moat(1);
+      log.moat(1);
+      log.gray.dim(fmtTime);
+      log.yellow(' START ');
+      log.gray.dim(action.eventName);
+      log.gray.dim(data);
+      log.moat(1);
       break;
 
     case 'endEvent':
       const startAction = _eventStarts[action.eventId];
       const startData = startAction.data ? ': ' + JSON.stringify(startAction.data) : '';
       if (!action.quiet) {
-        log
-          .moat(1)
-          .gray.dim(fmtTime)
-          .red(' END   ')
-          .gray.dim(startAction.eventName)
-          .green(' ' + (action.tstamp - startAction.tstamp) + ' ms')
-          .gray.dim(startData)
-          .moat(1);
+        log.moat(1);
+        log.gray.dim(fmtTime);
+        log.red(' END   ');
+        log.gray.dim(startAction.eventName);
+        log.green(' ' + (action.tstamp - startAction.tstamp) + ' ms');
+        log.gray.dim(startData);
+        log.moat(1);
       }
       delete _eventStarts[action.eventId];
       break;

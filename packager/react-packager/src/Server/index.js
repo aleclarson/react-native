@@ -13,9 +13,9 @@ const _ = require('underscore');
 const mm = require('micromatch');
 const url = require('url');
 const has = require('has');
+const sync = require('sync');
 const path = require('path');
 const steal = require ('steal');
-const {sync} = require('io');
 
 const Bundle = require('../Bundler/Bundle');
 const Bundler = require('../Bundler');
@@ -203,26 +203,32 @@ class Server {
       onFileChange();
     }, 50);
 
-    log
-      .moat(1)
-      .white('Watching roots: ')
-      .moat(0)
-      .plusIndent(2);
-    opts.projectRoots.forEach(root =>
-      log.yellow(root).moat(0));
-    opts.internalRoots.forEach(root =>
-      log.gray(root).moat(0));
+    log.moat(1);
+    log.white('Watching roots: ');
+    log.moat(0);
+    log.plusIndent(2);
+    opts.projectRoots.forEach(root => {
+      log.yellow(root)
+      log.moat(0)
+    });
+    opts.internalRoots.forEach(root => {
+      log.gray(root)
+      log.moat(0)
+    });
     log.popIndent();
 
-    log
-      .moat(1)
-      .white('Watching extensions: ')
-      .moat(0)
-      .plusIndent(2);
-    opts.projectExts.forEach(ext =>
-      log.yellow(ext).moat(0));
-    opts.assetExts.forEach(ext =>
-      log.cyan(ext).moat(0));
+    log.moat(1);
+    log.white('Watching extensions: ');
+    log.moat(0);
+    log.plusIndent(2);
+    opts.projectExts.forEach(ext => {
+      log.yellow(ext)
+      log.moat(0)
+    });
+    opts.assetExts.forEach(ext => {
+      log.cyan(ext)
+      log.moat(0)
+    });
     log.popIndent();
   }
 
@@ -265,19 +271,17 @@ class Server {
     const hash = JSON.stringify(options);
 
     if (refresh) {
-      log
-        .moat(1)
-        .white('Refreshing module cache!')
-        .moat(1);
+      log.moat(1);
+      log.white('Refreshing module cache!');
+      log.moat(1);
       this._bundler.refreshModuleCache();
       this._bundles[hash] = null;
     }
 
     if (!this._bundles[hash]) {
-      log
-        .moat(1)
-        .format(options, { label: 'Building bundle: ', unlimited: true })
-        .moat(1);
+      log.moat(1);
+      log.format(options, { label: 'Building bundle: ', unlimited: true });
+      log.moat(1);
       this._lastBundle = hash;
       this._bundles[hash] = this.buildBundle(options);
     }
@@ -335,10 +339,9 @@ class Server {
 
       const options = JSON.parse(hash);
       const buildBundle = () => {
-        log
-          .moat(1)
-          .format(options, { label: 'Rebuilding bundle: ', unlimited: true })
-          .moat(1);
+        log.moat(1);
+        log.format(options, { label: 'Rebuilding bundle: ', unlimited: true });
+        log.moat(1);
         return this.buildBundle(options).then(bundle => {
           // Make a throwaway call to getSource to cache the source string.
           bundle.getSource({
@@ -423,10 +426,9 @@ class Server {
       }];
       res.end(JSON.stringify(error));
     } else {
-      log
-        .moat(1)
-        .white(error.stack)
-        .moat(1);
+      log.moat(1);
+      log.white(error.stack);
+      log.moat(1);
       res.end(JSON.stringify({
         type: 'InternalError',
         message: 'react-packager has encountered an internal error, ' +

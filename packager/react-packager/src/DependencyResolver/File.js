@@ -1,7 +1,8 @@
 
 const _ = require('underscore');
 const path = require('path');
-const {sync, async} = require('io');
+const syncFs = require('io/sync');
+const asyncFs = require('io/async');
 
 class File {
   constructor(filePath, { isDir }) {
@@ -14,7 +15,7 @@ class File {
 
   read() {
     if (!this._read) {
-      this._read = async.read(this.path);
+      this._read = asyncFs.read(this.path);
     }
 
     return this._read;
@@ -22,7 +23,7 @@ class File {
 
   stat() {
     if (!this._stat) {
-      this._stat = async.stats(this.path);
+      this._stat = asyncFs.stats(this.path);
     }
 
     return this._stat;
@@ -105,7 +106,7 @@ class File {
       var newFile = this._getFileFromPath(newPath);
       if (newFile == null) {
         let isDir = i < parts.length - 1;
-        let isValid = isDir ? sync.isDir : sync.isFile;
+        let isValid = isDir ? syncFs.isDir : syncFs.isFile;
         if (!isValid(newPath)) {
           let fileType = isDir ? 'directory' : 'file';
           throw Error('"' + newPath + '" is not a ' + fileType + ' that exists.');
@@ -115,7 +116,7 @@ class File {
 
         if (isDir) {
           let pkgJsonPath = newPath + '/package.json';
-          if (sync.isFile(pkgJsonPath)) {
+          if (syncFs.isFile(pkgJsonPath)) {
             let pkgJson = new File(pkgJsonPath, { isDir: false });
             newFile.addChild(pkgJson);
           }

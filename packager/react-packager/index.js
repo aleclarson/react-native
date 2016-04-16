@@ -12,11 +12,6 @@ require('../babelRegisterOnly')([/react-packager\/src/]);
 
 useGracefulFs();
 
-global.lotus = require('lotus-require');
-global.log = require('lotus-log');
-
-log.indent = 2;
-
 // Make sure `lotus.file` exists.
 require('./src/DependencyResolver/lotusfs');
 

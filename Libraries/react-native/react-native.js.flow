@@ -70,7 +70,6 @@ var ReactNative = Object.assign(Object.create(require('React')), {
   AdSupportIOS: require('AdSupportIOS'),
   Alert: require('Alert'),
   AlertIOS: require('AlertIOS'),
-  Animated: require('Animated'),
   AppRegistry: require('AppRegistry'),
   AppStateIOS: require('AppStateIOS'),
   AsyncStorage: require('AsyncStorage'),

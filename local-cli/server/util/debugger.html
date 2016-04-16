@@ -17,37 +17,106 @@
 <script>
 (function() {
 
+var head = document.getElementsByTagName('head')[0];
+
+function loadScript(url, callback) {
+  // Adding the script tag to the head as suggested before
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = url;
+
+  script.onreadystatechange = callback;
+  script.onload = callback;
+
+  head.appendChild(script);
+}
+
 function setStatus(status) {
   document.getElementById('status').innerHTML = status;
 }
 
-var INITIAL_MESSAGE = 'Waiting, press <span class="shortcut">⌘R</span> in simulator to reload and connect.';
-
 function connectToDebuggerProxy() {
-  var worker;
+
+  var enqueueMethod = function(message) {
+    this.methodQueue.push(message);
+  };
+
+  var executeMethod = function(message) {
+    var method = window.__fbBatchedBridge[message.method];
+    if (!method) {
+      throw Error('Unknown method: ' + message.method);
+    }
+    var result = [[], [], [], [], []];
+    try {
+      result = method.apply(null, message.arguments);
+    } finally {
+      this.sendReply(message, {
+        result: JSON.stringify(result),
+      });
+    }
+  };
+
   var ws = new WebSocket('ws://' + window.location.host + '/debugger-proxy?role=debugger&name=Chrome');
 
-  function createJSRuntime() {
-    // This worker will run the application javascript code,
-    // making sure that it's run in an environment without a global
-    // document, to make it consistent with the JSC executor environment.
-    worker = new Worker('debuggerWorker.js');
-    worker.onmessage = function(message) {
-      ws.send(JSON.stringify(message.data));
-    };
-    window.onbeforeunload = function() {
-      return 'If you reload this page, it is going to break the debugging session. ' +
-        'You should press ⌘R in simulator to reload.';
-    };
-  }
+  window.Debugger = {
+    socket: ws,
+    methodQueue: [],
+    executeMethod: enqueueMethod,
+    onMessage: function(message) {
+      var method = this.specialMethods[message.method] || this.executeMethod;
+      method.call(this, message);
+    },
+    sendMessage: function(data) {
+      ws.send(JSON.stringify(data));
+    },
+    sendReply: function(message, data) {
+      if (data === undefined) { data = {}; }
+      data.replyID = message.id;
+      this.sendMessage(data);
+    },
+    shutdownJSRuntime: function() {
+      if (window.isReloading) { return; }
+      window.isReloading = true;
+      window.location.reload();
+    },
+    specialMethods: {
+      prepareJSRuntime: function(message) {
+        if (window.__fbBatchedBridge) {
+          return this.shutdownJSRuntime();
+        }
+        setStatus('Debugger session #' + message.id + ' active.');
+        this.sendReply(message);
+      },
+      $disconnected: function() {
+        this.shutdownJSRuntime();
+      },
+      executeApplicationScript: function(message) {
+        if (window.isReloading) { return; }
+        var self = this;
+        for (var key in message.inject) {
+          window[key] = JSON.parse(message.inject[key]);
+        }
+        loadScript(message.url, function() {
+          self.executeMethod = executeMethod;
+          if (!self.methodQueue.length) {
+            return;
+          }
+          self.methodQueue.forEach(function(message) {
+            try {
+              self.executeMethod(message);
+            } catch (error) {
+              console.warn(error.message);
+              self.sendReply(message);
+            }
+          });
+          self.methodQueue = [];
+        });
+        self.sendReply(message);
+      },
+    },
+  };
 
-  function shutdownJSRuntime() {
-    if (worker) {
-      worker.terminate();
-      worker = null;
-      window.onbeforeunload = null;
-    }
-  }
+  var INITIAL_MESSAGE = 'Waiting, press <span class="shortcut">⌘R</span> in simulator to reload and connect.';
 
   ws.onopen = function() {
     setStatus(INITIAL_MESSAGE);
@@ -57,41 +126,23 @@ function connectToDebuggerProxy() {
     if (!message.data) {
       return;
     }
-    var object = JSON.parse(message.data);
-
-    if (object.$event === 'client-disconnected') {
-      shutdownJSRuntime();
+    message = JSON.parse(message.data);
+    if (message.$event === 'client-disconnected') {
       setStatus('Waiting, press <span class="shortcut">⌘R</span> in simulator to reload and connect.');
-      return;
-    }
-
-    if (!object.method) {
-      return;
-    }
-
-    // Special message that asks for a new JS runtime
-    if (object.method === 'prepareJSRuntime') {
-      shutdownJSRuntime();
-      createJSRuntime();
-      ws.send(JSON.stringify({replyID: object.id}));
-      setStatus('Debugger session #' + object.id + ' active.');
-    } else if (object.method === '$disconnected') {
-      shutdownJSRuntime();
-      setStatus(INITIAL_MESSAGE);
-    } else {
-      // Otherwise, pass through to the worker.
-      worker.postMessage(object);
+      Debugger.shutdownJSRuntime();
+    } else if (message.method) {
+      Debugger.onMessage(message);
     }
   };
 
   ws.onclose = function(e) {
-    shutdownJSRuntime();
     setStatus('Disconnected from proxy. Attempting reconnection. Is node server running?');
     if (e.reason) {
       setStatus(e.reason);
       console.warn(e.reason);
     }
-    setTimeout(connectToDebuggerProxy, 500);
+    console.log('ws.onclose()');
+    Debugger.shutdownJSRuntime();
   };
 }
 

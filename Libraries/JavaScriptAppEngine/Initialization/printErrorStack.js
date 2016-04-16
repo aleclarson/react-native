@@ -10,20 +10,21 @@
  */
 'use strict';
 
-function printErrorStack(error, stack) {
+function printErrorStack(reason, stack) {
 
   var message = '';
 
-  message += 'Error: ' + error.message + '\n\n';
+  message += 'Error: ' + reason + '\n\n';
 
   stack.forEach(function(frame) {
     if (typeof frame === 'string') {
       message += frame + '\n\n';
     } else {
-      message += '    file: '   + frame.file       + '\n' +
-                 '    method: ' + frame.methodName + '\n' +
-                 '    line: '   + frame.lineNumber + '\n' +
-                 '    column: ' + frame.column     + '\n\n';
+      message += '  ' + frame.methodName + '\n' +
+                 '  ' + frame.file +
+                 ':' + frame.lineNumber +
+                 ':' + frame.column +
+                 '\n\n';
     }
   });
 

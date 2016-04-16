@@ -8,11 +8,9 @@
  */
 'use strict';
 
-require('./dev');
-
 const fs = require('fs');
 const path = require('path');
-const sync = require('io').sync;
+const sync = require('sync');
 const childProcess = require('child_process');
 const http = require('http');
 const isAbsolutePath = require('absolute-path');
@@ -89,12 +87,12 @@ var projectRoots = [
   process.cwd()
 ];
 
-var internalRoots = sync.map([
+var internalRoots = [
   'Libraries',
   '../react/src',
   'node_modules/react-timer-mixin',
   'node_modules/parseErrorStack',
-], function(internalPath) {
+].map(function(internalPath) {
   return path.resolve(__dirname, '../' + internalPath);
 });
 

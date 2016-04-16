@@ -59,7 +59,6 @@ var ReactNative = {
   get AdSupportIOS() { return require('AdSupportIOS'); },
   get Alert() { return require('Alert'); },
   get AlertIOS() { return require('AlertIOS'); },
-  get Animated() { return require('Animated'); },
   get AppRegistry() { return require('AppRegistry'); },
   get AppStateIOS() { return require('AppStateIOS'); },
   get AsyncStorage() { return require('AsyncStorage'); },

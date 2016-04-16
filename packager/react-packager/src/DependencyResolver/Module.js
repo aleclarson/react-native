@@ -9,7 +9,7 @@
 'use strict';
 
 const isAbsolutePath = require('absolute-path');
-const {sync} = require('io');
+const sync = require('sync');
 const path = require('path');
 
 const docblock = require('./DependencyGraph/docblock');

@@ -8,7 +8,6 @@
  */
 'use strict';
 
-const log = require('lotus-log');
 const attachHMRServer = require('./util/attachHMRServer');
 const connect = require('connect');
 const cpuProfilerMiddleware = require('./middleware/cpuProfilerMiddleware');

@@ -50,21 +50,21 @@ var warning = require('warning');
  */
 
 function findNodeHandle(componentOrHandle: any): ?number {
-  if (__DEV__) {
-    var owner = ReactCurrentOwner.current;
-    if (owner !== null) {
-      warning(
-        owner._warnedAboutRefsInRender,
-        '%s is accessing findNodeHandle inside its render(). ' +
-        'render() should be a pure function of props and state. It should ' +
-        'never access something that requires stale data from the previous ' +
-        'render, such as refs. Move this logic to componentDidMount and ' +
-        'componentDidUpdate instead.',
-        owner.getName() || 'A component'
-      );
-      owner._warnedAboutRefsInRender = true;
-    }
-  }
+  // if (__DEV__) {
+  //   var owner = ReactCurrentOwner.current;
+  //   if (owner !== null) {
+  //     warning(
+  //       owner._warnedAboutRefsInRender,
+  //       '%s is accessing findNodeHandle inside its render(). ' +
+  //       'render() should be a pure function of props and state. It should ' +
+  //       'never access something that requires stale data from the previous ' +
+  //       'render, such as refs. Move this logic to componentDidMount and ' +
+  //       'componentDidUpdate instead.',
+  //       owner.getName() || 'A component'
+  //     );
+  //     owner._warnedAboutRefsInRender = true;
+  //   }
+  // }
   if (componentOrHandle == null) {
     return null;
   }

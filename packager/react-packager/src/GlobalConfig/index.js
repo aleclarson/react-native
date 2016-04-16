@@ -11,7 +11,7 @@
 const Q = require('q');
 const has = require('has');
 const path = require('path');
-const sync = require('io').sync;
+const syncFs = require('io/sync');
 
 function GlobalConfig(filePath) {
 
@@ -21,7 +21,7 @@ function GlobalConfig(filePath) {
     return GlobalConfig._cache[filePath];
   }
 
-  if (!sync.isFile(filePath)) {
+  if (!syncFs.isFile(filePath)) {
     throw Error('\'' + filePath + '\' is not a file that exists.');
   }
 
@@ -39,8 +39,8 @@ GlobalConfig.prototype = {
 
   reload: function() {
     var json;
-    if (sync.exists(this.path)) {
-      json = JSON.parse(sync.read(this.path));
+    if (syncFs.exists(this.path)) {
+      json = JSON.parse(syncFs.read(this.path));
     } else {
       json = {};
     }

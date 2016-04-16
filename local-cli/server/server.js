@@ -100,13 +100,12 @@ function _server(argv, config, resolve, reject) {
 
 function startServer(args, config) {
   var ip = require('ip');
-  runServer(args, config, () =>
-    log
-      .moat(1)
-      .white('Server started: ')
-      .yellow('http://', ip.address(), ':', args.port)
-      .moat(1)
-  );
+  runServer(args, config, () => {
+    log.moat(1);
+    log.white('Server started: ');
+    log.yellow('http://', ip.address(), ':', args.port);
+    log.moat(1);
+  });
 }
 
 function argToArray(arg) {

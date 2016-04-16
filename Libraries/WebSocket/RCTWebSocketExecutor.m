@@ -16,6 +16,8 @@
 #import "RCTConvert.h"
 #import "RCTLog.h"
 #import "RCTUtils.h"
+#import "RCTDevMenu.h"
+#import "RCTServerUtils.h"
 #import "RCTSRWebSocket.h"
 
 typedef void (^RCTWSMessageCallback)(NSError *error, NSDictionary<NSString *, id> *reply);
@@ -36,6 +38,8 @@ typedef void (^RCTWSMessageCallback)(NSError *error, NSDictionary<NSString *, id
 
 RCT_EXPORT_MODULE()
 
+@synthesize bridge = _bridge;
+
 - (instancetype)initWithURL:(NSURL *)URL
 {
   RCTAssertParam(URL);
@@ -49,10 +53,7 @@ RCT_EXPORT_MODULE()
 - (void)setUp
 {
   if (!_url) {
-    NSUserDefaults *standardDefaults = [NSUserDefaults standardUserDefaults];
-    NSInteger port = [standardDefaults integerForKey:@"websocket-executor-port"] ?: 8081;
-    NSString *URLString = [NSString stringWithFormat:@"http://192.168.0.4:%zd/debugger-proxy?role=client", port];
-    _url = [RCTConvert NSURL:URLString];
+    _url = [RCTServerUtils serverURLForPath:@"debugger-proxy?role=client"];
   }
 
   _jsQueue = dispatch_queue_create("com.facebook.React.WebSocketExecutor", DISPATCH_QUEUE_SERIAL);
@@ -62,30 +63,17 @@ RCT_EXPORT_MODULE()
   _injectedObjects = [NSMutableDictionary new];
   [_socket setDelegateDispatchQueue:_jsQueue];
 
-  NSURL *startDevToolsURL = [NSURL URLWithString:@"/launch-chrome-devtools" relativeToURL:_url];
-  [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:startDevToolsURL] delegate:nil];
+//  NSURL *startDevToolsURL = [NSURL URLWithString:@"/launch-chrome-devtools" relativeToURL:_url];
+//  [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:startDevToolsURL] delegate:nil];
 
   if (![self connectToProxy]) {
-    RCTLogError(@"Connection to %@ timed out. Are you running node proxy? If "
-                 "you are running on the device, check if you have the right IP "
-                 "address in `RCTWebSocketExecutor.m`.", _url);
     [self invalidate];
+    NSLog(@"Did not connect to proxy!");
+//    [self.bridge.devMenu reload];
     return;
   }
 
-  NSInteger retries = 3;
-  BOOL runtimeIsReady = [self prepareJSRuntime];
-  while (!runtimeIsReady && retries > 0) {
-    runtimeIsReady = [self prepareJSRuntime];
-    retries--;
-  }
-  if (!runtimeIsReady) {
-    RCTLogError(@"Runtime is not ready for debugging.\n "
-                 "- Make sure Packager server is running.\n"
-                 "- Make sure Chrome is running and not paused on a breakpoint or exception and try reloading again.");
-    [self invalidate];
-    return;
-  }
+  [self prepareJSRuntime];
 }
 
 - (BOOL)connectToProxy
@@ -104,7 +92,7 @@ RCT_EXPORT_MODULE()
     initError = error;
     dispatch_semaphore_signal(s);
   }];
-  long runtimeIsReady = dispatch_semaphore_wait(s, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 30));
+  long runtimeIsReady = dispatch_semaphore_wait(s, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 4));
   return runtimeIsReady == 0 && initError == nil;
 }
 
@@ -133,16 +121,21 @@ RCT_EXPORT_MODULE()
   });
 }
 
+- (void)webSocket:(RCTSRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean
+{
+  [self invalidate];
+  [self.bridge.devMenu reload];
+}
+
 - (void)sendMessage:(NSDictionary<NSString *, id> *)message waitForReply:(RCTWSMessageCallback)callback
 {
   static NSUInteger lastID = 10000;
 
   dispatch_async(_jsQueue, ^{
     if (!self.valid) {
-      NSError *error = [NSError errorWithDomain:@"WS" code:1 userInfo:@{
-        NSLocalizedDescriptionKey: @"Runtime is not ready for debugging. Make sure Packager server is running."
-      }];
-      callback(error, nil);
+      [self invalidate];
+      NSLog(@"Bridge is invalidated, cannot send message!");
+//      [self.bridge.devMenu reload];
       return;
     }
 

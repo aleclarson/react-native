@@ -16,6 +16,8 @@
 
 // #if RCT_DEBUG
 
+#import "RCTServerUtils.h"
+
 @interface RCTRedBoxWindow : UIWindow <UITableViewDelegate, UITableViewDataSource>
 @end
 
@@ -94,7 +96,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   NSData *stackFrameJSON = [RCTJSONStringify(stackFrame, nil) dataUsingEncoding:NSUTF8StringEncoding];
   NSString *postLength = [NSString stringWithFormat:@"%tu", stackFrameJSON.length];
   NSMutableURLRequest *request = [NSMutableURLRequest new];
-  request.URL = [RCTConvert NSURL:@"http://192.168.0.4:8081/open-stack-frame"];
+  request.URL = [RCTServerUtils serverURLForPath:@"open-stack-frame"];
   request.HTTPMethod = @"POST";
   request.HTTPBody = stackFrameJSON;
   [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
@@ -107,7 +109,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 {
   if ((self.hidden && shouldShow) || (!self.hidden && [_lastErrorMessage isEqualToString:message])) {
     _lastStackTrace = stack;
-    NSLog(@"_lastStackTrace.count = %d", _lastStackTrace.count);
     // message is displayed using UILabel, which is unable to render text of
     // unlimited length, so we truncate it
     _lastErrorMessage = [message substringToIndex:MIN((NSUInteger)10000, message.length)];

@@ -7,6 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+#import <React/RCTServerUtils.h>
+
 #import "RCTTestRunner.h"
 
 #import "FBSnapshotTestController.h"
@@ -49,7 +51,8 @@ static const NSTimeInterval kTestTeardownTimeoutSeconds = 30;
     _scriptURL = [[NSBundle bundleForClass:[RCTBridge class]] URLForResource:@"main" withExtension:@"jsbundle"];
     RCTAssert(_scriptURL != nil, @"Could not locate main.jsBundle");
 #else
-    _scriptURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8081/%@.bundle?platform=ios&dev=true", app]];
+    NSString *path = [NSString stringWithFormat:@"%@.bundle?platform=ios&dev=true", app];
+    _scriptURL = [RCTServerUtils serverURLForPath:path];
 #endif
   }
   return self;

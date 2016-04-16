@@ -13,7 +13,8 @@ const lotus = require('lotus-require');
 const Q = require('q');
 const url = require('url');
 const path = require('path');
-const {sync, async} = require('io');
+const syncFs = require('io/sync');
+const asyncFs = require('io/async');
 
 const Activity = require('../Activity');
 
@@ -67,7 +68,7 @@ function readAssets(req, res) {
 function readSpecificFile(req, res) {
   const urlObj = url.parse(req.url, true);
   const filePath = urlObj.pathname.replace(/^\/read/, '');
-  return async.read(filePath)
+  return asyncFs.read(filePath)
   .then(contents => res.end(contents))
   .fail(error => {
     res.writeHead(500);
@@ -103,17 +104,16 @@ function processFileEvent(req, res) {
 
   const file = fs._fastPaths[absPath];
   if (file && event !== 'delete') {
-    const fstat = sync.stats(absPath);
+    const fstat = syncFs.stats(absPath);
   }
 
   if (force || file || event === 'add') {
     const root = fs._getRoot(absPath);
     if (!root) {
-      log
-        .moat(1)
-        .white('Invalid root: ')
-        .red(absPath)
-        .moat(1);
+      log.moat(1);
+      log.white('Invalid root: ');
+      log.red(absPath);
+      log.moat(1);
     }
 
     // Only process events for files that aren't already handled by the packager.

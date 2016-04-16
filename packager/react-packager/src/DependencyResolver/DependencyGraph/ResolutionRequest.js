@@ -13,7 +13,7 @@ const debug = require('debug')('ReactNativePackager:DependencyGraph');
 const Q = require('q');
 const util = require('util');
 const path = require('path');
-const {sync} = require('io');
+const syncFs = require('io/sync');
 const inArray = require ('in-array');
 const NODE_PATHS = require('node-paths');
 const isAbsolutePath = require('absolute-path');
@@ -226,14 +226,13 @@ class ResolutionRequest {
 
       .fail(error => {
         if (error.type === 'UnableToResolveError') {
-          log
-            .moat(1)
-            .white('Failed to resolve: ')
-            .red(toModuleName)
-            .moat(0)
-            .white('              for: ')
-            .red(path.relative(lotus.path, fromModule.path))
-            .moat(1);
+          log.moat(1);
+          log.white('Failed to resolve: ');
+          log.red(toModuleName);
+          log.moat(0);
+          log.white('              for: ');
+          log.red(path.relative(lotus.path, fromModule.path));
+          log.moat(1);
           throw error;
         } else if (this._shouldThrowOnUnresolvedErrors(this._entryPath, this._platform)) {
           throw error;
@@ -411,7 +410,7 @@ class ResolutionRequest {
       return false;
     }
     if (root.isDetached) {
-      return sync.isFile(filePath);
+      return syncFs.isFile(filePath);
     }
     return this._fastfs.fileExists(filePath);
   }
@@ -422,7 +421,7 @@ class ResolutionRequest {
       return false;
     }
     if (root.isDetached) {
-      return sync.isDir(filePath);
+      return syncFs.isDir(filePath);
     }
     return this._fastfs.dirExists(filePath);
   }
@@ -448,7 +447,7 @@ class ResolutionRequest {
         path.dirname(fromModule.path),
         toModuleName
       );
-      if (sync.isDir(toModuleName)) {
+      if (syncFs.isDir(toModuleName)) {
         lotusPath = lotus.resolve(toModuleName + '/index');
         if (lotusPath) {
           return lotusPath;
