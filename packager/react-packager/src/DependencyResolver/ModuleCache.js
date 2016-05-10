@@ -19,8 +19,9 @@ class ModuleCache {
 
   getModule(filePath) {
     filePath = path.resolve(filePath);
-    if (!this._moduleCache[filePath]) {
-      this._moduleCache[filePath] = new Module({
+    const id = filePath.toLowerCase();
+    if (!this._moduleCache[id]) {
+      this._moduleCache[id] = new Module({
         file: filePath,
         fastfs: this._fastfs,
         moduleCache: this,
@@ -28,32 +29,34 @@ class ModuleCache {
         extractor: this._extractRequires,
       });
     }
-    return this._moduleCache[filePath];
+    return this._moduleCache[id];
   }
 
   getAssetModule(filePath) {
     filePath = path.resolve(filePath);
-    if (!this._moduleCache[filePath]) {
-      this._moduleCache[filePath] = new AssetModule({
+    const id = filePath.toLowerCase();
+    if (!this._moduleCache[id]) {
+      this._moduleCache[id] = new AssetModule({
         file: filePath,
         fastfs: this._fastfs,
         moduleCache: this,
         cache: this._cache,
       });
     }
-    return this._moduleCache[filePath];
+    return this._moduleCache[id];
   }
 
   getPackage(filePath) {
     filePath = path.resolve(filePath);
-    if (!this._packageCache[filePath]) {
-      this._packageCache[filePath] = new Package({
+    const id = filePath.toLowerCase();
+    if (!this._packageCache[id]) {
+      this._packageCache[id] = new Package({
         file: filePath,
         fastfs: this._fastfs,
         cache: this._cache,
       });
     }
-    return this._packageCache[filePath];
+    return this._packageCache[id];
   }
 
   getPackageForModule(module) {
@@ -72,16 +75,18 @@ class ModuleCache {
       return null;
     }
 
-    module.__package = packagePath;
+    module.__package = packagePath.toLowerCase();
     return this.getPackage(packagePath);
   }
 
   removeModule(filePath) {
-    delete this._moduleCache[filePath];
+    const id = filePath.toLowerCase();
+    delete this._moduleCache[id];
   }
 
   removePackage(filePath) {
-    delete this._packageCache[filePath];
+    const id = filePath.toLowerCase();
+    delete this._packageCache[id];
   }
 
   refresh() {
@@ -97,12 +102,12 @@ class ModuleCache {
   }
 
   _processFileChange(type, filePath, root) {
-    const absPath = path.join(root, filePath);
-    if (this._moduleCache[absPath]) {
-      this._moduleCache[absPath]._processFileChange(type);
+    const id = path.join(root, filePath).toLowerCase();
+    if (this._moduleCache[id]) {
+      this._moduleCache[id]._processFileChange(type);
     }
-    if (this._packageCache[absPath]) {
-      this._packageCache[absPath]._processFileChange(type);
+    if (this._packageCache[id]) {
+      this._packageCache[id]._processFileChange(type);
     }
   }
 }

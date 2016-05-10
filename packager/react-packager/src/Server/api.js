@@ -8,8 +8,6 @@
  */
 'use strict';
 
-const lotus = require('lotus-require');
-
 const Q = require('q');
 const url = require('url');
 const path = require('path');

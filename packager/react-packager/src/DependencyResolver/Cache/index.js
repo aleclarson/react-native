@@ -155,7 +155,7 @@ class Cache {
         });
         return Q.denodeify(fs.writeFile)(cacheFilepath, JSON.stringify(json));
       })
-      .catch(e => console.error('Error while persisting cache:', e.message))
+      .catch(e => console.error('Error while persisting cache:', e.stack))
       .then(() => {
         this._persisting = null;
         return true;

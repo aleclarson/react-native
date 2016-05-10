@@ -441,12 +441,13 @@ class ResolutionRequest {
       return lotusPath;
     }
 
-    // Support './MyClass' paths as shorthand for './MyClass/index'
     if (toModuleName[0] === '.') {
       toModuleName = path.resolve(
         path.dirname(fromModule.path),
         toModuleName
       );
+
+      // Support './MyClass' paths as shorthand for './MyClass/index'
       if (syncFs.isDir(toModuleName)) {
         lotusPath = lotus.resolve(toModuleName + '/index');
         if (lotusPath) {

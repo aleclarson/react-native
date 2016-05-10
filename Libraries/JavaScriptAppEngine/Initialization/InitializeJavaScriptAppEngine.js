@@ -115,10 +115,21 @@ function setUpXHR() {
   polyfillGlobal('Response', fetchPolyfill.Response);
 }
 
+function setUpFailure() {
+  require('failure/global');
+}
+
+function setUpProperty() {
+  // These modules inject themselves into the Property class.
+  require('lazy-var');
+  require('reactive-var');
+}
+
 function setUpAnimated() {
-  var Animated = require('Animated');
-  Animated.inject.FlattenStyle(require('flattenStyle'));
-  Animated.inject.InteractionManager(require('InteractionManager'));
+  var Animated = require('Animated/inject');
+  var InteractionManager = require('InteractionManager');
+  Animated.createInteractionHandle(InteractionManager.createInteractionHandle);
+  Animated.clearInteractionHandle(InteractionManager.clearInteractionHandle);
 }
 
 function setUpGeolocation() {
@@ -171,6 +182,8 @@ setUpTimers();
 setUpAlert();
 setUpPromise();
 setUpXHR();
+setUpFailure();
+setUpProperty();
 setUpAnimated();
 setUpGeolocation();
 setUpProduct();

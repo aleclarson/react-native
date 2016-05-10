@@ -16,7 +16,7 @@ const formatBanner = require('./formatBanner');
 const parseCommandLine = require('../util/parseCommandLine');
 const runServer = require('./runServer');
 
-const log = require('lotus-log');
+const log = require('log');
 log.clear();
 log.indent = 2;
 

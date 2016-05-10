@@ -18,6 +18,8 @@ const util = require('util');
 const workerFarm = require('worker-farm');
 const debug = require('debug')('ReactNativePackager:JStransformer');
 
+const workerModulePath = JSON.stringify(require.resolve('./worker'));
+
 // Avoid memory leaks caused in workers. This number seems to be a good enough number
 // to avoid any memory leak while not slowing down initial builds.
 // TODO(amasad): Once we get bundle splitting, we can drive this down a bit more.
@@ -72,17 +74,18 @@ class Transformer {
     this._transformModulePath = opts.transformModulePath;
 
     if (opts.transformModulePath != null) {
-      let transformer;
+      let transformer, transformModulePath;
 
       if (opts.disableInternalTransforms) {
         transformer = opts.transformModulePath;
       } else {
         transformer = this._workerWrapperPath = temp.path();
+        transformModulePath = JSON.stringify(String(opts.transformModulePath));
         fs.writeFileSync(
           this._workerWrapperPath,
           `
-          module.exports = require(${JSON.stringify(require.resolve('./worker'))});
-          require(${JSON.stringify(String(opts.transformModulePath))});
+          module.exports = require(${workerModulePath});
+          require(${transformModulePath});
           `
         );
       }
