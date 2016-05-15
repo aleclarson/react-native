@@ -14,13 +14,13 @@ const fs = require('fs');
 const path = require('path');
 const parseCommandLine = require('../util/parseCommandLine');
 const isPackagerRunning = require('../util/isPackagerRunning');
-const Promise = require('promise');
+const Q = require('q');
 
 /**
  * Starts the app on a connected Android emulator or device.
  */
 function runAndroid(argv, config) {
-  return new Promise((resolve, reject) => {
+  return Q.promise((resolve, reject) => {
     _runAndroid(argv, config, resolve, reject);
   });
 }

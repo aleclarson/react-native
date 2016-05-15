@@ -13,14 +13,14 @@ const fs = require('fs');
 const isValidPackageName = require('../util/isValidPackageName');
 const parseCommandLine = require('../util/parseCommandLine');
 const path = require('path');
-const Promise = require('promise');
+const Q = require('q');
 const walk = require('../util/walk');
 
 /**
  * Creates a new native library with the given name
  */
 function library(argv, config) {
-  return new Promise((resolve, reject) => {
+  return Q.promise((resolve, reject) => {
     _library(argv, config, resolve, reject);
   });
 }

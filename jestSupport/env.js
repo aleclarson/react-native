@@ -15,6 +15,6 @@ global.__fbBatchedBridgeConfig = {
   localModulesConfig: [],
 };
 
-global.Promise = require('promise');
+global.Q = require('q');
 
 jest.setMock('ErrorUtils', require('ErrorUtils'));

@@ -198,7 +198,16 @@ class Fastfs extends EventEmitter {
       if (this._ignore(filePath)) {
         file = root._createFileFromPath(filePath);
       } else {
-        file = root.getFileFromPath(filePath);
+        try {
+          file = root.getFileFromPath(filePath);
+        } catch (error) {
+          log.moat(1);
+          log.red('Error: ');
+          log.white(error.message);
+          log.moat(0);
+          log.gray.dim(error.stack.split(log.ln).slice(1).join(log.ln));
+          log.moat(1);
+        }
       }
 
       if (file) {
@@ -240,15 +249,22 @@ class Fastfs extends EventEmitter {
       return;
     }
 
-    const file = this._getFile(absPath);
-    if (file) {
-      file.remove();
-      delete this._fastPaths[absPath];
-    }
-
-    else if (type !== 'add') {
-      // this._didAbortFileEvent(absPath, 'This path is not cached in the filesystem!');
-      return;
+    if (type === 'add') {
+      try {
+        const file = this._getFile(absPath);
+      } catch(error) {
+        const pattern = '"' + absPath + '" is not a file that exists.';
+        if (Finder.test(pattern, error.message)) {
+          return;
+        }
+        throw error;
+      }
+    } else {
+      const file = this._fastPaths[absPath];
+      if (file) {
+        file.remove();
+        delete this._fastPaths[absPath];
+      }
     }
 
     const relPath = path.relative(lotus.path, absPath);

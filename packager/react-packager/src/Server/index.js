@@ -445,12 +445,12 @@ class Server {
 
     const dir = urlObj.query.dir || '';
 
+    const pathname = decodeURIComponent(urlObj.pathname)
+      .slice(1).replace(/\.(bundle|map)$/, '');
+
     // try to get the platform from the url
     const platform = urlObj.query.platform ||
       getPlatformExtension(pathname);
-
-    const pathname = decodeURIComponent(urlObj.pathname)
-      .slice(1).replace(/\.(bundle|map)$/, '');
 
     const entryFile = path.join(dir, pathname) + '.' + platform + '.js';
     const sourceMapUrl = '/' + pathname + '.map' + reqUrl.slice(reqUrl.indexOf('?'));

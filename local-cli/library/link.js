@@ -11,7 +11,7 @@
 const execSync = require('child_process').execSync;
 const eol = require('os').EOL;
 const fs = require('fs');
-const Promise = require('promise');
+const Q = require('q');
 
 /**
  * Adds a third-party library to the current project.
@@ -25,7 +25,7 @@ const Promise = require('promise');
  *   If the library contains native Android code, adds it to the build.
  */
 function link(argv, config) {
-  return new Promise((resolve, reject) => {
+  return Q.promise((resolve, reject) => {
     try {
       _link(argv, config);
     } catch (e) {

@@ -12,4 +12,6 @@ require('./packager/babelRegisterOnly')([
   /private-cli\/src/
 ]);
 
+require('./packager/dev');
+
 module.exports = require('./local-cli/cli.js');

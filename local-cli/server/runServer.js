@@ -75,7 +75,6 @@ function getPackagerServer(args, config) {
     '../react/src',
     '../react/node_modules/fbjs',
     'node_modules/react-timer-mixin',
-    'node_modules/parseErrorStack',
   ].map(internalPath =>
     path.resolve(__dirname, '../../' + internalPath));
 

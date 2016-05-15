@@ -10,6 +10,8 @@
 
 require('../babelRegisterOnly')([/react-packager\/src/]);
 
+require('../dev');
+
 useGracefulFs();
 
 // Make sure `lotus.file` exists.

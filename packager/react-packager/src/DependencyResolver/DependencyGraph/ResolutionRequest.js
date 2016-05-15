@@ -64,7 +64,7 @@ class ResolutionRequest {
       const visited = Object.create(null);
       visited[entry.hash()] = true;
 
-      var failed = false;
+      let failed = false;
       const collect = (mod) => {
         response.pushDependency(mod);
         return mod.getDependencies().then(
@@ -76,26 +76,6 @@ class ResolutionRequest {
               }
 
               return this.resolveDependency(mod, name)
-              .then(result => {
-                // if (result && !failed) {
-                //   var displayPath = result.path;
-                //   if (result.path[0] === '/') {
-                //     displayPath = path.relative(lotus.path, result.path);
-                //   }
-                //   log
-                //     .moat(1)
-                //     .white('Resolved: ')
-                //     .green(name)
-                //     .moat(0)
-                //     .white('    into: ')
-                //     .cyan(displayPath)
-                //     .moat(0)
-                //     .white('     for: ')
-                //     .yellow(path.relative(lotus.path, mod.path))
-                //     .moat(1);
-                // }
-                return result;
-              })
               .fail(error => {
                 failed = true;
                 if (error.type !== 'UnableToResolveError') {
@@ -185,7 +165,6 @@ class ResolutionRequest {
       toModuleName,
       this._redirectRequire(fromModule, toModuleName)
     ])
-
     .then(([oldModuleName, toModuleName]) => {
 
       if (toModuleName === null) {
@@ -204,27 +183,16 @@ class ResolutionRequest {
         redirectAlert(fromModule.path, oldModuleName, toModuleName);
       }
 
-      if (inArray(NODE_PATHS, toModuleName)
-          && !this._hasteMap._map[toModuleName]) {
-        redirectAlert(fromModule.path, toModuleName);
-        return this._getNullModule(toModuleName, fromModule);
-      }
-
-      var promise = Q.reject();
+      let promise = Q.reject();
 
       if (toModuleName[0] !== '.' && toModuleName[0] !== '/') {
         promise = promise.fail(() =>
           this._resolveHasteDependency(fromModule, toModuleName));
       }
 
-      return promise
-
-      .fail(() => {
-        let absPath = this._getLotusPath(fromModule, toModuleName);
-        return this._resolveNodeDependency(fromModule, absPath);
-      })
-
-      .fail(error => {
+      return promise.fail(() =>
+        this._resolveNodeDependency(fromModule, toModuleName)
+      ).fail(error => {
         if (error.type === 'UnableToResolveError') {
           log.moat(1);
           log.white('Failed to resolve: ');
@@ -251,7 +219,7 @@ class ResolutionRequest {
   _resolveHasteDependency(fromModule, toModuleName) {
 
     return Q.try(() => {
-      var dep = this._hasteMap.getModule(toModuleName, this._platform);
+      let dep = this._hasteMap.getModule(toModuleName, this._platform);
       if (dep && dep.type === 'Module') {
         return dep;
       }
@@ -282,58 +250,63 @@ class ResolutionRequest {
 
   _resolveNodeDependency(fromModule, toModuleName) {
 
+    const absPath = this._getLotusPath(fromModule, toModuleName);
+
+    // Update relative paths to be absolute.
     if (toModuleName[0] === '.') {
-      throw new Error('"' + toModuleName + '" cannot be a relative path');
+      if (!absPath) {
+        throw new UnableToResolveError();
+      }
+      toModuleName = absPath;
     }
 
-    return Q.try(() => {
+    if (toModuleName[0] === '/') {
+      return this._tryResolve(
+        () => this._loadAsFile(toModuleName),
+        () => this._loadAsDir(toModuleName)
+      );
+    }
 
-      if (toModuleName[0] === '/') {
-        return this._tryResolve(
-          () => this._loadAsFile(toModuleName),
-          () => this._loadAsDir(toModuleName)
-        );
+    if (absPath && this._fastfs._getRoot(absPath).isDetached) {
+      return Q.try(() => this._moduleCache.getModule(absPath));
+    }
+
+    if (inArray(NODE_PATHS, toModuleName)) {
+      redirectAlert(fromModule.path, toModuleName);
+      return this._getNullModule(toModuleName, fromModule);
+    }
+
+    const searchQueue = [];
+    for (let currDir = path.dirname(fromModule.path);
+         currDir !== '/';
+         currDir = path.dirname(currDir)) {
+      if (/node_modules$/.test(currDir)) {
+        continue;
       }
+      searchQueue.push(
+        path.join(currDir, 'node_modules', toModuleName)
+      );
+    }
 
-      if (lotus.isEnabled) {
-        const absPath = lotus.resolve(toModuleName, fromModule.path);
-        if (absPath && this._fastfs._getRoot(absPath).isDetached) {
-          return Q.try(() => this._moduleCache.getModule(absPath));
-        }
-      }
+    let promise = Q.reject(new UnableToResolveError());
 
-      const searchQueue = [];
-      for (let currDir = path.dirname(fromModule.path);
-           currDir !== '/';
-           currDir = path.dirname(currDir)) {
-        if (/node_modules$/.test(currDir)) {
-          continue;
-        }
-        searchQueue.push(
-          path.join(currDir, 'node_modules', toModuleName)
-        );
-      }
-
-      let p = Q.reject(new UnableToResolveError());
-
-      searchQueue.forEach(potentialModulePath => {
-        promise = this._tryResolve(
-          () => this._tryResolve(
-            () => promise,
-            () => this._loadAsFile(potentialModulePath, fromModule, toModuleName),
-          ),
-          () => this._loadAsDir(potentialModulePath, fromModule, toModuleName)
-        );
-      });
-
-      return promise;
+    searchQueue.forEach(potentialModulePath => {
+      promise = this._tryResolve(
+        () => this._tryResolve(
+          () => promise,
+          () => this._loadAsFile(potentialModulePath, fromModule, toModuleName),
+        ),
+        () => this._loadAsDir(potentialModulePath, fromModule, toModuleName)
+      );
     });
+
+    return promise;
   }
 
   _redirectRequire(fromModule, modulePath) {
     return Q(fromModule.getPackage()).then(p => {
       if (p) {
-        var absPath = modulePath;
+        let absPath = modulePath;
         if (modulePath[0] === '.') {
           absPath = path.resolve(
             path.dirname(fromModule.path),
@@ -354,29 +327,50 @@ class ResolutionRequest {
     });
   }
 
-  _loadAsFile(potentialModulePath, fromModule, toModule) {
-    return Q.try(() => {
-      let file;
-      if (this._fileExists(potentialModulePath)) {
-        file = potentialModulePath;
-      } else if (this._platform != null &&
-                 this._fileExists(potentialModulePath + '.' + this._platform + '.js')) {
-        file = potentialModulePath + '.' + this._platform + '.js';
-      } else if (this._preferNativePlatform &&
-                 this._fastfs.fileExists(potentialModulePath + '.native.js')) {
-        file = potentialModulePath + '.native.js';
-      } else if (this._fastfs.fileExists(potentialModulePath + '.js')) {
-        file = potentialModulePath + '.js';
-      } else if (this._fastfs.fileExists(potentialModulePath + '.jsx')) {
-        file = potentialModulePath + '.jsx';
-      } else if (this._fastfs.fileExists(potentialModulePath + '.json')) {
-        file = potentialModulePath + '.json';
-      } else {
-        throw new UnableToResolveError();
+  _loadAsFile(filePath, fromModule, toModule) {
+    let badFile = /not a file that exists/;
+    let badDirectory = /not a directory that exists/;
+    let tryExtension = (ext) => {
+      try {
+        if (this._fileExists(filePath + ext)) {
+          return this._moduleCache.getModule(filePath + ext);
+        }
+      } catch (error) {
+        if (badFile.test(error.message)) { return }
+        if (badDirectory.test(error.message)) { return }
+        throw error;
       }
+    };
 
-      return this._moduleCache.getModule(file);
-    });
+    // Try the path as is.
+    let result = tryExtension('');
+    if (result) { return result }
+
+    // Try with a platform-specific extension.
+    if (this._platform != null) {
+      result = tryExtension('.' + this._platform + '.js');
+      if (result) { return result }
+    }
+
+    // Try with a '.native.js' extension!
+    if (this._preferNativePlatform) {
+      result = tryExtension('.native.js');
+      if (result) { return result }
+    }
+
+    // Try with a '.js' extension!
+    result = tryExtension('.js');
+    if (result) { return result }
+
+    // Try with a '.jsx' extension!
+    result = tryExtension('.jsx');
+    if (result) { return result }
+
+    // Try with a '.json' extension!
+    result = tryExtension('.json');
+    if (result) { return result }
+
+    throw new UnableToResolveError();
   }
 
   _loadAsDir(potentialDirPath, fromModule, toModule) {
@@ -427,7 +421,8 @@ class ResolutionRequest {
   }
 
   _tryResolve(action, secondaryAction) {
-    return action().fail((error) => {
+    return Q.try(() => action())
+    .fail((error) => {
       if (error.type !== 'UnableToResolveError') {
         throw error;
       }
@@ -436,8 +431,8 @@ class ResolutionRequest {
   }
 
   _getLotusPath(fromModule, toModuleName) {
-    var lotusPath = lotus.resolve(toModuleName, fromModule.path);
-    if (lotusPath) {
+    let lotusPath = lotus.resolve(toModuleName, fromModule.path);
+    if (lotusPath && lotusPath[0] === '/') {
       return lotusPath;
     }
 
@@ -455,8 +450,6 @@ class ResolutionRequest {
         }
       }
     }
-
-    throw new UnableToResolveError();
   }
 
   _getNullModule(modulePath, fromModule) {
@@ -476,7 +469,7 @@ class ResolutionRequest {
 
     modulePath = modulePath + ' (null)';
 
-    var module = moduleCache[modulePath];
+    let module = moduleCache[modulePath];
 
     if (!module) {
       module = moduleCache[modulePath] = new NullModule({

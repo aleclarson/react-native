@@ -91,7 +91,6 @@ var internalRoots = [
   'Libraries',
   '../react/src',
   'node_modules/react-timer-mixin',
-  'node_modules/parseErrorStack',
 ].map(function(internalPath) {
   return path.resolve(__dirname, '../' + internalPath);
 });

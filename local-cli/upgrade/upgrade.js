@@ -11,7 +11,7 @@
 const fs = require('fs');
 const chalk = require('chalk');
 const path = require('path');
-const Promise = require('promise');
+const Q = require('q');
 const yeoman = require('yeoman-environment');
 const semver = require('semver');
 
@@ -71,5 +71,5 @@ module.exports = function upgrade(args, config) {
   const generatorPath = path.join(__dirname, '..', 'generator');
   env.register(generatorPath, 'react:app');
   const generatorArgs = ['react:app', pak.name].concat(args);
-  return new Promise((resolve) => env.run(generatorArgs, {upgrade: true}, resolve));
+  return Q.promise((resolve) => env.run(generatorArgs, {upgrade: true}, resolve));
 };

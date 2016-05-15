@@ -26,23 +26,4 @@ module.exports = function(onlyList) {
   var config = readBabelRC();
   config.only = _only;
   require('babel-core/register')(config);
-  registerLotus();
-  setupPropertyClass();
-  exposeMainLogger();
 };
-
-function registerLotus() {
-  global.lotus = require('../../lotus-require');
-  lotus.forceAll = true;
-}
-
-// The modules below inject themselves into the Property class.
-function setupPropertyClass() {
-  require('lazy-var');
-  require('reactive-var');
-}
-
-function exposeMainLogger() {
-  global.log = require('log');
-  log.indent = 2;
-}

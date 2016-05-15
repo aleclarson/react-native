@@ -192,7 +192,10 @@ class DependencyGraph {
       return Q.all([
         req.getOrderedDependencies(response, this._opts.mocksPattern),
         req.getAsyncDependencies(response),
-      ]).then(() => response);
+      ]).then(() => response).fail(error => {
+        console.log(error.stack);
+        throw error;
+      });
     });
   }
 

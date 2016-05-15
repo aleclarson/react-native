@@ -9,7 +9,7 @@
 'use strict';
 
 const path = require('path');
-const Promise = require('promise');
+const Q = require('q');
 
 const checkNodeVersion = require('./checkNodeVersion');
 const formatBanner = require('./formatBanner');
@@ -24,7 +24,7 @@ log.indent = 2;
  * Starts the React Native Packager Server.
  */
 function server(argv, config) {
-  return new Promise((resolve, reject) => {
+  return Q.promise((resolve, reject) => {
     _server(argv, config, resolve, reject);
   });
 }
