@@ -126,10 +126,8 @@ function setUpProperty() {
 }
 
 function setUpAnimated() {
-  var Animated = require('Animated/inject');
-  var InteractionManager = require('InteractionManager');
-  Animated.createInteractionHandle(InteractionManager.createInteractionHandle);
-  Animated.clearInteractionHandle(InteractionManager.clearInteractionHandle);
+  var inject = require('Animated/inject');
+  inject('InteractionManager', require('InteractionManager'));
 }
 
 function setUpGeolocation() {
