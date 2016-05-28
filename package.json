@@ -133,6 +133,7 @@
     "babel-plugin-transform-react-jsx": "^6.0.18",
     "babel-plugin-transform-regenerator": "^6.0.18",
     "babel-polyfill": "^6.0.16",
+    "babel-register": "^6.9.0",
     "babel-types": "^6.1.2",
     "babylon": "^6.1.2",
     "base64-js": "^0.0.8",

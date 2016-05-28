@@ -76,22 +76,6 @@ function _server(argv, config, resolve, reject) {
   process.on('uncaughtException', error => {
     console.log(error.message);
     console.log(error.stack);
-    // if (error.code === 'EADDRINUSE') {
-    //   log
-    //     .moat(1)
-    //     .red('Error: ')
-    //     .white('Port already in use: ')
-    //     .yellow(args.port)
-    //     .moat(1);
-    // } else {
-    //   log
-    //     .moat(1)
-    //     .red(error.type || error.constructor.name)
-    //     .white(' ', error.message)
-    //     .moat(1)
-    //     .gray(error.stack)
-    //     .moat(1);
-    // }
     process.exit(1);
   });
 

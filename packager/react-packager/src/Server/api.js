@@ -101,9 +101,7 @@ function processFileEvent(req, res) {
   const fs = this._bundler._resolver._depGraph._fastfs;
 
   const file = fs._fastPaths[absPath];
-  if (file && event !== 'delete') {
-    const fstat = syncFs.stats(absPath);
-  }
+  const fstat = file && event !== 'delete' && syncFs.stats(absPath);
 
   if (force || file || event === 'add') {
     const root = fs._getRoot(absPath);

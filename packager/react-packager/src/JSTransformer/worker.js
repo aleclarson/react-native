@@ -8,6 +8,7 @@
  */
 'use strict';
 
+require('lotus-require').register();
 var babel = require('babel-core');
 var resolvePlugins = require('./resolvePlugins');
 var Transforms = require('../transforms');
