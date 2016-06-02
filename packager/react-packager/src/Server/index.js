@@ -26,8 +26,6 @@ const declareOpts = require('../lib/declareOpts');
 const FileWatcher = require('../DependencyResolver/FileWatcher');
 const getPlatformExtension = require('../DependencyResolver/lib/getPlatformExtension');
 
-const SUPPRESSED_EVENTS = /^\/(read|assets|watcher|onchange|debug)\//;
-
 const validateOpts = declareOpts({
   projectRoots: {
     type: 'array',
@@ -266,6 +264,11 @@ class Server {
   }
 
   buildBundleFromUrl(reqUrl) {
+
+    log.moat(1);
+    log.yellow(reqUrl);
+    log.moat(1);
+
     const options = this._getOptionsFromUrl(reqUrl);
     const refresh = steal(options, 'refresh');
     const hash = JSON.stringify(options);
@@ -279,9 +282,6 @@ class Server {
     }
 
     if (!this._bundles[hash]) {
-      log.moat(1);
-      log.format(options, { label: 'Building bundle: ', unlimited: true });
-      log.moat(1);
       this._lastBundle = hash;
       this._bundles[hash] = this.buildBundle(options);
     }
@@ -387,23 +387,15 @@ class Server {
     })
 
     if (endpoint) {
-      var requestEvent = null;
-      if (!SUPPRESSED_EVENTS.test(req.url)) {
-        requestEvent = Activity.startEvent('request:' + req.url);
-      }
-
       const finishResponse = res.end;
       res.end = (body) => {
         if (body == null) {
           body = '';
         }
         finishResponse.call(res, body);
-        if (requestEvent) {
-          Activity.endEvent(requestEvent);
-        }
       };
 
-      Q(endpoint.call(this, req, res))
+      Q.try(() => endpoint.call(this, req, res))
         .fail(error => this._handleError(res, error))
         .done();
     } else {

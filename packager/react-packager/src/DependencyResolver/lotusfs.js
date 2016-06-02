@@ -1,20 +1,21 @@
 
-const path = require('path');
+const lotus = require('lotus-require');
 const File = require('./File');
 
-var LOTUS_FILE = null;
-
-Object.defineProperty(lotus, 'file', {
-  enumerable: true,
-  get: () => {
-    var file = LOTUS_FILE;
-    if (file) { return file }
-    file = new File(lotus.path, { isDir: true });
-    file.isDetached = true;
-    file.getFileFromPath = getFileFromPath;
-    return LOTUS_FILE = file;
-  }
-});
+exports.initialize = function() {
+  if (lotus.hasOwnProperty('file')) { return }
+  var file = null;
+  Object.defineProperty(lotus, 'file', {
+    enumerable: true,
+    get: () => {
+      if (file) { return file }
+      file = new File(lotus.path, { isDir: true });
+      file.isDetached = true;
+      file.getFileFromPath = getFileFromPath;
+      return file;
+    }
+  });
+}
 
 function getFileFromPath(filePath) {
   return this._getFileFromPath(filePath)

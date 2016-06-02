@@ -9,6 +9,7 @@
 'use strict';
 
 const Q = require ('q');
+const log = require('log');
 const path = require('path');
 const inArray = require('in-array');
 const getPlatformExtension = require('../lib/getPlatformExtension');
@@ -129,11 +130,14 @@ class HasteMap {
     const modulePlatform = getPlatformExtension(mod.path) || GENERIC_PLATFORM;
     const existingModule = moduleMap[modulePlatform];
 
-    if (existingModule && existingModule.path !== mod.path) {
-      throw new Error(
-        `Naming collision detected: ${mod.path} ` +
-        `collides with ${existingModule.path}`
-      );
+    if (existingModule && existingModule.type === 'Module') {
+      if (existingModule.path !== mod.path) {
+        throw new Error(
+          `Naming collision detected: ${mod.path} ` +
+          `collides with ${existingModule.path}`
+        );
+      }
+      return;
     }
 
     moduleMap[modulePlatform] = mod;

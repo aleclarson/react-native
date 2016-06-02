@@ -22,7 +22,7 @@
 /* eslint strict: 0 */
 /* globals GLOBAL: true, window: true */
 
-require('regenerator/runtime');
+require('regenerator-runtime/runtime');
 
 require('isReactNative').set(true);
 
@@ -32,6 +32,10 @@ if (typeof GLOBAL === 'undefined') {
 
 if (typeof window === 'undefined') {
   window = GLOBAL;
+}
+
+if (typeof window.global === 'undefined') {
+  window.global = window;
 }
 
 /**

@@ -50,9 +50,27 @@ class ResolutionRequest {
     return Q.try(() =>
       this._resolveAssetDependency(toModuleName) ||
         this._resolveJSDependency(fromModule, toModuleName))
+
     .then(resolvedModule => {
       fromModule.resolveDependency(toModuleName, resolvedModule);
       return resolvedModule;
+    })
+
+    .timeout(5000)
+
+    .fail(error => {
+      log.moat(1);
+      log.yellow('fromModule.path = ');
+      log.white(fromModule.path);
+      log.moat(0);
+      log.yellow('toModuleName = ');
+      log.white(toModuleName);
+      log.moat(0);
+      log.gray.dim(error.stack);
+      log.moat(1);
+      if (this._shouldThrowOnUnresolvedErrors(this._entryPath, this._platform)) {
+        throw error;
+      }
     });
   }
 
@@ -65,16 +83,25 @@ class ResolutionRequest {
       visited[entry.hash()] = true;
 
       let failed = false;
+
       const collect = (mod) => {
+
         response.pushDependency(mod);
-        return mod.getDependencies().then(
-          depNames => Q.all(
-            depNames.map(name => {
+
+        log.cyan.dim('•');
+        if (log.line.length == 50) {
+          log.moat(0);
+        }
+
+        return mod.getDependencies()
+
+        .then(depNames => {
+          const promises = depNames.map(name => {
+            return Q.try(() => {
               const result = mod.resolveDependency(name);
               if (result) {
                 return result;
               }
-
               return this.resolveDependency(mod, name)
               .fail(error => {
                 failed = true;
@@ -82,10 +109,17 @@ class ResolutionRequest {
                   throw error;
                 }
               });
-            })
-          )
-          .then(dependencies => [depNames, dependencies])
-        ).then(([depNames, dependencies]) => {
+            });
+          });
+
+          return Q.all(promises)
+          .then(dependencies => [
+            depNames,
+            dependencies,
+          ]);
+        })
+
+        .then(([depNames, dependencies]) => {
           if (mocks) {
             return mod.getName().then(name => {
               if (mocks[name]) {
@@ -98,7 +132,9 @@ class ResolutionRequest {
             });
           }
           return Q([depNames, dependencies]);
-        }).then(([depNames, dependencies]) => {
+        })
+
+        .then(([depNames, dependencies]) => {
           let queue = Q();
           const filteredPairs = [];
 
@@ -128,11 +164,11 @@ class ResolutionRequest {
 
           filteredPairs.forEach(([depName, modDep]) => {
             queue = queue.then(() => {
-              if (!visited[modDep.hash()]) {
-                visited[modDep.hash()] = true;
-                return collect(modDep);
+              if (visited[modDep.hash()]) {
+                return null;
               }
-              return null;
+              visited[modDep.hash()] = true;
+              return collect(modDep);
             });
           });
 
@@ -191,21 +227,7 @@ class ResolutionRequest {
       }
 
       return promise.fail(() =>
-        this._resolveNodeDependency(fromModule, toModuleName)
-      ).fail(error => {
-        if (error.type === 'UnableToResolveError') {
-          log.moat(1);
-          log.white('Failed to resolve: ');
-          log.red(toModuleName);
-          log.moat(0);
-          log.white('              for: ');
-          log.red(path.relative(lotus.path, fromModule.path));
-          log.moat(1);
-          throw error;
-        } else if (this._shouldThrowOnUnresolvedErrors(this._entryPath, this._platform)) {
-          throw error;
-        }
-      });
+        this._resolveNodeDependency(fromModule, toModuleName));
     });
   }
 

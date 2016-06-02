@@ -9,8 +9,10 @@
 'use strict';
 
 const isAbsolutePath = require('absolute-path');
+const inArray = require('in-array');
 const sync = require('sync');
 const path = require('path');
+const Q = require('q');
 
 const docblock = require('./DependencyGraph/docblock');
 const extractRequires = require('./lib/extractRequires');
@@ -34,11 +36,39 @@ class Module {
     this._dependencies = Object.create(null);
   }
 
+  isMain() {
+    return this._cache.get(
+      this.path,
+      'isMain',
+      () => this.read().then(data => {
+        const pkg = this.getPackage();
+        return pkg.getMain()
+        .then(mainPath => this.path === mainPath);
+      })
+    )
+  }
+
   isHaste() {
     return this._cache.get(
       this.path,
       'isHaste',
-      () => this.read().then(data => !!data.id)
+      () => this.read().then(data => {
+        if (!!data.id) {
+          return true;
+        }
+        if (!this._isHasteCompatible()) {
+          return false;
+        }
+        return this.isMain()
+        .then(isMain => {
+          if (!isMain) {
+            return false;
+          }
+          return this.getPackage()
+            .getName()
+            .then(name => !!name);
+        });
+      })
     );
   }
 
@@ -47,27 +77,20 @@ class Module {
       this.path,
       'name',
       () => this.read().then(data => {
-        if (data.id) {
+        if (!!data.id) {
           return data.id;
         }
 
-        const p = this.getPackage();
-
-        if (!p) {
-          // Name is full path
-          return this.path;
+        if (!this._isHasteCompatible()) {
+          return path.relative(lotus.path, this.path);
         }
 
-        return p.getName()
-          .then(name => {
-            if (!name) {
-              return this.path;
-            }
-
-            return path.join(name, path.relative(p.root, this.path)).replace(/\\/g, '/');
-          });
+        const pkg = this.getPackage();
+        return this.isMain()
+          .then(isMain => pkg.getName().then(name =>
+            isMain ? name : path.relative(lotus.path, this.path)));
       })
-    );
+    )
   }
 
   getPackage() {
@@ -126,14 +149,6 @@ class Module {
           data.asyncDependencies = dependencies.async;
         }
 
-        // log
-        //   .moat(1)
-        //   .white('Found dependencies: ')
-        //   .yellow(this.path)
-        //   .moat(0)
-        //   .format(data.dependencies)
-        //   .moat(1);
-
         return data;
       });
     }
@@ -174,6 +189,19 @@ class Module {
       type: this.type,
       path: this.path,
     };
+  }
+
+  // We don't want 'node_modules' to be haste paths
+  // unless the package is a watcher root.
+  _isHasteCompatible() {
+    const pkg = this.getPackage();
+    if (!pkg) {
+      return false;
+    }
+    if (!/node_modules/.test(this.path)) {
+      return true;
+    }
+    return inArray(this._fastfs._roots, pkg.root);
   }
 
   _processFileChange(type) {

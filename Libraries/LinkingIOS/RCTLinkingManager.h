@@ -8,8 +8,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
-#import "RCTBridgeModule.h"
+#import <React/RCTBridgeModule.h>
 
 @interface RCTLinkingManager : NSObject <RCTBridgeModule>
 

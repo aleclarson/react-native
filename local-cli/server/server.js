@@ -8,29 +8,66 @@
  */
 'use strict';
 
-const path = require('path');
-const Q = require('q');
+global.lotus = require('lotus-require');
+lotus.register({
+  exclude: [ '.*/node_modules/.*' ]
+});
+
+require('reactive-var');
+require('lazy-var');
+require('Type');
+
+global.log = require('log');
 
 const checkNodeVersion = require('./checkNodeVersion');
 const formatBanner = require('./formatBanner');
-const parseCommandLine = require('../util/parseCommandLine');
 const runServer = require('./runServer');
-
-const log = require('log');
-log.clear();
-log.indent = 2;
 
 /**
  * Starts the React Native Packager Server.
  */
 function server(argv, config) {
+
+  log.clear();
+  log.pushIndent(2);
+  log.moat(1);
+
+  process.on('uncaughtException', error => {
+    console.log(error.message);
+    console.log(error.stack);
+    process.exit();
+  });
+
+  const Q = require('q');
   return Q.promise((resolve, reject) => {
-    _server(argv, config, resolve, reject);
+
+    const args = parseArgv(argv);
+    args.projectRoots = args.projectRoots
+      ? argToArray(args.projectRoots)
+      : config.getProjectRoots();
+
+    checkNodeVersion();
+    startServer(args, config);
   });
 }
 
 function _server(argv, config, resolve, reject) {
-  const args = parseCommandLine([{
+
+}
+
+function startServer(args, config) {
+  var ip = require('ip');
+  runServer(args, config, () => {
+    log.moat(1);
+    log.white('Server started: ');
+    log.yellow('http://', ip.address(), ':', args.port);
+    log.moat(1);
+  });
+}
+
+function parseArgv() {
+  const parseCommandLine = require('../util/parseCommandLine');
+  return parseCommandLine([{
     command: 'port',
     default: 8081,
     type: 'string',
@@ -66,30 +103,6 @@ function _server(argv, config, resolve, reject) {
     description: 'Enables logging',
     default: false,
   }]);
-
-  args.projectRoots = args.projectRoots
-    ? argToArray(args.projectRoots)
-    : config.getProjectRoots();
-
-  checkNodeVersion();
-
-  process.on('uncaughtException', error => {
-    console.log(error.message);
-    console.log(error.stack);
-    process.exit(1);
-  });
-
-  startServer(args, config);
-}
-
-function startServer(args, config) {
-  var ip = require('ip');
-  runServer(args, config, () => {
-    log.moat(1);
-    log.white('Server started: ');
-    log.yellow('http://', ip.address(), ':', args.port);
-    log.moat(1);
-  });
 }
 
 function argToArray(arg) {

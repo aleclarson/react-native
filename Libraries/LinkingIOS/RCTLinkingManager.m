@@ -7,11 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "RCTLinkingManager.h"
+#import <React/RCTBridge.h>
+#import <React/RCTEventDispatcher.h>
+#import <React/RCTUtils.h>
 
-#import "RCTBridge.h"
-#import "RCTEventDispatcher.h"
-#import "RCTUtils.h"
+#import "RCTLinkingManager.h"
 
 NSString *const RCTOpenURLNotification = @"RCTOpenURLNotification";
 

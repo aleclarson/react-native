@@ -141,20 +141,20 @@ class BundlesLayout {
 
   _loadCacheSync(cachePath) {
 
-    log.moat(1);
-    log.white('Loading bundles layout: ');
-    log.green(cachePath);
-    log.moat(1);
+    // log.moat(1);
+    // log.white('Loading bundles layout: ');
+    // log.green(cachePath);
+    // log.moat(1);
 
-    const loadCacheId = Activity.startEvent('Loading Bundles Layout');
+    // const loadCacheId = Activity.startEvent('Loading Bundles Layout');
     const cacheOnDisk = loadCacheSync(cachePath);
 
-    const cacheKeys = Object.keys(cacheOnDisk);
-    log.moat(1);
-    log.white('Bundles layout has ');
-    log.pink(cacheKeys.length);
-    log.white(' bundles!');
-    log.moat(1);
+    // const cacheKeys = Object.keys(cacheOnDisk);
+    // log.moat(1);
+    // log.white('Bundles layout has ');
+    // log.pink(cacheKeys.length);
+    // log.white(' bundles!');
+    // log.moat(1);
 
     // TODO: create single-module bundles for unexistent modules
     // TODO: remove modules that no longer exist
@@ -163,7 +163,7 @@ class BundlesLayout {
       this._fillModuleToBundleMap(cacheOnDisk[entryPath]);
     });
 
-    Activity.endEvent(loadCacheId);
+    // Activity.endEvent(loadCacheId);
   }
 
   _fillModuleToBundleMap(bundle) {

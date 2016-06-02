@@ -1,6 +1,7 @@
 'use strict';
 
 const Q = require('q');
+const path = require('path');
 const Module = require('./Module');
 
 class Polyfill extends Module {
@@ -15,7 +16,13 @@ class Polyfill extends Module {
   }
 
   getName() {
-    return Q(this._id);
+    return Q.try(() => {
+      const name = this._id;
+      if (name[0] === '/') {
+        return path.relative(lotus.path, name);
+      }
+      return name;
+    })
   }
 
   getPackage() {

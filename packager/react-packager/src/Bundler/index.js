@@ -10,6 +10,7 @@
 
 const assert = require('assert');
 const fs = require('fs');
+const syncFs = require('io/sync');
 const path = require('path');
 const Q = require('q');
 const BundlesLayout = require('../BundlesLayout');
@@ -168,7 +169,7 @@ class Bundler {
   }) {
     // Const cannot have the same name as the method (babel/babel#2834)
     const bbundle = new Bundle(sourceMapUrl);
-    const findEventId = Activity.startEvent('Find dependencies');
+    const findEventId = Activity.startEvent('find dependencies');
     let transformEventId;
 
     const moduleSystem = this._resolver.getModuleSystemDependencies(
@@ -176,38 +177,67 @@ class Bundler {
     );
 
     return this.getDependencies(entryFile, isDev, platform).then((response) => {
-      Activity.endEvent(findEventId);
-
-      log.moat(1);
-      log.white('Bundle has ');
-      log.pink(response.dependencies.length);
-      log.white(' module dependencies!');
-      log.moat(1);
-
-      transformEventId = Activity.startEvent('Transform dependencies');
 
       // Prepend the module system polyfill to the top of dependencies
-      var dependencies = moduleSystem.concat(response.dependencies);
+      const dependencies = moduleSystem.concat(response.dependencies);
+
+      // Promises that resolve into a name/path pair.
+      const namedModules = dependencies.map(module => {
+        return module.getName().then(name => {
+          return { name, path: path.relative(lotus.path, module.path) }
+        })
+      });
 
       bbundle.setMainModuleId(response.mainModuleId);
       bbundle.setNumPrependedModules(
-        response.numPrependedDependencies + moduleSystem.length);
-      return Q.all(
-        dependencies.map(
-          module => this._transformModule(
+        response.numPrependedDependencies + moduleSystem.length
+      );
+
+      return Q.all(namedModules)
+
+      .then(namedModules => {
+
+        log.moat(1);
+        log.white('Total dependencies: ');
+        log.yellow(dependencies.length);
+        log.moat(1);
+
+        syncFs.write(
+          lotus.path + '/.ReactNativeModules.json',
+          JSON.stringify(namedModules, null, 2)
+        );
+
+        Activity.endEvent(findEventId);
+        transformEventId = Activity.startEvent('transform dependencies');
+
+        // Promises that are transforming their module.
+        const transforming = dependencies.map(module => {
+          return this._transformModule(
             bbundle,
             response,
             module,
             platform,
             hot,
-          ).then(transformed =>
-            this._wrapTransformedModule(response, module, transformed))
-        )
-      ).then((results) => {
-        Activity.endEvent(transformEventId);
-        return results;
-      });
-    }).then((transformedModules) => {
+          )
+          .then(transformed => {
+            return this._wrapTransformedModule(
+              response,
+              module,
+              transformed,
+            );
+          })
+        });
+
+        return Q.all(transforming)
+
+        .then(transformedModules => {
+          Activity.endEvent(transformEventId);
+          return transformedModules;
+        })
+      })
+    })
+
+    .then(transformedModules => {
       transformedModules.forEach(function(moduleTransport) {
         bbundle.addModule(moduleTransport);
       });
@@ -230,35 +260,51 @@ class Bundler {
     let transformEventId;
     let mainModuleId;
 
-    return this.getDependencies(entryFile, isDev, platform).then((response) => {
-      Activity.endEvent(findEventId);
-      transformEventId = Activity.startEvent('transform');
+    return Q.try(() => {
+      return this.getDependencies(entryFile, isDev, platform)
+    })
+
+    .then((response) => {
 
       mainModuleId = response.mainModuleId;
 
-      return Q.all(
-        response.dependencies.map(
-          module => this._transformModule(
-            bundle,
-            response,
-            module,
-            platform
-          ).then(transformed => {
-            var deps = Object.create(null);
-            var pairs = response.getResolvedDependencyPairs(module);
-            if (pairs) {
-              pairs.forEach(pair => {
-                deps[pair[0]] = pair[1].path;
-              });
-            }
-
-            return module.getName().then(name => {
-              bundle.addModule(name, transformed, deps, module.isPolyfill());
-            });
-          })
+      const promises = [];
+      response.dependencies.forEach(module => {
+        const pairs = response.getResolvedDependencyPairs(module);
+        const deps = Object.create(null);
+        if (pairs) {
+          log.moat(1);
+          log.yellow(path.relative(lotus.path, module.path));
+          log.plusIndent(2);
+          pairs.forEach(pair => {
+            deps[pair[0]] = pair[1].path;
+            log.moat(0);
+            log.gray.dim(pair[0] + ' ');
+            log.white(path.relative(lotus.path, pair[1].path));
+          });
+          log.popIndent();
+          log.moat(1);
+        }
+        const promise = this._transformModule(
+          bundle,
+          response,
+          module,
+          platform
         )
-      );
-    }).then(() => {
+        .then(transformed => {
+          return module.getName().then(name => {
+            bundle.addModule(name, transformed, deps, module.isPolyfill());
+          });
+        });
+        promises.push(promise);
+      });
+
+      Activity.endEvent(findEventId);
+      transformEventId = Activity.startEvent('transform');
+      return Q.all(promises);
+    })
+
+    .then(() => {
       Activity.endEvent(transformEventId);
       bundle.finalize({runBeforeMainModule, runMainModule, mainModuleId });
       return bundle;

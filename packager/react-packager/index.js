@@ -10,12 +10,7 @@
 
 require('../babelRegisterOnly')([/react-packager\/src/]);
 
-require('../dev');
-
 useGracefulFs();
-
-// Make sure `lotus.file` exists.
-require('./src/DependencyResolver/lotusfs');
 
 var debug = require('debug');
 var omit = require('underscore').omit;

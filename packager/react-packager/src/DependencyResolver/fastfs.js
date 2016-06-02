@@ -24,6 +24,8 @@ const NOT_FOUND_IN_ROOTS = 'NotFoundInRootsError';
 
 const File = require('./File');
 
+require('./lotusfs').initialize();
+
 class Fastfs extends EventEmitter {
   constructor(name, roots, fileWatcher, {ignore, crawling, activity}) {
     super();
@@ -42,7 +44,7 @@ class Fastfs extends EventEmitter {
       let fastfsActivity;
       const activity = this._activity;
       if (activity) {
-        fastfsActivity = activity.startEvent('Building in-memory fs for ' + this._name);
+        fastfsActivity = activity.startEvent(this._name);
       }
       files.forEach(filePath => {
         const newFile = new File(filePath, { isDir: false });

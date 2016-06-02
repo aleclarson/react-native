@@ -17,22 +17,34 @@ class Package {
 
   getMain() {
     return this.read().then(json => {
-      var replacements = getReplacements(json);
+
+      let ext;
+      let main = json.main;
+      const replacements = getReplacements(json);
       if (typeof replacements === 'string') {
-        return path.join(this.root, replacements);
+        main = replacements;
       }
 
-      let main = json.main || 'index';
+      if (main) {
+        ext = path.extname(main) || '.js';
+        main = main.replace(/^\.\//, ''); // Remove leading dot-slash
+        main = main.replace(/(\.js|\.json)$/, ''); // Remove trailing extension
+      } else {
+        ext = '.js';
+        main = 'index';
+      }
 
       if (replacements && typeof replacements === 'object') {
         main = replacements[main] ||
-          replacements[main + '.js'] ||
-          replacements[main + '.json'] ||
-          replacements[main.replace(/(\.js|\.json)$/, '')] ||
+          replacements[main + ext] ||
           main;
       }
 
-      return path.join(this.root, main);
+      if (!path.extname(main)) {
+        main += ext;
+      }
+
+      return path.resolve(this.root, main);
     });
   }
 

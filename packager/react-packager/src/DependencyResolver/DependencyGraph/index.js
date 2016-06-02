@@ -80,8 +80,7 @@ class DependencyGraph {
     }
 
     const {activity} = this._opts;
-    const depGraphActivity = activity.startEvent('Building Dependency Graph');
-    const crawlActivity = activity.startEvent('Crawling File System');
+    const crawlActivity = activity.startEvent('crawl filesystem');
 
     const roots = this._mergeArrays([
       this._opts.internalRoots,
@@ -107,7 +106,7 @@ class DependencyGraph {
       activity.endEvent(crawlActivity));
 
     this._fastfs = new Fastfs(
-      'JavaScript',
+      'find .js files',
       roots,
       this._opts.fileWatcher,
       {
@@ -138,16 +137,15 @@ class DependencyGraph {
 
     this._loading = this._fastfs.build()
       .then(() => {
-        const hasteActivity = activity.startEvent('Building Haste Map');
+        const hasteActivity = activity.startEvent('find haste modules');
         return this._hasteMap.build()
           .then(() => activity.endEvent(hasteActivity));
       })
       .then(() => {
-        const assetActivity = activity.startEvent('Building Asset Map');
+        const assetActivity = activity.startEvent('find assets');
         this._assetServer._build(this._fastfs);
         activity.endEvent(assetActivity);
-      })
-      .then(() => activity.endEvent(depGraphActivity));
+      });
 
     return this._loading;
   }
@@ -192,10 +190,9 @@ class DependencyGraph {
       return Q.all([
         req.getOrderedDependencies(response, this._opts.mocksPattern),
         req.getAsyncDependencies(response),
-      ]).then(() => response).fail(error => {
-        console.log(error.stack);
-        throw error;
-      });
+      ])
+
+      .then(() => response);
     });
   }
 

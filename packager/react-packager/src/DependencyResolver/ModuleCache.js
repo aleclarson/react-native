@@ -17,6 +17,12 @@ class ModuleCache {
     fastfs.on('change', this._processFileChange.bind(this));
   }
 
+  getCachedModule(filePath) {
+    return this._moduleCache[
+      path.resolve(filePath).toLowerCase()
+    ];
+  }
+
   getModule(filePath) {
     filePath = path.resolve(filePath);
     const id = filePath.toLowerCase();

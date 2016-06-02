@@ -9,9 +9,10 @@
 'use strict';
 
 require('../packager/babelRegisterOnly')([
-  /private-cli\/src/,
   /local-cli/
 ]);
+
+require('./packager/dev');
 
 var bundle = require('./bundle/bundle');
 var childProcess = require('child_process');
