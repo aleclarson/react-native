@@ -36,9 +36,6 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
-  blacklistRE: {
-    type: 'object', // typeof regex is object
-  },
   polyfillModuleNames: {
     type: 'array',
     default: [],

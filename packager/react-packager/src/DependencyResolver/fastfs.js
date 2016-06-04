@@ -130,7 +130,7 @@ class Fastfs extends EventEmitter {
     try {
       file = this._getFile(filePath);
     } catch (e) {
-      if (e.type === NOT_FOUND_IN_ROOTS) {
+      if (e.code === 404 || e.type === NOT_FOUND_IN_ROOTS) {
         return false;
       }
       throw e;
@@ -144,7 +144,7 @@ class Fastfs extends EventEmitter {
     try {
       file = this._getFile(filePath);
     } catch (e) {
-      if (e.type === NOT_FOUND_IN_ROOTS) {
+      if (e.code === 404 || e.type === NOT_FOUND_IN_ROOTS) {
         return false;
       }
       throw e;
@@ -255,8 +255,7 @@ class Fastfs extends EventEmitter {
       try {
         const file = this._getFile(absPath);
       } catch(error) {
-        const pattern = '"' + absPath + '" is not a file that exists.';
-        if (Finder.test(pattern, error.message)) {
+        if (error.code === 404) {
           return;
         }
         throw error;

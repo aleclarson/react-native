@@ -43,8 +43,9 @@ const validateOpts = declareOpts({
     type: 'array',
     default: [],
   },
-  blacklistRE: {
-    type: 'object', // typeof regex is object
+  getBlacklist: {
+    type: 'function',
+    default: () => null,
   },
   moduleFormat: {
     type: 'string',
@@ -200,34 +201,6 @@ class Server {
 
       onFileChange();
     }, 50);
-
-    log.moat(1);
-    log.white('Watching roots: ');
-    log.moat(0);
-    log.plusIndent(2);
-    opts.projectRoots.forEach(root => {
-      log.yellow(root)
-      log.moat(0)
-    });
-    opts.internalRoots.forEach(root => {
-      log.gray(root)
-      log.moat(0)
-    });
-    log.popIndent();
-
-    log.moat(1);
-    log.white('Watching extensions: ');
-    log.moat(0);
-    log.plusIndent(2);
-    opts.projectExts.forEach(ext => {
-      log.yellow(ext)
-      log.moat(0)
-    });
-    opts.assetExts.forEach(ext => {
-      log.cyan(ext)
-      log.moat(0)
-    });
-    log.popIndent();
   }
 
   end() {

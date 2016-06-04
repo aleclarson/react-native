@@ -104,7 +104,12 @@ function createServer(options) {
     enableDebug();
   }
 
-  startSocketInterface();
+  try { // Protect against compile-time errors.
+    startSocketInterface();
+  } catch(error) {
+    console.log(error.stack);
+  }
+
   var Server = require('./src/Server');
   return new Server(omit(options, ['verbose']));
 }

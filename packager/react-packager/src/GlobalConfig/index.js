@@ -13,6 +13,8 @@ const has = require('has');
 const path = require('path');
 const syncFs = require('io/sync');
 
+const { platformBlacklist, blacklist, whitelist } = require('../../../blacklist');
+
 function GlobalConfig(filePath) {
 
   filePath = path.resolve(lotus.path, filePath);
@@ -22,7 +24,9 @@ function GlobalConfig(filePath) {
   }
 
   if (!syncFs.isFile(filePath)) {
-    throw Error('\'' + filePath + '\' is not a file that exists.');
+    const error = Error('"' + filePath + '" is not a file that exists.');
+    error.code = 404;
+    throw error;
   }
 
   const self = Object.create(GlobalConfig.prototype);
@@ -38,26 +42,39 @@ GlobalConfig._cache = Object.create(null);
 GlobalConfig.prototype = {
 
   reload: function() {
-    var json;
+    let json;
     if (syncFs.exists(this.path)) {
       json = JSON.parse(syncFs.read(this.path));
     } else {
       json = {};
     }
 
-    this.projectExts = json.projectExts || ['js', 'json'];
-
+    // Support custom extensions.
+    this.projectExts = json.projectExts || ['js', 'jsx', 'json'];
     this.assetExts = json.assetExts || ['png'];
 
+    // Support global path redirection.
     this.redirect = json.redirect || Object.create(null);
 
-    if (json.ignoredPatterns) {
-      this.ignoredPatterns = new RegExp('(^|\/)(' + json.ignoredPatterns.join('|') + ')(\/|$)');
-    }
+    const whitelistRE = whitelist(json.whitelist);
+    this._whitelist = (filePath) =>
+      whitelistRE.test(filePath);
 
-    // log.moat(1);
-    // log.format(this, { label: 'Global config: ', unlimited: true });
-    // log.moat(1);
+    const blacklistRE = blacklist(json.blacklist);
+    this._blacklist = (filePath) =>
+      !this._whitelist(filePath) && blacklistRE.test(filePath);
+  },
+
+  getBlacklist: function(platform) {
+    if (!platform) {
+      return this._blacklist;
+    }
+    const blacklistRE = platformBlacklist(platform);
+    if (!blacklistRE) {
+      return () => false;
+    }
+    return (filePath) =>
+      blacklistRE.test(filePath);
   },
 
   // Resolves a non-absolute path into an absolute path.

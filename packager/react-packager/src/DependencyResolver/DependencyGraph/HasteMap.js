@@ -108,10 +108,15 @@ class HasteMap {
 
   _processHastePackage(file) {
     file = path.resolve(file);
-    const p = this._moduleCache.getPackage(file);
-    return p.isHaste()
-      .then(isHaste => isHaste && p.getName()
-            .then(name => this._updateHasteMap(name, p)))
+    const pkg = this._moduleCache.getPackage(file);
+    return pkg.isHaste()
+      .then(isHaste => {
+        if (!isHaste) {
+          return;
+        }
+        return pkg.getName().then(name =>
+          this._updateHasteMap(name, pkg))
+      })
       .fail(e => {
         if (e instanceof SyntaxError) {
           // Malformed package.json.

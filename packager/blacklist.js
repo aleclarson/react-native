@@ -9,43 +9,47 @@
 'use strict';
 
 var path = require('path');
+var mm = require('micromatch');
+
+var sharedWhitelist = [
+  'react-native/node_modules/react-timer-mixin',
+];
 
 // Don't forget to everything listed here to `package.json`
 // modulePathIgnorePatterns.
 var sharedBlacklist = [
-  /node_modules[/\\]react[/\\]dist[/\\].*/,
-  'node_modules/react/lib/React.js',
-  'node_modules/react/lib/ReactDOM.js',
+  // /node_modules[/\\]react[/\\]dist[/\\].*/,
+  // 'react/lib/React.js',
+  // 'react/lib/ReactDOM.js',
 
   // For each of these fbjs files (especially the non-forks/stubs), we should
   // consider deleting the conflicting copy and just using the fbjs version.
   //
   // fbjs forks:
-  'node_modules/fbjs/lib/Map.js',
-  'node_modules/fbjs/lib/Promise.js',
-  'node_modules/fbjs/lib/fetch.js',
+  'fbjs/src/__forks__/Promise.js',
+  'fbjs/src/__forks__/URI.js',
+  'fbjs/src/__forks__/fetch.js',
   // fbjs stubs:
-  'node_modules/fbjs/lib/ErrorUtils.js',
-  'node_modules/fbjs/lib/URI.js',
+  'fbjs/src/stubs/ErrorUtils.js',
   // fbjs modules:
-  'node_modules/fbjs/lib/Deferred.js',
-  'node_modules/fbjs/lib/PromiseMap.js',
-  'node_modules/fbjs/lib/UserAgent.js',
-  'node_modules/fbjs/lib/areEqual.js',
-  'node_modules/fbjs/lib/base62.js',
-  'node_modules/fbjs/lib/crc32.js',
-  'node_modules/fbjs/lib/everyObject.js',
-  'node_modules/fbjs/lib/fetchWithRetries.js',
-  'node_modules/fbjs/lib/filterObject.js',
-  'node_modules/fbjs/lib/flattenArray.js',
-  'node_modules/fbjs/lib/forEachObject.js',
-  'node_modules/fbjs/lib/isEmpty.js',
-  'node_modules/fbjs/lib/nullthrows.js',
-  'node_modules/fbjs/lib/removeFromArray.js',
-  'node_modules/fbjs/lib/resolveImmediate.js',
-  'node_modules/fbjs/lib/someObject.js',
-  'node_modules/fbjs/lib/sprintf.js',
-  'node_modules/fbjs/lib/xhrSimpleDataSerializer.js',
+  'fbjs/src/core/Deferred.js',
+  'fbjs/src/core/PromiseMap.js',
+  'fbjs/src/core/areEqual.js',
+  'fbjs/src/core/flattenArray.js',
+  'fbjs/src/core/isEmpty.js',
+  'fbjs/src/core_windowless/removeFromArray.js',
+  'fbjs/src/core/resolveImmediate.js',
+  'fbjs/src/core/sprintf.js',
+  'fbjs/src/crypto/base62.js',
+  'fbjs/src/crypto/crc32.js',
+  'fbjs/src/fetch/fetchWithRetries.js',
+  'fbjs/src/functional/everyObject.js',
+  'fbjs/src/functional/filterObject.js',
+  'fbjs/src/functional/forEachObject.js',
+  'fbjs/src/functional/someObject.js',
+  'fbjs/src/request/xhrSimpleDataSerializer.js',
+  'fbjs/src/useragent/UserAgent.js',
+  'fbjs/src/utils/nullthrows.js',
 
   // Those conflicts with the ones in fbjs/. We need to blacklist the
   // internal version otherwise they won't work in open source.
@@ -68,45 +72,31 @@ var sharedBlacklist = [
   'downstream/core/invariant.js',
   'downstream/core/nativeRequestAnimationFrame.js',
   'downstream/core/toArray.js',
-
-  /website\/node_modules\/.*/,
 ];
 
 var platformBlacklists = {
-  web: [
-    '.ios.js',
-    '.android.js',
-  ],
-  ios: [
-    '.web.js',
-    '.android.js',
-  ],
-  android: [
-    '.web.js',
-    '.ios.js',
-  ],
+  web: '*.(ios|android).*',
+  ios: '*.(web|android).*',
+  android: '*.(web|ios).*',
 };
 
-function escapeRegExp(pattern) {
-  if (Object.prototype.toString.call(pattern) === '[object RegExp]') {
-    return pattern.source.replace(/\//g, path.sep);
-  } else if (typeof pattern === 'string') {
-    var escaped = pattern.replace(/[\-\[\]\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-    // convert the '/' into an escaped local file separator
-    return escaped.replace(/\//g,'\\' + path.sep);
-  } else {
-    throw new Error('Unexpected packager blacklist pattern: ' + pattern);
-  }
+function platformBlacklist(platform) {
+  const blacklist = platformBlacklists[platform];
+  return blacklist && mm.makeRe('**/' + blacklist);
 }
 
-function blacklist(platform, additionalBlacklist) {
-  return new RegExp('(' +
-    (additionalBlacklist || []).concat(sharedBlacklist)
-      .concat(platformBlacklists[platform] || [])
-      .map(escapeRegExp)
-      .join('|') +
-    ')$'
-  );
+function blacklist(patterns) {
+  patterns = patterns ? patterns.concat(sharedBlacklist) : sharedBlacklist;
+  return mm.makeRe('**/(' + patterns.join('|') + ')');
 }
 
-module.exports = blacklist;
+function whitelist(patterns) {
+  patterns = patterns ? patterns.concat(sharedWhitelist) : sharedWhitelist;
+  return mm.makeRe('**/(' + patterns.join('|') + ')');
+}
+
+module.exports = {
+  platformBlacklist: platformBlacklist,
+  blacklist: blacklist,
+  whitelist: whitelist,
+};

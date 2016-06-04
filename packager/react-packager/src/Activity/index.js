@@ -11,7 +11,7 @@
 const chalk = require('chalk');
 const events = require('events');
 
-const _eventStarts = Object.create(null);
+const _eventCache = Object.create(null);
 const _eventEmitter = new events.EventEmitter();
 
 let _uuid = 1;
@@ -19,8 +19,8 @@ let _enabled = true;
 
 function endEvent(eventId, quiet) {
   const eventEndTime = Date.now();
-  if (!_eventStarts[eventId]) {
-    throw new Error('event(' + eventId + ') either ended or never started');
+  if (!_eventCache[eventId]) {
+    throw new Error('Event named "' + eventId + '" either ended or never started!');
   }
 
   _writeAction({
@@ -35,7 +35,7 @@ function startEvent(eventName, data) {
   const eventStartTime = Date.now();
 
   if (eventName == null) {
-    throw new Error('No event name specified');
+    throw new Error('Must provide an "eventName"!');
   }
 
   if (data == null) {
@@ -50,7 +50,7 @@ function startEvent(eventName, data) {
     eventName: eventName,
     tstamp: eventStartTime,
   };
-  _eventStarts[eventId] = action;
+  _eventCache[eventId] = action;
   _writeAction(action);
 
   return eventId;
@@ -67,32 +67,36 @@ function _writeAction(action) {
     return;
   }
 
-  const data = action.data ? ': ' + JSON.stringify(action.data) : '';
-  const fmtTime = new Date(action.tstamp).toLocaleTimeString();
-
   switch (action.action) {
     case 'startEvent':
       log.moat(1);
-      log.gray.dim(fmtTime);
-      log.yellow(' START ');
-      log.gray.dim(action.eventName);
-      log.gray.dim(data);
+      log.yellow('[start]  ');
+      log.white(action.eventName);
+      if (action.data) {
+        log.moat(0);
+        log.plusIndent(2);
+        log.format(action.data, { compact: true });
+        log.popIndent();
+      }
       log.moat(1);
       break;
 
     case 'endEvent':
-      const startAction = _eventStarts[action.eventId];
-      const startData = startAction.data ? ': ' + JSON.stringify(startAction.data) : '';
+      const startAction = _eventCache[action.eventId];
       if (!action.quiet) {
         log.moat(1);
-        log.gray.dim(fmtTime);
-        log.red(' END   ');
-        log.gray.dim(startAction.eventName);
-        log.green(' ' + (action.tstamp - startAction.tstamp) + ' ms');
-        log.gray.dim(startData);
+        log.green('[finish] ');
+        log.white(startAction.eventName);
+        log.gray.dim(' ', action.tstamp - startAction.tstamp, ' ms');
+        if (startAction.data) {
+          log.moat(0);
+          log.plusIndent(2);
+          log.format(startAction.data, { compact: true });
+          log.popIndent();
+        }
         log.moat(1);
       }
-      delete _eventStarts[action.eventId];
+      delete _eventCache[action.eventId];
       break;
 
     default:

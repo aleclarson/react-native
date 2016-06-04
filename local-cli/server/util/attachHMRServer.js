@@ -86,16 +86,16 @@ function attachHMRServer({httpServer, path, packagerServer}) {
     path: path,
   });
 
-  log.moat(1)
-  log.white('Started HMR server: ')
-  log.yellow(path)
-  log.moat(1);
+  // log.moat(1)
+  // log.white('Started HMR server: ')
+  // log.yellow(path)
+  // log.moat(1);
 
   wss.on('connection', ws => {
 
-    log.moat(1)
-    log.white('HMR client connected!')
-    log.moat(1);
+    // log.moat(1)
+    // log.white('HMR client connected!')
+    // log.moat(1);
 
     const params = querystring.parse(url.parse(ws.upgradeReq.url).query);
 
@@ -232,10 +232,10 @@ function attachHMRServer({httpServer, path, packagerServer}) {
         });
 
         client.ws.on('error', e => {
-          log.moat(1)
-          log.red('HMR Error: ')
-          log.white(e.message)
-          log.moat(1);
+          // log.moat(1)
+          // log.red('HMR Error: ')
+          // log.white(e.message)
+          // log.moat(1);
           console.log(e.stack);
           disconnect();
         });

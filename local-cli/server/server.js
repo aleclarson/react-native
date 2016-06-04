@@ -28,41 +28,13 @@ const runServer = require('./runServer');
  */
 function server(argv, config) {
 
-  log.clear();
-  log.pushIndent(2);
-  log.moat(1);
+  const args = parseArgv(argv);
+  args.projectRoots = args.projectRoots
+    ? argToArray(args.projectRoots)
+    : config.getProjectRoots();
 
-  process.on('uncaughtException', error => {
-    console.log(error.message);
-    console.log(error.stack);
-    process.exit();
-  });
-
-  const Q = require('q');
-  return Q.promise((resolve, reject) => {
-
-    const args = parseArgv(argv);
-    args.projectRoots = args.projectRoots
-      ? argToArray(args.projectRoots)
-      : config.getProjectRoots();
-
-    checkNodeVersion();
-    startServer(args, config);
-  });
-}
-
-function _server(argv, config, resolve, reject) {
-
-}
-
-function startServer(args, config) {
-  var ip = require('ip');
-  runServer(args, config, () => {
-    log.moat(1);
-    log.white('Server started: ');
-    log.yellow('http://', ip.address(), ':', args.port);
-    log.moat(1);
-  });
+  checkNodeVersion();
+  return runServer(args, config);
 }
 
 function parseArgv() {

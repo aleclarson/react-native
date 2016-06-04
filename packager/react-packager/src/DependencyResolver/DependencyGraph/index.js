@@ -8,11 +8,12 @@
  */
 'use strict';
 
-const Q = require('q');
 const isAbsolutePath = require('absolute-path');
+const syncFs = require('io/sync');
 const sync = require('sync');
 const path = require('path');
 const util = require('util');
+const Q = require('q');
 
 const crawl = require('../crawlers');
 const Fastfs = require('../fastfs');
@@ -36,7 +37,7 @@ class DependencyGraph {
     projectExts,
     assetServer,
     activity,
-    ignoreFilePath,
+    getBlacklist,
     fileWatcher,
     providesModuleNodeModules,
     platforms,
@@ -52,7 +53,7 @@ class DependencyGraph {
       projectRoots,
       projectExts,
       activity: activity || defaultActivity,
-      ignoreFilePath: ignoreFilePath || (() => {}),
+      getBlacklist: getBlacklist || (() => null),
       fileWatcher,
       providesModuleNodeModules,
       platforms: platforms || [],
@@ -65,6 +66,7 @@ class DependencyGraph {
 
     this._cache = cache;
     this._assetServer = assetServer;
+    this._ignoreFilePath = this._opts.getBlacklist() || (() => false);
 
     this.load().fail((err) => {
       // This only happens at initialization. Live errors are easier to recover from.
@@ -92,13 +94,9 @@ class DependencyGraph {
       this._assetServer._assetExts,
     ]);
 
-    const ignorePath = (filepath) =>
-      this._opts.ignoreFilePath(filepath) ||
-        !this._shouldCrawlDir(filepath);
-
     this._crawling = crawl(roots, {
       exts: exts,
-      ignore: ignorePath,
+      ignore: this._ignoreFilePath,
       fileWatcher: this._opts.fileWatcher,
     });
 
@@ -110,7 +108,7 @@ class DependencyGraph {
       roots,
       this._opts.fileWatcher,
       {
-        ignore: ignorePath,
+        ignore: this._ignoreFilePath,
         crawling: this._crawling,
         activity: activity,
       }
@@ -123,12 +121,11 @@ class DependencyGraph {
     this._moduleCache = new ModuleCache(
       this._fastfs,
       this._cache,
-      this._opts.extractRequires,
-      this._helpers
+      this._opts.extractRequires
     );
 
     this._hasteMap = new HasteMap({
-      ignore: (file) => !this._shouldCrawlDir(file),
+      ignore: this._ignoreFilePath,
       fastfs: this._fastfs,
       extensions: this._opts.extensions,
       moduleCache: this._moduleCache,
@@ -138,8 +135,30 @@ class DependencyGraph {
     this._loading = this._fastfs.build()
       .then(() => {
         const hasteActivity = activity.startEvent('find haste modules');
-        return this._hasteMap.build()
-          .then(() => activity.endEvent(hasteActivity));
+        return this._hasteMap.build().then(() => {
+          const hasteModules = this._hasteMap._map;
+          const hasteModuleNames = Object.keys(hasteModules);
+
+          const json = {};
+          hasteModuleNames.forEach(moduleName => {
+            const map = hasteModules[moduleName];
+            const mod = map.generic || Object.keys(map)[0];
+            if (mod && mod.path) {
+              json[moduleName] = path.relative(lotus.path, mod.path);
+            }
+          });
+
+          syncFs.write(
+            lotus.path + '/.ReactNativeHasteMap.json',
+            JSON.stringify(json, null, 2)
+          );
+
+          log.moat(1);
+          log.white('Haste modules: ');
+          log.cyan(hasteModuleNames.length);
+          log.moat(1);
+          activity.endEvent(hasteActivity);
+        });
       })
       .then(() => {
         const assetActivity = activity.startEvent('find assets');
@@ -176,12 +195,13 @@ class DependencyGraph {
       const req = new ResolutionRequest({
         platform,
         preferNativePlatform: this._opts.preferNativePlatform,
+        projectExts: this._opts.projectExts,
         entryPath: absPath,
+        fastfs: this._fastfs,
         hasteMap: this._hasteMap,
         assetServer: this._assetServer,
-        helpers: this._helpers,
         moduleCache: this._moduleCache,
-        fastfs: this._fastfs,
+        ignoreFilePath: this._opts.getBlacklist(platform),
         shouldThrowOnUnresolvedErrors: this._opts.shouldThrowOnUnresolvedErrors,
       });
 
@@ -255,7 +275,7 @@ class DependencyGraph {
 
   _processFileChange(type, filePath, root, fstat) {
     const absPath = path.join(root, filePath);
-    if (!this._shouldCrawlDir(absPath)) {
+    if (!this._ignoreFilePath(absPath)) {
       return;
     }
 
@@ -282,20 +302,6 @@ class DependencyGraph {
       }
       return this._loading;
     });
-  }
-
-  _shouldCrawlDir(filePath) {
-    const internalRoots = this._opts.internalRoots;
-    for (let i = 0; i < internalRoots.length; i++) {
-      if (isDescendant(internalRoots[i], filePath)) {
-        filePath = path.relative(internalRoots[i], filePath);
-      }
-    }
-    const ignoredPatterns = globalConfig.ignoredPatterns;
-    if (ignoredPatterns && ignoredPatterns.test(filePath)) {
-      return false;
-    }
-    return true;
   }
 
   _mergeArrays(arrays) {

@@ -18,7 +18,7 @@ class Polyfill extends Module {
   getName() {
     return Q.try(() => {
       const name = this._id;
-      if (name[0] === '/') {
+      if (name[0] === path.sep) {
         return path.relative(lotus.path, name);
       }
       return name;

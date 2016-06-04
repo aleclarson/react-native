@@ -3,8 +3,6 @@
 const isAbsolutePath = require('absolute-path');
 const path = require('path');
 
-const REDIRECT_EXTS = ['', '.js', '.json'];
-
 class Package {
 
   constructor({ file, fastfs, cache }) {
@@ -17,14 +15,14 @@ class Package {
 
   getMain() {
     return this.read().then(json => {
-
-      let ext;
-      let main = json.main;
       const replacements = getReplacements(json);
+
+      let main = json.main;
       if (typeof replacements === 'string') {
         main = replacements;
       }
 
+      let ext;
       if (main) {
         ext = path.extname(main) || '.js';
         main = main.replace(/^\.\//, ''); // Remove leading dot-slash
@@ -64,40 +62,64 @@ class Package {
     this._cache.invalidate(this.path);
   }
 
-  redirectRequire(name) {
-    return this.read().then(json => {
-      var replacements = getReplacements(json);
+  redirectRequire(name, resolveFilePath) {
 
+    if (name[0] === '.') {
+      throw new Error('Relative paths are not supported!');
+    }
+
+    return this.read().then(json => {
+      let result;
+
+      const replacements = getReplacements(json);
       if (!replacements || typeof replacements !== 'object') {
         return name;
       }
 
-      if (name[0] !== '/') {
-        return replacements[name] || name;
+      // Module names can be redirected as is.
+      if (name[0] !== path.sep) {
+        result = replacements[name];
+        if (result !== undefined) {
+          return result;
+        }
+        return name;
       }
 
-      if (!isAbsolutePath(name)) {
-        throw new Error(`Expected ${name} to be absolute path`);
-      }
+      // Returns undefined if no replacement exists.
+      const redirect = (filePath) => {
+        filePath = replacements[filePath];
 
-      const relPath = './' + path.relative(this.root, name);
-
-      for (let i = 0; i < REDIRECT_EXTS.length; i++) {
-
-        let redirect = replacements[relPath + REDIRECT_EXTS[i]];
-
-        if (redirect === false) {
+        // Support disabling modules.
+        if (filePath === false) {
           return null;
         }
 
-        if (typeof redirect === 'string') {
-          return path.join(
-            this.root,
-            redirect
-          );
+        // Return an absolute path!
+        if (typeof filePath === 'string') {
+          return path.join(this.root, filePath);
         }
       }
 
+      // Redirect absolute paths, but first convert it to a
+      // path that is relative to the 'package.json' file!
+      const relPath = './' + path.relative(this.root, name);
+
+      // Try resolving as is.
+      result = redirect(relPath);
+      if (result !== undefined) {
+        return result;
+      }
+
+      // This hook can be used to try to resolve
+      // a relative path using different extensions.
+      if (typeof resolveFilePath === 'function') {
+        result = resolveFilePath(relPath, redirect);
+        if (result !== undefined) {
+          return result;
+        }
+      }
+
+      // No replacement found.
       return name;
     });
   }

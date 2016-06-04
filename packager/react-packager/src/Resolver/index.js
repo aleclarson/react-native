@@ -33,8 +33,9 @@ const validateOpts = declareOpts({
     type: 'object',
     required: true,
   },
-  blacklistRE: {
-    type: 'object', // typeof regex is object
+  getBlacklist: {
+    type: 'function',
+    default: () => null,
   },
   polyfillModuleNames: {
     type: 'array',
@@ -80,14 +81,12 @@ class Resolver {
       projectExts: opts.projectExts,
       assetServer: opts.assetServer,
       fileWatcher: opts.fileWatcher,
+      getBlacklist: opts.getBlacklist,
       cache: opts.cache,
       activity: Activity,
       platforms: ['ios', 'android'],
       preferNativePlatform: true,
       shouldThrowOnUnresolvedErrors: (_, platform) => platform === 'ios',
-      ignoreFilePath: function(filepath) {
-        return opts.blacklistRE && opts.blacklistRE.test(filepath);
-      },
     });
 
     this._polyfillModuleNames = opts.polyfillModuleNames || [];

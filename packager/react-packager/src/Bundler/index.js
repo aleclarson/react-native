@@ -45,8 +45,9 @@ const validateOpts = declareOpts({
     type: 'object',
     required: true,
   },
-  blacklistRE: {
-    type: 'object', // typeof regex is object
+  getBlacklist: {
+    type: 'function',
+    default: () => null,
   },
   moduleFormat: {
     type: 'string',
@@ -117,7 +118,7 @@ class Bundler {
       projectRoots: opts.projectRoots,
       projectExts: opts.projectExts,
       assetServer: opts.assetServer,
-      blacklistRE: opts.blacklistRE,
+      getBlacklist: opts.getBlacklist,
       polyfillModuleNames: opts.polyfillModuleNames,
       moduleFormat: opts.moduleFormat,
       fileWatcher: opts.fileWatcher,
@@ -133,7 +134,6 @@ class Bundler {
 
     this._transformer = new Transformer({
       projectRoots: opts.projectRoots,
-      blacklistRE: opts.blacklistRE,
       cache: this._cache,
       fastfs: this._resolver._depGraph._fastfs,
       transformModulePath: opts.transformModulePath,
@@ -176,7 +176,7 @@ class Bundler {
       { dev: isDev, platform, isUnbundle }
     );
 
-    return this.getDependencies(entryFile, isDev, platform).then((response) => {
+    return this.getDependencies(entryFile, isDev, platform).then(response => {
 
       // Prepend the module system polyfill to the top of dependencies
       const dependencies = moduleSystem.concat(response.dependencies);
@@ -184,7 +184,13 @@ class Bundler {
       // Promises that resolve into a name/path pair.
       const namedModules = dependencies.map(module => {
         return module.getName().then(name => {
-          return { name, path: path.relative(lotus.path, module.path) }
+          return {
+            name,
+            path: path.relative(
+              lotus.path,
+              module.path,
+            ),
+          }
         })
       });
 
@@ -193,13 +199,12 @@ class Bundler {
         response.numPrependedDependencies + moduleSystem.length
       );
 
-      return Q.all(namedModules)
-
-      .then(namedModules => {
+      return Q.all(namedModules).then(namedModules => {
 
         log.moat(1);
         log.white('Total dependencies: ');
-        log.yellow(dependencies.length);
+        log.yellow(dependencies.length -
+          (response.numPrependedDependencies + moduleSystem.length));
         log.moat(1);
 
         syncFs.write(

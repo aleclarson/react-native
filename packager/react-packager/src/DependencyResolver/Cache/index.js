@@ -168,20 +168,20 @@ class Cache {
 
   _loadCacheSync(cachePath) {
 
-    log.moat(1);
-    log.white('Loading cache: ');
-    log.green(cachePath);
-    log.moat(1);
+    // log.moat(1);
+    // log.white('Loading cache: ');
+    // log.green(cachePath);
+    // log.moat(1);
 
     var ret = Object.create(null);
     var cacheOnDisk = loadCacheSync(cachePath);
 
     var cacheKeys = Object.keys(cacheOnDisk);
-    log.moat(1);
-    log.white('Cache has ');
-    log.pink(cacheKeys.length);
-    log.white(' modules!');
-    log.moat(1);
+    // log.moat(1);
+    // log.white('Cache has ');
+    // log.pink(cacheKeys.length);
+    // log.white(' modules!');
+    // log.moat(1);
 
     // Filter outdated cache and convert to promises.
     cacheKeys.forEach(key => {

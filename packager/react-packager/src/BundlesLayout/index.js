@@ -149,7 +149,7 @@ class BundlesLayout {
     // const loadCacheId = Activity.startEvent('Loading Bundles Layout');
     const cacheOnDisk = loadCacheSync(cachePath);
 
-    // const cacheKeys = Object.keys(cacheOnDisk);
+    const cacheKeys = Object.keys(cacheOnDisk);
     // log.moat(1);
     // log.white('Bundles layout has ');
     // log.pink(cacheKeys.length);
@@ -183,10 +183,10 @@ class BundlesLayout {
       return this._persisting;
     }
 
-    log.moat(1);
-    log.white('Persisting bundles layout: ');
-    log.green(this._cacheFilePath);
-    log.moat(1);
+    // log.moat(1);
+    // log.white('Persisting bundles layout: ');
+    // log.green(this._cacheFilePath);
+    // log.moat(1);
 
     this._persisting = Q
       .all(_.values(this._layouts))

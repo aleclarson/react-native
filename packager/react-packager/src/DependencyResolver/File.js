@@ -109,7 +109,9 @@ class File {
         let isValid = isDir ? syncFs.isDir : syncFs.isFile;
         if (!isValid(newPath)) {
           let fileType = isDir ? 'directory' : 'file';
-          throw Error('"' + newPath + '" is not a ' + fileType + ' that exists.');
+          let error = Error('"' + newPath + '" is not a ' + fileType + ' that exists.');
+          error.code = 404;
+          throw error;
         }
         newFile = new File(newPath, { isDir: isDir });
         file.addChild(newFile);

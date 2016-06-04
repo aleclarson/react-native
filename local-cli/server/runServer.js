@@ -43,6 +43,14 @@ function runServer(args, config, readyCallback) {
   app.use(connect.logger())
     .use(connect.errorHandler());
 
+  log.clear();
+  log.moat(1);
+  log.pushIndent(2);
+  log.gray.dim('Listening...');
+  log.moat(0);
+  log.green('http://', require('ip').address(), ':', args.port);
+  log.moat(1);
+
   const serverInstance = http.createServer(app).listen(
     args.port,
     args.host,
@@ -55,7 +63,8 @@ function runServer(args, config, readyCallback) {
 
       wsProxy = webSocketProxy.attachToServer(serverInstance, '/debugger-proxy');
       webSocketProxy.attachToServer(serverInstance, '/devtools');
-      readyCallback();
+
+      readyCallback && readyCallback();
     }
   );
   // Disable any kind of automatic timeout behavior for incoming
@@ -65,35 +74,69 @@ function runServer(args, config, readyCallback) {
 }
 
 function getPackagerServer(args, config) {
-  let transformerPath = args.transformer;
-  if (!isAbsolutePath(transformerPath)) {
-    transformerPath = path.resolve(process.cwd(), transformerPath);
-  }
 
   const internalRoots = [
-    'Libraries',
-    '../react/src',
-    '../react/node_modules/fbjs',
-    'node_modules/react-timer-mixin',
-  ].map(internalPath =>
-    path.resolve(__dirname, '../../' + internalPath));
+    'fbjs/src',
+    'react/src',
+    'react-native/Libraries',
+    'react-native/node_modules/react-timer-mixin',
+  ].map(root => path.join(lotus.path, root));
+
+  const polyfillModuleNames = [
+    '../../Libraries/JavaScriptAppEngine/polyfills/document.js',
+  ].map(moduleName => require.resolve(moduleName));
+
+  const transformModulePath =
+    isAbsolutePath(args.transformer) ? args.transformer :
+    path.resolve(process.cwd(), args.transformer);
+
+  const projectRoots = args.projectRoots;
+  const projectExts = globalConfig.projectExts;
+  const assetExts = globalConfig.assetExts;
+
+  log.moat(1);
+  log.white('Watching: ');
+  log.plusIndent(2);
+  if (projectRoots.length) {
+    projectRoots.forEach(root => {
+      log.moat(0);
+      log.cyan(root);
+    });
+  } else {
+    log.gray.dim('(empty)');
+  }
+  log.popIndent();
+  log.moat(1);
+
+  log.moat(1);
+  log.white('Valid extensions: ');
+  log.plusIndent(2);
+  if (projectExts.length || assetExts.length) {
+    projectExts
+      .concat(assetExts)
+      .forEach(ext => {
+        log.moat(0);
+        log.yellow('.' + ext);
+      });
+  } else {
+    log.moat(0);
+    log.gray.dim('(empty)');
+  }
+  log.popIndent();
+  log.moat(1);
 
   return ReactPackager.createServer({
+    getBlacklist: (filePath) => globalConfig.getBlacklist(filePath),
     internalRoots: internalRoots,
-    projectRoots: args.projectRoots,
-    projectExts: globalConfig.projectExts,
-    assetExts: globalConfig.assetExts,
+    projectRoots: projectRoots,
+    projectExts: projectExts,
+    assetExts: assetExts,
     nonPersistent: args.nonPersistent,
-    blacklistRE: config.getBlacklistRE(),
     cacheVersion: '3',
-    getTransformOptionsModulePath: config.getTransformOptionsModulePath,
-    transformModulePath: transformerPath,
     resetCache: args.resetCache || args['reset-cache'],
-    polyfillModuleNames: [
-      require.resolve(
-        '../../Libraries/JavaScriptAppEngine/polyfills/document.js'
-      ),
-    ],
+    transformModulePath: transformModulePath,
+    getTransformOptionsModulePath: config.getTransformOptionsModulePath,
+    polyfillModuleNames: polyfillModuleNames,
     verbose: args.verbose,
   });
 }
