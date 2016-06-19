@@ -9,10 +9,10 @@
 'use strict';
 
 const Promise = require('Promise');
+const ReactPackager = require('react-packager');
 
 const log = require('../util/log').out('bundle');
 const outputBundle = require('./output/bundle');
-const ReactPackager = require('../../packager/react-packager');
 const saveAssets = require('./saveAssets');
 
 function buildBundle(args, config, output = outputBundle) {

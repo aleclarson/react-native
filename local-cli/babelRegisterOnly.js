@@ -16,9 +16,13 @@ var path = require('path');
 var _only = [];
 
 function readBabelRC() {
-  var rcpath = path.join(__dirname, 'react-packager', 'rn-babelrc.json');
-  var source = fs.readFileSync(rcpath).toString();
-  return JSON.parse(source);
+  var rcpath = path.join(__dirname, '..', '.babelrc');
+  var source = fs.readFileSync(
+    path.resolve(rcpath)
+  );
+  return JSON.parse(
+    source.toString()
+  );
 }
 
 module.exports = function(onlyList) {

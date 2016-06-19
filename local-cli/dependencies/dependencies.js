@@ -9,11 +9,12 @@
 'use strict';
 
 const fs = require('fs');
-const log = require('../util/log').out('dependencies');
-const parseCommandLine = require('../util/parseCommandLine');
 const path = require('path');
 const Promise = require('Promise');
-const ReactPackager = require('../../packager/react-packager');
+const ReactPackager = require('react-packager');
+
+const log = require('../util/log').out('dependencies');
+const parseCommandLine = require('../util/parseCommandLine');
 
 /**
  * Returns the dependencies an entry path has.
@@ -42,7 +43,7 @@ function _dependencies(argv, config, resolve, reject) {
     }, {
       command: 'transformer',
       type: 'string',
-      default: require.resolve('../../packager/transformer'),
+      default: require.resolve('react-packager/defaultTransform'),
       description: 'Specify a custom transformer to be used (absolute path)'
     }, {
       command: 'verbose',

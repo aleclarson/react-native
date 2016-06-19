@@ -54,7 +54,7 @@ function parseArgv() {
   }, {
     command: 'transformer',
     type: 'string',
-    default: require.resolve('../../packager/transformer'),
+    default: require.resolve('react-packager/defaultTransform'),
     description: 'Specify a custom transformer to be used (absolute path)'
   }, {
     command: 'resetCache',

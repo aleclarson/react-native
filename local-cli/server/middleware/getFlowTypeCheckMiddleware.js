@@ -8,10 +8,10 @@
  */
 'use strict';
 
+var url = require('url');
 var chalk = require('chalk');
 var exec = require('child_process').exec;
-var url = require('url');
-var Activity = require('../../../packager/react-packager').Activity;
+var Activity = require('react-packager').Activity;
 
 var hasWarned = {};
 

@@ -8,16 +8,13 @@
  */
 'use strict';
 
-require('../packager/babelRegisterOnly')([
+require('./babelRegisterOnly')([
   /local-cli/
 ]);
-
-require('./packager/dev');
 
 var bundle = require('./bundle/bundle');
 var childProcess = require('child_process');
 var Config = require('./util/Config');
-var defaultConfig = require('./default.config');
 var dependencies = require('./dependencies/dependencies');
 var generate = require('./generate/generate');
 var library = require('./library/library');
@@ -84,7 +81,7 @@ function run() {
     return;
   }
 
-  command[0](args, Config.get(__dirname, defaultConfig));
+  command[0](args);
 }
 
 function generateWrapper(args, config) {

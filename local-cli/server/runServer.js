@@ -17,8 +17,7 @@ const isAbsolutePath = require('absolute-path');
 const loadRawBodyMiddleware = require('./middleware/loadRawBodyMiddleware');
 const openStackFrameInEditorMiddleware = require('./middleware/openStackFrameInEditorMiddleware');
 const path = require('path');
-const ReactPackager = require('../../packager/react-packager');
-const globalConfig = require('../../packager/react-packager/src/GlobalConfig');
+const ReactPackager = require('react-packager');
 const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
 const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
 const webSocketProxy = require('./util/webSocketProxy.js');
@@ -86,9 +85,8 @@ function getPackagerServer(args, config) {
     isAbsolutePath(args.transformer) ? args.transformer :
     path.resolve(process.cwd(), args.transformer);
 
-  const projectRoots = args.projectRoots;
-  const projectExts = globalConfig.projectExts;
-  const assetExts = globalConfig.assetExts;
+  const { projectRoots } = args;
+  const { projectExts, assetExts } = ReactPackager.globalConfig;
 
   log.moat(1);
   log.white('Watching: ');
