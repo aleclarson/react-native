@@ -23,7 +23,7 @@ var generate = require('./generate/generate');
 var library = require('./library/library');
 var link = require('./library/link');
 var path = require('path');
-var Promise = require('promise');
+var Promise = require('Promise');
 var runAndroid = require('./runAndroid/runAndroid');
 var runIOS = require('./runIOS/runIOS');
 var server = require('./server/server');
@@ -111,7 +111,7 @@ function printUsage() {
 // The user should never get here because projects are inited by
 // using `react-native-cli` from outside a project directory.
 function printInitWarning() {
-  return Promise().then(function() {
+  return Promise.try(function() {
     console.log([
       'Looks like React Native project already exists in the current',
       'folder. Run this command from a different folder or remove node_modules/react-native'

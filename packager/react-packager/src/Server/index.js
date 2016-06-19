@@ -8,7 +8,6 @@
  */
 'use strict';
 
-const Promise = require('Promise');
 const _ = require('underscore');
 const mm = require('micromatch');
 const url = require('url');
@@ -121,15 +120,15 @@ const bundleOpts = declareOpts({
       'InitializeJavaScriptAppEngine'
     ],
   },
-  refresh: {
-    type: 'boolean',
-    default: false,
-  },
   unbundle: {
     type: 'boolean',
     default: false,
   },
   hot: {
+    type: 'boolean',
+    default: false,
+  },
+  entryModuleOnly: {
     type: 'boolean',
     default: false,
   },
@@ -147,6 +146,10 @@ const dependencyOpts = declareOpts({
   entryFile: {
     type: 'string',
     required: true,
+  },
+  recursive: {
+    type: 'boolean',
+    default: true,
   },
 });
 
@@ -274,6 +277,18 @@ class Server {
     return this._bundler.getModuleForPath(entryFile);
   }
 
+  buildBundleForHMR(modules) {
+    return this._bundler.bundleForHMR(modules);
+  }
+
+  getShallowDependencies(entryFile) {
+    return this._bundler.getShallowDependencies(entryFile);
+  }
+
+  getModuleForPath(entryFile) {
+    return this._bundler.getModuleForPath(entryFile);
+  }
+
   getDependencies(options) {
     return Promise.try(() => {
       if (!options.platform) {
@@ -285,6 +300,7 @@ class Server {
         opts.entryFile,
         opts.dev,
         opts.platform,
+        opts.recursive,
       );
     });
   }
@@ -299,9 +315,24 @@ class Server {
   _onFileChange(type, filepath, root) {
     const absPath = path.join(root, filepath);
     this._bundler.invalidateFile(absPath);
+
+    // If Hot Loading is enabled avoid rebuilding bundles and sending live
+    // updates. Instead, send the HMR updates right away and clear the bundles
+    // cache so that if the user reloads we send them a fresh bundle
+    if (this._hmrFileChangeListener) {
+      // Clear cached bundles in case user reloads
+      this._clearBundles();
+      this._hmrFileChangeListener(absPath, this._bundler.stat(absPath));
+      return;
+    }
+
     // Make sure the file watcher event runs through the system before
     // we rebuild the bundles.
     this._debouncedFileChangeHandler(absPath);
+  }
+
+  _clearBundles() {
+    this._bundles = Object.create(null);
   }
 
   _rebuildBundles() {
@@ -419,6 +450,10 @@ class Server {
     const entryFile = path.join(dir, pathname) + '.' + platform + '.js';
     const sourceMapUrl = '/' + pathname + '.map' + reqUrl.slice(reqUrl.indexOf('?'));
 
+    // try to get the platform from the url
+    const platform = urlObj.query.platform ||
+      getPlatformExtension(pathname);
+
     return {
       platform,
       entryFile,
@@ -432,6 +467,11 @@ class Server {
         urlObj.query,
         'inlineSourceMap',
         false
+      ),
+      entryModuleOnly: this._getBoolOptionFromQuery(
+        urlObj.query,
+        'entryModuleOnly',
+        false,
       ),
     };
   }

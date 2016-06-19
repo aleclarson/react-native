@@ -9,10 +9,10 @@
 'use strict';
 
 const fs = require('fs');
-const Promise = require('promise');
+const Promise = require('Promise');
 
 function writeFile(file, data, encoding) {
-  return new Promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
     fs.writeFile(
       file,
       data,

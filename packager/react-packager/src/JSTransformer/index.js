@@ -68,6 +68,7 @@ class Transformer {
 
     this._cache = opts.cache;
     this._fastfs = opts.fastfs;
+    this._projectRoots = opts.projectRoots;
     this._transformModulePath = opts.transformModulePath;
 
     if (opts.transformModulePath != null) {
@@ -81,8 +82,8 @@ class Transformer {
         fs.writeFileSync(
           this._workerWrapperPath,
           `
-          module.exports = require(${workerModulePath});
-          require(${transformModulePath});
+          module.exports = require(${JSON.stringify(require.resolve('./worker'))});
+          require(${JSON.stringify(String(opts.transformModulePath))});
           `
         );
       }
@@ -131,6 +132,7 @@ class Transformer {
             filename: filePath,
             options: {
               ...options,
+              projectRoots: this._projectRoots,
               externalTransformModulePath: this._transformModulePath,
             },
           }).then(res => {

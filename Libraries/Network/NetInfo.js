@@ -12,7 +12,6 @@
 'use strict';
 
 const Map = require('Map');
-const Promise = require('Promise');
 const Platform = require('Platform');
 const NativeModules = require('NativeModules');
 const RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
@@ -78,7 +77,7 @@ const _isConnectedSubscriptions = new Map();
  * NetInfo exposes info about online/offline status
  *
  * ```
- * NetInfo.fetch().done((reach) => {
+ * NetInfo.fetch().then((reach) => {
  *   console.log('Initial: ' + reach);
  * });
  * function handleFirstConnectivityChange(reach) {
@@ -147,7 +146,7 @@ const _isConnectedSubscriptions = new Map();
  * internet connectivity.
  *
  * ```
- * NetInfo.isConnected.fetch().done((isConnected) => {
+ * NetInfo.isConnected.fetch().then((isConnected) => {
  *   console.log('First, is ' + (isConnected ? 'online' : 'offline'));
  * });
  * function handleFirstConnectivityChange(isConnected) {

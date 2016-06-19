@@ -9,7 +9,7 @@
 'use strict';
 
 const fs = require('fs');
-const Promise = require('promise');
+const Promise = require('Promise');
 const writeSourceMap = require('./write-sourcemap');
 
 const MAGIC_UNBUNDLE_FILE_HEADER = require('./magic-number');
@@ -53,7 +53,7 @@ const nullByteBuffer = Buffer(1).fill(0);
 
 function writeBuffers(stream, buffers) {
   buffers.forEach(buffer => stream.write(buffer));
-  return new Promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
     stream.on('error', reject);
     stream.on('finish', () => resolve());
     stream.end();
@@ -76,7 +76,7 @@ function uInt32Buffer(n) {
 
 function buildModuleTable(buffers) {
   // table format:
-  //  - table_length: uint_32 length of all table entries in bytes
+  //  - table_length: uint_32 length of all table entries in bytes + the table length itself
   //  - entries: entry...
   //
   // entry:

@@ -25,7 +25,6 @@ function buildBundle(args, config, output = outputBundle) {
     const options = {
       projectRoots: config.getProjectRoots(),
       assetRoots: config.getAssetRoots(),
-      blacklistRE: config.getBlacklistRE(),
       getTransformOptionsModulePath: config.getTransformOptionsModulePath,
       transformModulePath: args.transformer,
       verbose: args.verbose,

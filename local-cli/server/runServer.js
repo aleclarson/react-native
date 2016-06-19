@@ -39,8 +39,6 @@ function runServer(args, config, readyCallback) {
     .use(statusPageMiddleware)
     .use(systraceProfileMiddleware)
     .use(cpuProfilerMiddleware)
-    // Temporarily disable flow check until it's more stable
-    //.use(getFlowTypeCheckMiddleware(args))
     .use(packagerServer.processRequest.bind(packagerServer));
 
   args.projectRoots.forEach(root => app.use(connect.static(root)));
@@ -84,10 +82,6 @@ function getPackagerServer(args, config) {
     'react-native/node_modules/react-timer-mixin',
   ].map(root => path.join(lotus.path, root));
 
-  const polyfillModuleNames = [
-    '../../Libraries/JavaScriptAppEngine/polyfills/document.js',
-  ].map(moduleName => require.resolve(moduleName));
-
   const transformModulePath =
     isAbsolutePath(args.transformer) ? args.transformer :
     path.resolve(process.cwd(), args.transformer);
@@ -128,17 +122,16 @@ function getPackagerServer(args, config) {
   log.moat(1);
 
   return ReactPackager.createServer({
-    getBlacklist: (filePath) => globalConfig.getBlacklist(filePath),
+    cacheVersion: '3',
     internalRoots: internalRoots,
     projectRoots: projectRoots,
     projectExts: projectExts,
     assetExts: assetExts,
+    getBlacklist: (filePath) => globalConfig.getBlacklist(filePath),
     nonPersistent: args.nonPersistent,
-    cacheVersion: '3',
     resetCache: args.resetCache || args['reset-cache'],
     transformModulePath: transformModulePath,
     getTransformOptionsModulePath: config.getTransformOptionsModulePath,
-    polyfillModuleNames: polyfillModuleNames,
     verbose: args.verbose,
   });
 }

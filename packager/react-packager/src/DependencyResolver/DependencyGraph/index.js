@@ -8,22 +8,23 @@
  */
 'use strict';
 
+const Fastfs = require('./fastfs');
+const ModuleCache = require('../ModuleCache');
+const crawl = require('../crawlers');
+const getPlatformExtension = require('../lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
+const globalConfig = require('../../GlobalConfig');
+const ResolutionRequest = require('./ResolutionRequest');
+const ResolutionResponse = require('./ResolutionResponse');
+const HasteMap = require('./HasteMap');
+const DeprecatedAssetMap = require('./DeprecatedAssetMap');
+
 const syncFs = require('io/sync');
 const sync = require('sync');
 const path = require('path');
 const util = require('util');
-const Promise = require('Promise');
 
-const crawl = require('../crawlers');
-const Fastfs = require('../fastfs');
-const HasteMap = require('./HasteMap');
-const ModuleCache = require('../ModuleCache');
-const globalConfig = require('../../GlobalConfig');
-const isDescendant = require('../../lib/isDescendant');
-const ResolutionRequest = require('./ResolutionRequest');
-const ResolutionResponse = require('./ResolutionResponse');
-const getPlatformExtension = require('../lib/getPlatformExtension');
+const ERROR_BUILDING_DEP_GRAPH = 'DependencyGraphError';
 
 const defaultActivity = {
   startEvent: () => {},
@@ -43,9 +44,9 @@ class DependencyGraph {
     platforms,
     preferNativePlatform,
     cache,
-    extensions,
     mocksPattern,
     extractRequires,
+    transformCode,
     shouldThrowOnUnresolvedErrors = () => true,
   }) {
     this._opts = {
@@ -58,22 +59,15 @@ class DependencyGraph {
       providesModuleNodeModules,
       platforms: platforms || [],
       preferNativePlatform: preferNativePlatform || false,
-      extensions: extensions || ['js', 'jsx', 'json'],
       mocksPattern,
       extractRequires,
       shouldThrowOnUnresolvedErrors,
+      transformCode,
     };
 
     this._cache = cache;
     this._assetServer = assetServer;
     this._ignoreFilePath = this._opts.getBlacklist() || (() => false);
-
-    this.load().fail((err) => {
-      // This only happens at initialization. Live errors are easier to recover from.
-      console.log('Error building DependencyGraph:\n');
-      console.log(err.stack);
-      process.exit(1);
-    });
   }
 
   load() {
@@ -118,16 +112,17 @@ class DependencyGraph {
 
     this._fastfs.on('change', this._processFileChange.bind(this));
 
-    this._moduleCache = new ModuleCache(
-      this._fastfs,
-      this._cache,
-      this._opts.extractRequires
-    );
+    this._moduleCache = new ModuleCache({
+      fastfs: this._fastfs,
+      cache: this._cache,
+      extractRequires: this._opts.extractRequires,
+      transformCode: this._opts.transformCode,
+    });
 
     this._hasteMap = new HasteMap({
       ignore: this._ignoreFilePath,
       fastfs: this._fastfs,
-      extensions: this._opts.extensions,
+      extensions: this._opts.projectExts,
       moduleCache: this._moduleCache,
       preferNativePlatform: this._opts.preferNativePlatform,
     });
@@ -165,6 +160,7 @@ class DependencyGraph {
         this._assetServer._build(this._fastfs);
         activity.endEvent(assetActivity);
       });
+    });
 
     return this._loading;
   }
@@ -177,8 +173,8 @@ class DependencyGraph {
     return this._moduleCache.getModule(entryPath).getDependencies();
   }
 
-  stat(filePath) {
-    return this._fastfs.stat(filePath);
+  getFS() {
+    return this._fastfs;
   }
 
   /**
@@ -188,7 +184,11 @@ class DependencyGraph {
     return this._moduleCache.getModule(entryFile);
   }
 
-  getDependencies(entryPath, platform) {
+  getAllModules() {
+    return this.load().then(() => this._moduleCache.getAllModules());
+  }
+
+  getDependencies(entryPath, platform, recursive = true) {
     return this.load().then(() => {
       platform = this._getRequestPlatform(entryPath, platform);
       const absPath = this._getAbsolutePath(entryPath);
@@ -208,17 +208,16 @@ class DependencyGraph {
       const response = new ResolutionResponse();
 
       return Promise.all([
-        req.getOrderedDependencies(response, this._opts.mocksPattern),
+        req.getOrderedDependencies(
+          response,
+          this._opts.mocksPattern,
+          recursive,
+        ),
         req.getAsyncDependencies(response),
       ])
 
       .then(() => response);
     });
-  }
-
-  // Forces all modules to reload their contents on the next bundle request.
-  refreshModuleCache() {
-    this._moduleCache.refresh();
   }
 
   getDebugInfo() {

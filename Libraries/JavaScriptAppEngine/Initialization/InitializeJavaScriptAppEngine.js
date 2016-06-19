@@ -22,16 +22,16 @@
 /* eslint strict: 0 */
 /* globals GLOBAL: true, window: true */
 
-require('regenerator-runtime/runtime');
+require('regenerator/runtime');
 
 require('isReactNative').set(true);
 
 if (typeof GLOBAL === 'undefined') {
-  GLOBAL = this;
+  global.GLOBAL = this;
 }
 
 if (typeof window === 'undefined') {
-  window = GLOBAL;
+  global.window = GLOBAL;
 }
 
 if (typeof window.global === 'undefined') {
@@ -66,8 +66,35 @@ function polyfillGlobal(name, newValue, scope = GLOBAL) {
     var backupName = `original${name[0].toUpperCase()}${name.substr(1)}`;
     Object.defineProperty(scope, backupName, {...descriptor, value: scope[name]});
   }
+=======
 
   Object.defineProperty(scope, name, {...descriptor, value: newValue});
+}
+
+/**
+ * Polyfill a module if it is not already defined in `scope`.
+ */
+function polyfillIfNeeded(name, polyfill, scope = GLOBAL, descriptor = {}) {
+  if (scope[name] === undefined) {
+    Object.defineProperty(scope, name, {...descriptor, value: polyfill});
+  }
+}
+
+function setUpErrorHandler() {
+  if (global.__fbDisableExceptionsManager) {
+    return;
+  }
+
+  function handleError(e, isFatal) {
+    try {
+      require('ExceptionsManager').handleException(e, isFatal);
+    } catch (ee) {
+      console.log('Failed to print error: ', ee.message);
+    }
+  }
+
+  var ErrorUtils = require('ErrorUtils');
+  ErrorUtils.setGlobalHandler(handleError);
 }
 
 /**
@@ -142,8 +169,17 @@ function setUpAnimated() {
 }
 
 function setUpGeolocation() {
-  GLOBAL.navigator = GLOBAL.navigator || {};
+  polyfillIfNeeded('navigator', {}, GLOBAL, {
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
   polyfillGlobal('geolocation', require('Geolocation'), GLOBAL.navigator);
+}
+
+function setUpMapAndSet() {
+  polyfillGlobal('Map', require('Map'));
+  polyfillGlobal('Set', require('Set'));
 }
 
 function setUpProduct() {
@@ -171,9 +207,9 @@ function setUpProcessEnv() {
 }
 
 function setUpNumber() {
-  Number.EPSILON = Number.EPSILON || Math.pow(2, -52);
-  Number.MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
-  Number.MIN_SAFE_INTEGER = Number.MIN_SAFE_INTEGER || -(Math.pow(2, 53) - 1);
+  polyfillIfNeeded('EPSILON', Math.pow(2, -52), Number);
+  polyfillIfNeeded('MAX_SAFE_INTEGER', Math.pow(2, 53) - 1, Number);
+  polyfillIfNeeded('MIN_SAFE_INTEGER', -(Math.pow(2, 53) - 1), Number);
 }
 
 function setUpDevTools() {
@@ -190,12 +226,14 @@ setUpProcessEnv();
 setUpTimers();
 setUpAlert();
 setUpPromise();
+setUpErrorHandler();
 setUpXHR();
 setUpFailure();
 setUpProperty();
 setUpBuilder();
 setUpAnimated();
 setUpGeolocation();
+setUpMapAndSet();
 setUpProduct();
 setUpWebSockets();
 setUpProfile();

@@ -9,10 +9,12 @@
 'use strict';
 
 // TODO: Support globally installed 'lotus'
-require(process.env.LOTUS_PATH + '/lotus');
+process.env.LOTUS_PATH && require(process.env.LOTUS_PATH + '/lotus');
 
 const checkNodeVersion = require('./checkNodeVersion');
 const formatBanner = require('./formatBanner');
+const path = require('path');
+const Promise = require('Promise');
 const runServer = require('./runServer');
 
 /**

@@ -9,12 +9,12 @@
 'use strict';
 
 const path = require('path');
+const Promise = require('Promise');
 const Activity = require('../Activity');
 const DependencyGraph = require('../DependencyResolver/DependencyGraph');
 const replacePatterns = require('../DependencyResolver/lib/replacePatterns');
 const Polyfill = require('../DependencyResolver/Polyfill');
 const declareOpts = require('../lib/declareOpts');
-const Promise = require('Promise');
 
 const validateOpts = declareOpts({
   internalRoots: {
@@ -68,6 +68,10 @@ const getDependenciesValidateOpts = declareOpts({
     type: 'boolean',
     default: false
   },
+  recursive: {
+    type: 'boolean',
+    default: true,
+  },
 });
 
 class Resolver {
@@ -90,6 +94,13 @@ class Resolver {
     });
 
     this._polyfillModuleNames = opts.polyfillModuleNames || [];
+
+    this._depGraph.load().fail((err) => {
+      // This only happens at initialization. Live errors are easier to recover from.
+      console.log('Error building DependencyGraph:\n');
+      console.log(err.stack);
+      process.exit(1);
+    });
   }
 
   getShallowDependencies(entryFile) {
@@ -97,7 +108,7 @@ class Resolver {
   }
 
   stat(filePath) {
-    return this._depGraph.stat(filePath);
+    return this._depGraph.getFS().stat(filePath);
   }
 
   getModuleForPath(entryFile) {
@@ -107,15 +118,17 @@ class Resolver {
   getDependencies(main, options) {
     const opts = getDependenciesValidateOpts(options);
 
-    return this._depGraph.getDependencies(main, opts.platform).then(
-      resolutionResponse => {
-        this._getPolyfillDependencies().reverse().forEach(
-          polyfill => resolutionResponse.prependDependency(polyfill)
-        );
+    return this._depGraph.getDependencies(
+      main,
+      opts.platform,
+      opts.recursive,
+    ).then(resolutionResponse => {
+      this._getPolyfillDependencies().reverse().forEach(
+        polyfill => resolutionResponse.prependDependency(polyfill)
+      );
 
-        return resolutionResponse.finalize();
-      }
-    );
+      return resolutionResponse.finalize();
+    });
   }
 
   getModuleSystemDependencies(options) {
@@ -147,6 +160,7 @@ class Resolver {
       path.join(__dirname, 'polyfills/String.prototype.es6.js'),
       path.join(__dirname, 'polyfills/Array.prototype.es6.js'),
       path.join(__dirname, 'polyfills/Array.es6.js'),
+      path.join(__dirname, 'polyfills/Object.es7.js'),
       path.join(__dirname, 'polyfills/babelHelpers.js'),
     ].concat(this._polyfillModuleNames);
 
@@ -210,9 +224,10 @@ class Resolver {
   }
 
   wrapModule(resolutionResponse, module, code) {
-
     if (module.isPolyfill()) {
-      return Promise({ code });
+      return Promise({
+        code: definePolyfillCode(code),
+      });
     }
 
     return this.resolveRequires(resolutionResponse, module, code)
@@ -224,34 +239,39 @@ class Resolver {
   getDebugInfo() {
     return this._depGraph.getDebugInfo();
   }
-
-  refreshModuleCache() {
-    return this._depGraph.refreshModuleCache();
-  }
 }
-
-const quoteWrap = function(string) { return '\'' + string + '\'' };
 
 const moduleArgNames = ['global', 'require', 'module', 'exports'].join (', ');
 
 function defineModuleCode(moduleName, code) {
 
   // Indent each line in the code block.
-  code = code.split(log.ln)
+  code = code
+    .split(log.ln)
     .map(code => '  ' + code)
     .join(log.ln);
 
   return [
-    '__d(',
+    `__d(`,
     quoteWrap(moduleName),
-    ', function(',
-    moduleArgNames,
-    ') {',
+    `, function(${moduleArgNames}) {`,
     log.ln,
     code,
     log.ln,
-    '});',
+    `});`,
   ].join('');
+}
+
+function definePolyfillCode(code) {
+  return [
+    '(function(global) {',
+    code,
+    `\n})(typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : this);`,
+  ].join('');
+}
+
+function quoteWrap(string) {
+  return '\'' + string + '\'';
 }
 
 module.exports = Resolver;

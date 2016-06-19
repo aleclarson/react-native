@@ -1,6 +1,5 @@
 
-require('../packager/babelRegisterOnly')([
-  /private-cli\/src/,
+require('./babelRegisterOnly')([
   /local-cli/
 ]);
 
