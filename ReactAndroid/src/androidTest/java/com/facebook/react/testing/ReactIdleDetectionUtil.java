@@ -36,6 +36,7 @@ public class ReactIdleDetectionUtil {
       long timeoutMs) {
     UiThreadUtil.assertNotOnUiThread();
 
+<<<<<<< HEAD
     long startTime = SystemClock.elapsedRealtime();
     waitInner(idleSignaler, timeoutMs);
 
@@ -46,6 +47,18 @@ public class ReactIdleDetectionUtil {
     timeToWait = Math.max(1, timeoutMs - (SystemClock.elapsedRealtime() - startTime));
     waitInner(idleSignaler, timeToWait);
     timeToWait = Math.max(1, timeoutMs - (SystemClock.elapsedRealtime() - startTime));
+=======
+    long startTime = SystemClock.uptimeMillis();
+    waitInner(idleSignaler, timeoutMs);
+
+    long timeToWait = Math.max(1, timeoutMs - (SystemClock.uptimeMillis() - startTime));
+    waitForChoreographer(timeToWait);
+    waitForJSIdle(reactContext);
+
+    timeToWait = Math.max(1, timeoutMs - (SystemClock.uptimeMillis() - startTime));
+    waitInner(idleSignaler, timeToWait);
+    timeToWait = Math.max(1, timeoutMs - (SystemClock.uptimeMillis() - startTime));
+>>>>>>> 0.20-stable
     waitForChoreographer(timeToWait);
   }
 
@@ -108,15 +121,25 @@ public class ReactIdleDetectionUtil {
   private static void waitInner(ReactBridgeIdleSignaler idleSignaler, long timeToWait) {
     // TODO gets broken in gradle, do we need it?
     Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+<<<<<<< HEAD
     long startTime = SystemClock.elapsedRealtime();
     boolean bridgeWasIdle = false;
     while (SystemClock.elapsedRealtime() - startTime < timeToWait) {
+=======
+    long startTime = SystemClock.uptimeMillis();
+    boolean bridgeWasIdle = false;
+    while (SystemClock.uptimeMillis() - startTime < timeToWait) {
+>>>>>>> 0.20-stable
       boolean bridgeIsIdle = idleSignaler.isBridgeIdle();
       if (bridgeIsIdle && bridgeWasIdle) {
         return;
       }
       bridgeWasIdle = bridgeIsIdle;
+<<<<<<< HEAD
       long newTimeToWait = Math.max(1, timeToWait - (SystemClock.elapsedRealtime() - startTime));
+=======
+      long newTimeToWait = Math.max(1, timeToWait - (SystemClock.uptimeMillis() - startTime));
+>>>>>>> 0.20-stable
       idleSignaler.waitForIdle(newTimeToWait);
       instrumentation.waitForIdleSync();
     }

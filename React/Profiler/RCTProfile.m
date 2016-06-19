@@ -81,7 +81,11 @@ static systrace_arg_t *RCTProfileSystraceArgsFromNSDictionary(NSDictionary *args
     systrace_args[i].key = keyc;
     systrace_args[i].key_len = (int)strlen(keyc);
 
+<<<<<<< HEAD
     const char *valuec = RCTJSONStringify(value, nil).UTF8String;
+=======
+    const char *valuec = RCTJSONStringify(value, NULL).UTF8String;
+>>>>>>> 0.20-stable
     systrace_args[i].value = valuec;
     systrace_args[i].value_len = (int)strlen(valuec);
     i++;
@@ -472,7 +476,10 @@ void _RCTProfileBeginEvent(
   NSMutableArray *events = RCTProfileGetThreadEvents(calleeThread);
   [events addObject:@[
     RCTProfileTimestamp(time),
+<<<<<<< HEAD
     @(tag),
+=======
+>>>>>>> 0.20-stable
     name,
     RCTNullIfNil(args),
   ]];
@@ -507,12 +514,20 @@ void _RCTProfileEndEvent(
 
   RCTProfileAddEvent(RCTProfileTraceEvents,
     @"tid": threadName,
+<<<<<<< HEAD
     @"name": event[2],
+=======
+    @"name": event[1],
+>>>>>>> 0.20-stable
     @"cat": category,
     @"ph": @"X",
     @"ts": start,
     @"dur": @(RCTProfileTimestamp(time).doubleValue - start.doubleValue),
+<<<<<<< HEAD
     @"args": RCTProfileMergeArgs(event[3], args),
+=======
+    @"args": RCTProfileMergeArgs(event[2], args),
+>>>>>>> 0.20-stable
   );
 }
 
@@ -548,6 +563,10 @@ void RCTProfileEndAsyncEvent(
   NSString *category,
   NSUInteger cookie,
   NSString *name,
+<<<<<<< HEAD
+=======
+  NSString *threadName,
+>>>>>>> 0.20-stable
   NSDictionary *args
 ) {
   CHECK();
@@ -558,7 +577,10 @@ void RCTProfileEndAsyncEvent(
   }
 
   NSTimeInterval time = CACurrentMediaTime();
+<<<<<<< HEAD
   NSString *threadName = RCTCurrentThreadName();
+=======
+>>>>>>> 0.20-stable
 
   dispatch_async(RCTProfileGetQueue(), ^{
     NSArray *event = RCTProfileOngoingEvents[@(cookie)];

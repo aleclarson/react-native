@@ -12,7 +12,6 @@
 'use strict';
 
 const Map = require('Map');
-const Promise = require('Promise');
 const Platform = require('Platform');
 const NativeModules = require('NativeModules');
 const RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');

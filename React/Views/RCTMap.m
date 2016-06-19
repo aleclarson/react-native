@@ -199,6 +199,7 @@ const CGFloat RCTMapZoomBoundBuffer = 0.01;
 
   if (overlaysToDelete.count) {
     [self removeOverlays:(NSArray<id<MKOverlay>> *)overlaysToDelete];
+<<<<<<< HEAD
   }
 
   if (overlaysToAdd.count) {
@@ -207,6 +208,29 @@ const CGFloat RCTMapZoomBoundBuffer = 0.01;
   }
 
   self.overlayIDs = newOverlayIDs;
+=======
+  }
+
+  if (overlaysToAdd.count) {
+    [self addOverlays:(NSArray<id<MKOverlay>> *)overlaysToAdd
+                level:MKOverlayLevelAboveRoads];
+  }
+
+  self.overlayIDs = newOverlayIDs;
+}
+
+- (BOOL)showsCompass {
+  if ([MKMapView instancesRespondToSelector:@selector(showsCompass)]) {
+    return super. showsCompass;
+  }
+  return NO;
+}
+
+- (void)setShowsCompass:(BOOL)showsCompass {
+  if ([MKMapView instancesRespondToSelector:@selector(setShowsCompass:)]) {
+    super.showsCompass = showsCompass;
+  }
+>>>>>>> 0.20-stable
 }
 
 @end

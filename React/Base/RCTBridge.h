@@ -199,7 +199,10 @@ __deprecated_msg("Use RCTDidInitializeModuleNotification to observe init of indi
  */
 @property (nonatomic, copy, readonly) NSDictionary *modules
 __deprecated_msg("Use moduleClasses and/or moduleForName: instead");
+<<<<<<< HEAD
 
 - (void)reloadWithCallback:(RCTResponseSenderBlock)callback;
+=======
+>>>>>>> 0.20-stable
 
 @end

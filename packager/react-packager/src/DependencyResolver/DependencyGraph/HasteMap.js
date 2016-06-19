@@ -8,10 +8,8 @@
  */
 'use strict';
 
-const log = require('log');
 const path = require('path');
 const inArray = require('in-array');
-const Promise = require('Promise');
 const getPlatformExtension = require('../lib/getPlatformExtension');
 
 const GENERIC_PLATFORM = 'generic';
@@ -135,14 +133,20 @@ class HasteMap {
     const modulePlatform = getPlatformExtension(mod.path) || GENERIC_PLATFORM;
     const existingModule = moduleMap[modulePlatform];
 
-    if (existingModule && existingModule.type === 'Module') {
-      if (existingModule.path !== mod.path) {
-        throw new Error(
-          `Naming collision detected: ${mod.path} ` +
-          `collides with ${existingModule.path}`
-        );
+    if (existingModule.path !== mod.path) {
+
+      // Allow modules to override their packages.
+      if (existingModule && existingModule.type === 'Package') {
+        if (mod.type === 'Module') {
+          moduleMap[modulePlatform] = mod;
+          return;
+        }
       }
-      return;
+
+      throw new Error(
+        `Naming collision detected: ${mod.path} ` +
+        `collides with ${existingModule.path}`
+      );
     }
 
     moduleMap[modulePlatform] = mod;

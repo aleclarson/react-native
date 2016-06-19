@@ -118,8 +118,31 @@ RCT_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncod
 
 + (NSURLRequest *)NSURLRequest:(id)json
 {
-  NSURL *URL = [self NSURL:json];
-  return URL ? [NSURLRequest requestWithURL:URL] : nil;
+  if ([json isKindOfClass:[NSString class]]) {
+    NSURL *URL = [self NSURL:json];
+    return URL ? [NSURLRequest requestWithURL:URL] : nil;
+  }
+  if ([json isKindOfClass:[NSDictionary class]]) {
+    NSURL *URL = [self NSURL:json[@"uri"] ?: json[@"url"]];
+    if (!URL) {
+      return nil;
+    }
+    NSData *body = [self NSData:json[@"body"]];
+    NSString *method = [self NSString:json[@"method"]].uppercaseString ?: @"GET";
+    NSDictionary *headers = [self NSDictionary:json[@"headers"]];
+    if ([method isEqualToString:@"GET"] && headers == nil && body == nil) {
+      return [NSURLRequest requestWithURL:URL];
+    }
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    request.HTTPBody = body;
+    request.HTTPMethod = method;
+    request.allHTTPHeaderFields = headers;
+    return [request copy];
+  }
+  if (json) {
+    RCTLogConvertError(json, @"a valid URLRequest");
+  }
+  return nil;
 }
 
 + (RCTFileURL *)RCTFileURL:(id)json
@@ -208,12 +231,21 @@ NSNumber *RCTConvertMultiEnumValue(const char *typeName, NSDictionary *mapping, 
 }
 
 RCT_ENUM_CONVERTER(NSLineBreakMode, (@{
+<<<<<<< HEAD
   @"clipping": @(NSLineBreakByClipping),
   @"word-wrapping": @(NSLineBreakByWordWrapping),
   @"char-wrapping": @(NSLineBreakByCharWrapping),
   @"truncating-head": @(NSLineBreakByTruncatingHead),
   @"truncating-middle": @(NSLineBreakByTruncatingMiddle),
   @"truncating-tail": @(NSLineBreakByTruncatingTail),
+=======
+  @"wordWrapping": @(NSLineBreakByWordWrapping),
+  @"charWrapping": @(NSLineBreakByCharWrapping),
+  @"clipping": @(NSLineBreakByClipping),
+  @"truncatingHead": @(NSLineBreakByTruncatingHead),
+  @"truncatingTail": @(NSLineBreakByTruncatingTail),
+  @"truncatingMiddle": @(NSLineBreakByTruncatingMiddle),
+>>>>>>> 0.20-stable
 }), NSLineBreakByWordWrapping, integerValue)
 
 RCT_ENUM_CONVERTER(NSTextAlignment, (@{

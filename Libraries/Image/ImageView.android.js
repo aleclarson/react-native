@@ -38,7 +38,7 @@ var resolveAssetSource = require('resolveAssetSource');
  *       <View>
  *         <ImageView
  *           style={styles.icon}
- *           source={require('image!myIcon')}
+ *           source={require('./myIcon.png')}
  *         />
  *         <ImageView
  *           style={styles.logo}
@@ -66,8 +66,8 @@ var ImageView = React.createClass({
     style: StyleSheetPropType(ImageStylePropTypes),
    /**
      * `uri` is a string representing the resource identifier for the image, which
-     * could be an http address, a local file path, or the name of a static image
-     * resource (which should be wrapped in the `require('image!name')` function).
+     * could be an http address, a local file path, or a static image
+     * resource (which should be wrapped in the `require('./path/to/image.png')` function).
      */
     source: PropTypes.oneOfType([
       PropTypes.shape({
@@ -220,7 +220,7 @@ var cfg = {
     shouldNotifyLoadEvents: true,
   },
 };
-var RKImage = requireNativeComponent('RCTImageView', ImageView, cfg);
-var RCTTextInlineImage = requireNativeComponent('RCTTextInlineImage', ImageView, cfg);
+var RKImage = requireNativeComponent('RCTImageView', Image, cfg);
+var RCTTextInlineImage = requireNativeComponent('RCTTextInlineImage', Image, cfg);
 
 module.exports = ImageView;

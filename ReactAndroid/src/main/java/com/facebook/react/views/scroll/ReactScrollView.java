@@ -34,12 +34,20 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
 
   private final OnScrollDispatchHelper mOnScrollDispatchHelper = new OnScrollDispatchHelper();
 
-  private boolean mRemoveClippedSubviews;
   private @Nullable Rect mClippingRect;
+<<<<<<< HEAD
   private boolean mSendMomentumEvents;
   private boolean mDragging;
   private boolean mFlinging;
   private boolean mDoneFlinging;
+=======
+  private boolean mDoneFlinging;
+  private boolean mDragging;
+  private boolean mFlinging;
+  private boolean mRemoveClippedSubviews;
+  private boolean mScrollEnabled = true;
+  private boolean mSendMomentumEvents;
+>>>>>>> 0.20-stable
 
   public ReactScrollView(Context context) {
     super(context);
@@ -49,6 +57,13 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
     mSendMomentumEvents = sendMomentumEvents;
   }
 
+<<<<<<< HEAD
+=======
+  public void setScrollEnabled(boolean scrollEnabled) {
+    mScrollEnabled = scrollEnabled;
+  }
+
+>>>>>>> 0.20-stable
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     MeasureSpecAssertions.assertExplicitMeasureSpec(widthMeasureSpec, heightMeasureSpec);
@@ -73,6 +88,14 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
   }
 
   @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    if (mRemoveClippedSubviews) {
+      updateClippingRect();
+    }
+  }
+
+  @Override
   protected void onScrollChanged(int x, int y, int oldX, int oldY) {
     super.onScrollChanged(x, y, oldX, oldY);
 
@@ -91,6 +114,10 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
+    if (!mScrollEnabled) {
+      return false;
+    }
+
     if (super.onInterceptTouchEvent(ev)) {
       NativeGestureUtil.notifyNativeGestureStarted(this, ev);
       ReactScrollViewHelper.emitScrollBeginDragEvent(this);
@@ -103,6 +130,13 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
+<<<<<<< HEAD
+=======
+    if (!mScrollEnabled) {
+      return false;
+    }
+
+>>>>>>> 0.20-stable
     int action = ev.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_UP && mDragging) {
       ReactScrollViewHelper.emitScrollEndDragEvent(this);

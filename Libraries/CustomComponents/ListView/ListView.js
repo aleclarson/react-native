@@ -232,13 +232,14 @@ var ListView = React.createClass({
   },
 
   /**
-   * Provides a handle to the underlying scroll responder to support operations
-   * such as scrollTo.
+   * Provides a handle to the underlying scroll responder.
    */
   getScrollResponder: function() {
-    return this.refs[SCROLLVIEW_REF] &&
-      this.refs[SCROLLVIEW_REF].getScrollResponder &&
-      this.refs[SCROLLVIEW_REF].getScrollResponder();
+    return this.refs[SCROLLVIEW_REF].getScrollResponder();
+  },
+
+  scrollTo: function(...args) {
+    this.refs[SCROLLVIEW_REF].scrollTo(...args);
   },
 
   scrollTo: function(destY, destX) {
@@ -305,11 +306,18 @@ var ListView = React.createClass({
         this._prevRenderedRowsCount = 0;
         return {
           curRenderedRowsCount: Math.min(
-            Math.max(
-              state.curRenderedRowsCount,
-              props.initialListSize
-            ),
+            state.curRenderedRowsCount + props.pageSize,
             props.dataSource.getRowCount()
+          ),
+        };
+      });
+    }
+    if (this.props.initialListSize !== nextProps.initialListSize) {
+      this.setState((state, props) => {
+        return {
+          curRenderedRowsCount: Math.max(
+            state.curRenderedRowsCount,
+            props.initialListSize
           ),
         };
       }, () => this._renderMoreRowsIfNeeded());
@@ -466,7 +474,6 @@ var ListView = React.createClass({
     if (contentLength !== this.scrollProperties.contentLength) {
       this.scrollProperties.contentLength = contentLength;
       this._updateVisibleRows();
-      console.log('ListView.onContentSizeChange(width: ' + width + ', height: ' + height + ') -> _renderMoreRowsIfNeeded()');
       this._renderMoreRowsIfNeeded();
     }
     this.props.onContentSizeChange && this.props.onContentSizeChange(width, height);
@@ -478,7 +485,6 @@ var ListView = React.createClass({
     if (visibleLength !== this.scrollProperties.visibleLength) {
       this.scrollProperties.visibleLength = visibleLength;
       this._updateVisibleRows();
-      console.log('ListView.onLayout(width: ' + width + ', height: ' + height + ') -> _renderMoreRowsIfNeeded()');
       this._renderMoreRowsIfNeeded();
     }
     this.props.onLayout && this.props.onLayout(event);
@@ -531,7 +537,7 @@ var ListView = React.createClass({
           props.dataSource.getRowCount(),
         )
       );
-      console.log('_pageInNewRows: rowsToRender = ' + rowsToRender);
+      this._prevRenderedRowsCount = state.curRenderedRowsCount;
       return {
         curRenderedRowsCount: rowsToRender
       };

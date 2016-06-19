@@ -21,7 +21,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 
 import com.facebook.infer.annotation.Assertions;
+<<<<<<< HEAD
 import com.facebook.react.bridge.queue.CatalystQueueConfiguration;
+=======
+import com.facebook.react.bridge.queue.ReactQueueConfiguration;
+>>>>>>> 0.20-stable
 import com.facebook.react.bridge.queue.MessageQueueThread;
 
 /**
@@ -60,7 +64,7 @@ public class ReactContext extends ContextWrapper {
 
     mCatalystInstance = catalystInstance;
 
-    CatalystQueueConfiguration queueConfig = catalystInstance.getCatalystQueueConfiguration();
+    ReactQueueConfiguration queueConfig = catalystInstance.getReactQueueConfiguration();
     mUiMessageQueueThread = queueConfig.getUIQueueThread();
     mNativeModulesMessageQueueThread = queueConfig.getNativeModulesQueueThread();
     mJSMessageQueueThread = queueConfig.getJSQueueThread();

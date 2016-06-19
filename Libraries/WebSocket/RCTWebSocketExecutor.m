@@ -38,8 +38,6 @@ typedef void (^RCTWSMessageCallback)(NSError *error, NSDictionary<NSString *, id
 
 RCT_EXPORT_MODULE()
 
-@synthesize bridge = _bridge;
-
 - (instancetype)initWithURL:(NSURL *)URL
 {
   RCTAssertParam(URL);
@@ -53,7 +51,7 @@ RCT_EXPORT_MODULE()
 - (void)setUp
 {
   if (!_url) {
-    _url = [RCTServerUtils serverURLForPath:@"debugger-proxy?role=client"];
+    _url = [RCTServerUtils serverURLForPath:@"debugger-proxy"];
   }
 
   _jsQueue = dispatch_queue_create("com.facebook.React.WebSocketExecutor", DISPATCH_QUEUE_SERIAL);
@@ -67,13 +65,28 @@ RCT_EXPORT_MODULE()
 //  [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:startDevToolsURL] delegate:nil];
 
   if (![self connectToProxy]) {
+    RCTLogError(@"Connection to %@ timed out. Are you running node proxy? If "
+                 "you are running on the device, check if you have the right IP "
+                 "address in `RCTWebSocketExecutor.m`.", _url);
     [self invalidate];
     NSLog(@"Did not connect to proxy!");
 //    [self.bridge.devMenu reload];
     return;
   }
 
-  [self prepareJSRuntime];
+  NSInteger retries = 3;
+  BOOL runtimeIsReady = [self prepareJSRuntime];
+  while (!runtimeIsReady && retries > 0) {
+    runtimeIsReady = [self prepareJSRuntime];
+    retries--;
+  }
+  if (!runtimeIsReady) {
+    RCTLogError(@"Runtime is not ready for debugging.\n "
+                 "- Make sure Packager server is running.\n"
+                 "- Make sure Chrome is running and not paused on a breakpoint or exception and try reloading again.");
+    [self invalidate];
+    return;
+  }
 }
 
 - (BOOL)connectToProxy
@@ -133,9 +146,10 @@ RCT_EXPORT_MODULE()
 
   dispatch_async(_jsQueue, ^{
     if (!self.valid) {
-      [self invalidate];
-      NSLog(@"Bridge is invalidated, cannot send message!");
-//      [self.bridge.devMenu reload];
+      NSError *error = [NSError errorWithDomain:@"WS" code:1 userInfo:@{
+        NSLocalizedDescriptionKey: @"Runtime is not ready for debugging. Make sure Packager server is running."
+      }];
+      callback(error, nil);
       return;
     }
 

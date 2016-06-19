@@ -187,11 +187,19 @@ RCT_EXTERN NSArray<Class> *RCTGetModuleClasses(void);
 
   // Suppress a warning if RCTProfileBeginAsyncEvent gets compiled out
   (void)cookie;
+<<<<<<< HEAD
 
   RCTSourceLoadBlock onSourceLoad = ^(NSError *error, NSData *source) {
     RCTProfileEndAsyncEvent(0, @"init,download", cookie, @"JavaScript download", nil);
     RCTPerformanceLoggerEnd(RCTPLScriptDownload);
 
+=======
+
+  RCTSourceLoadBlock onSourceLoad = ^(NSError *error, NSData *source) {
+    RCTProfileEndAsyncEvent(0, @"native", cookie, @"JavaScript download", @"JS async", nil);
+    RCTPerformanceLoggerEnd(RCTPLScriptDownload);
+
+>>>>>>> 0.20-stable
     _onSourceLoad(error, source);
   };
 
@@ -636,6 +644,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
    * AnyThread
    */
 
+<<<<<<< HEAD
+=======
+  RCT_PROFILE_BEGIN_EVENT(0, @"-[RCTBatchedBridge enqueueJSCall:]", nil);
+
+>>>>>>> 0.20-stable
   NSArray<NSString *> *ids = [moduleDotMethod componentsSeparatedByString:@"."];
 
   NSString *module = ids[0];
@@ -661,6 +674,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
       [strongSelf _actuallyInvokeAndProcessModule:module method:method arguments:args ?: @[]];
     }
   }];
+<<<<<<< HEAD
+=======
+
+  RCT_PROFILE_END_EVENT(0, @"", nil);
+>>>>>>> 0.20-stable
 }
 
 /**
@@ -673,11 +691,19 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
    */
 
   RCTProfileBeginFlowEvent();
+<<<<<<< HEAD
 
   __weak RCTBatchedBridge *weakSelf = self;
   [_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
     RCTProfileEndFlowEvent();
 
+=======
+
+  __weak RCTBatchedBridge *weakSelf = self;
+  [_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+    RCTProfileEndFlowEvent();
+
+>>>>>>> 0.20-stable
     RCTBatchedBridge *strongSelf = weakSelf;
     if (!strongSelf || !strongSelf.valid) {
       return;
@@ -850,8 +876,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
 
     dispatch_block_t block = ^{
       RCTProfileEndFlowEvent();
+<<<<<<< HEAD
 
       RCT_PROFILE_BEGIN_EVENT(0, RCTCurrentThreadName(), nil);
+=======
+      RCT_PROFILE_BEGIN_EVENT(0, @"-[RCTBatchedBridge handleBuffer:]", nil);
+>>>>>>> 0.20-stable
 
       NSOrderedSet *calls = [buckets objectForKey:queue];
       @autoreleasepool {
@@ -947,14 +977,21 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
 - (void)_jsThreadUpdate:(CADisplayLink *)displayLink
 {
   RCTAssertJSThread();
+<<<<<<< HEAD
   RCT_PROFILE_BEGIN_EVENT(0, @"DispatchFrameUpdate", nil);
+=======
+  RCT_PROFILE_BEGIN_EVENT(0, @"-[RCTBatchedBridge _jsThreadUpdate:]", nil);
+>>>>>>> 0.20-stable
 
   RCTFrameUpdate *frameUpdate = [[RCTFrameUpdate alloc] initWithDisplayLink:displayLink];
   for (RCTModuleData *moduleData in _frameUpdateObservers) {
     id<RCTFrameUpdateObserver> observer = (id<RCTFrameUpdateObserver>)moduleData.instance;
     if (!observer.paused) {
       RCTProfileBeginFlowEvent();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0.20-stable
       [self dispatchBlock:^{
         RCTProfileEndFlowEvent();
         [observer didUpdateFrame:frameUpdate];

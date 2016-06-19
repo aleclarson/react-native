@@ -141,9 +141,15 @@ public class UIImplementation {
 
     mShadowNodeRegistry.addNode(cssNode);
 
+<<<<<<< HEAD
     CatalystStylesDiffMap styles = null;
     if (props != null) {
       styles = new CatalystStylesDiffMap(props);
+=======
+    ReactStylesDiffMap styles = null;
+    if (props != null) {
+      styles = new ReactStylesDiffMap(props);
+>>>>>>> 0.20-stable
       cssNode.updateProperties(styles);
     }
 
@@ -153,7 +159,11 @@ public class UIImplementation {
   protected void handleCreateView(
       ReactShadowNode cssNode,
       int rootViewTag,
+<<<<<<< HEAD
       @Nullable CatalystStylesDiffMap styles) {
+=======
+      @Nullable ReactStylesDiffMap styles) {
+>>>>>>> 0.20-stable
     if (!cssNode.isVirtual()) {
       mNativeViewHierarchyOptimizer.handleCreateView(cssNode, cssNode.getThemedContext(), styles);
     }
@@ -173,7 +183,11 @@ public class UIImplementation {
     }
 
     if (props != null) {
+<<<<<<< HEAD
       CatalystStylesDiffMap styles = new CatalystStylesDiffMap(props);
+=======
+      ReactStylesDiffMap styles = new ReactStylesDiffMap(props);
+>>>>>>> 0.20-stable
       cssNode.updateProperties(styles);
       handleUpdateView(cssNode, className, styles);
     }
@@ -182,7 +196,11 @@ public class UIImplementation {
   protected void handleUpdateView(
       ReactShadowNode cssNode,
       String className,
+<<<<<<< HEAD
       CatalystStylesDiffMap styles) {
+=======
+      ReactStylesDiffMap styles) {
+>>>>>>> 0.20-stable
     if (!cssNode.isVirtual()) {
       mNativeViewHierarchyOptimizer.handleUpdateView(cssNode, className, styles);
     }

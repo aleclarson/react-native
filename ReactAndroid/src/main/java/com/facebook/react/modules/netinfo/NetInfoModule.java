@@ -106,10 +106,21 @@ public class NetInfoModule extends ReactContextBaseJavaModule
     IntentFilter filter = new IntentFilter();
     filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
     getReactApplicationContext().registerReceiver(mConnectivityBroadcastReceiver, filter);
+<<<<<<< HEAD
   }
 
   private void unregisterReceiver() {
     getReactApplicationContext().unregisterReceiver(mConnectivityBroadcastReceiver);
+=======
+    mConnectivityBroadcastReceiver.setRegistered(true);
+  }
+
+  private void unregisterReceiver() {
+    if (mConnectivityBroadcastReceiver.isRegistered()) {
+      getReactApplicationContext().unregisterReceiver(mConnectivityBroadcastReceiver);
+      mConnectivityBroadcastReceiver.setRegistered(false);
+    }
+>>>>>>> 0.20-stable
   }
 
   private void updateAndSendConnectionType() {
@@ -155,6 +166,20 @@ public class NetInfoModule extends ReactContextBaseJavaModule
    */
   private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
+<<<<<<< HEAD
+=======
+    //TODO: Remove registered check when source of crash is found. t9846865
+    private boolean isRegistered = false;
+
+    public void setRegistered(boolean registered) {
+      isRegistered = registered;
+    }
+
+    public boolean isRegistered() {
+      return isRegistered;
+    }
+
+>>>>>>> 0.20-stable
     @Override
     public void onReceive(Context context, Intent intent) {
       if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {

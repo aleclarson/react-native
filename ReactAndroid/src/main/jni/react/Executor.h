@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <jni/Countable.h>
+#include "JSModulesUnbundle.h"
 
 namespace folly {
 
@@ -36,6 +37,17 @@ public:
     const std::string& sourceURL) = 0;
 
   /**
+<<<<<<< HEAD
+=======
+   * Add an application "unbundle" file
+   */
+  virtual void loadApplicationUnbundle(
+    JSModulesUnbundle&& bundle,
+    const std::string& startupCode,
+    const std::string& sourceURL) = 0;
+
+  /**
+>>>>>>> 0.20-stable
    * Executes BatchedBridge.flushedQueue in JS to get the next queue of changes.
    */
   virtual std::string flush() = 0;

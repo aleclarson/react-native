@@ -106,7 +106,11 @@ public class NativeViewHierarchyManager {
     mLayoutAnimationEnabled = enabled;
   }
 
+<<<<<<< HEAD
   public void updateProperties(int tag, CatalystStylesDiffMap props) {
+=======
+  public void updateProperties(int tag, ReactStylesDiffMap props) {
+>>>>>>> 0.20-stable
     UiThreadUtil.assertOnUiThread();
 
     ViewManager viewManager = resolveViewManager(tag);
@@ -190,7 +194,7 @@ public class NativeViewHierarchyManager {
       ThemedReactContext themedContext,
       int tag,
       String className,
-      @Nullable CatalystStylesDiffMap initialProps) {
+      @Nullable ReactStylesDiffMap initialProps) {
     UiThreadUtil.assertOnUiThread();
     SystraceMessage.beginSection(
         Systrace.TRACE_TAG_REACT_VIEW,

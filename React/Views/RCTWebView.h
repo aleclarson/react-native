@@ -31,7 +31,11 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 
 @property (nonatomic, weak) id<RCTWebViewDelegate> delegate;
 
+<<<<<<< HEAD
 @property (nonatomic, strong) NSURL *URL;
+=======
+@property (nonatomic, copy) NSDictionary *source;
+>>>>>>> 0.20-stable
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, assign) BOOL automaticallyAdjustContentInsets;
 @property (nonatomic, copy) NSString *injectedJavaScript;

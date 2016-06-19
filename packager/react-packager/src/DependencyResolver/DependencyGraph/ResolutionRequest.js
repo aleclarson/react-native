@@ -10,18 +10,17 @@
 
 const debug = require('debug')('ReactNativePackager:DependencyGraph');
 
-const Promise = require('Promise');
-const util = require('util');
-const path = require('path');
-const syncFs = require('io/sync');
-const inArray = require ('in-array');
-const NODE_PATHS = require('node-paths');
 const isAbsolutePath = require('absolute-path');
+const NODE_PATHS = require('node-paths');
+const inArray = require ('in-array');
+const syncFs = require('io/sync');
+const path = require('path');
+const util = require('util');
 
-const Module = require('../Module');
-const NullModule = require('../NullModule');
-const globalConfig = require('../../GlobalConfig');
 const getAssetDataFromName = require('../lib/getAssetDataFromName');
+const globalConfig = require('../../GlobalConfig');
+const NullModule = require('../NullModule');
+const Module = require('../Module');
 
 class ResolutionRequest {
   constructor({
@@ -76,15 +75,15 @@ class ResolutionRequest {
   }
 
   getOrderedDependencies(response, mocksPattern) {
-    return this._getAllMocks(mocksPattern).then(mocks => {
-      response.setMocks(mocks);
-
+    return this._getAllMocks(mocksPattern).then(allMocks => {
       const entry = this._moduleCache.getModule(this._entryPath);
+      const mocks = Object.create(null);
       const visited = Object.create(null);
+
       visited[entry.hash()] = true;
+      response.pushDependency(entry);
 
       let failed = false;
-
       const collect = (mod) => {
 
         response.pushDependency(mod);
@@ -97,70 +96,72 @@ class ResolutionRequest {
         return mod.getDependencies()
 
         .then(depNames => {
-          const promises = depNames.map(name => {
-            return Promise.try(() => {
-              const result = mod.getDependency(name);
-              if (result) {
-                return result;
-              }
-              return this.resolveDependency(mod, name)
-              .fail(error => {
-                failed = true;
-                console.log(error.stack);
-                if (error.type !== 'UnableToResolveError') {
-                  throw error;
-                }
-              })
-              .then(result => {
-                if (log.isDebug) {
-                  log.moat(1);
-                  log.gray('fromModule = ');
-                  log.white(path.relative(lotus.path, mod.path));
-                  log.moat(0);
-                  log.gray('requirePath = ');
-                  log.yellow(name);
-                  log.moat(0);
-                  log.gray('resolvedPath = ');
-                  if (result) {
-                    log.green(path.relative(lotus.path, result.path));
-                  } else {
-                    log.yellow('null');
-                  }
-                  log.moat(1);
-                }
-                return result;
-              });
-            });
-          });
+          return Promise.map(depNames, (name) => {
+            const result = mod.getDependency(name);
+            if (result) {
+              return result;
+            }
 
-          return Promise.all(promises)
+            return this.resolveDependency(mod, name)
+
+            .fail(error => {
+              failed = true;
+              console.log(error.stack);
+              if (error.type !== 'UnableToResolveError') {
+                throw error;
+              }
+            })
+
+            .then(result => {
+              if (log.isDebug) {
+                log.moat(1);
+                log.gray('fromModule = ');
+                log.white(path.relative(lotus.path, mod.path));
+                log.moat(0);
+                log.gray('requirePath = ');
+                log.yellow(name);
+                log.moat(0);
+                log.gray('resolvedPath = ');
+                if (result) {
+                  log.green(path.relative(lotus.path, result.path));
+                } else {
+                  log.yellow('null');
+                }
+                log.moat(1);
+              }
+              return result;
+            });
+          })
           .then(dependencies => [
             depNames,
             dependencies,
           ]);
-          // .always(() => {
-          //   return mod.getName().then(name =>{
-          //     log.moat(1);
-          //     log.white(name, ' ');
-          //     log.cyan(depNames.length);
-          //     log.moat(1);
-          //   });
-          // });
         })
 
         .then(([depNames, dependencies]) => {
-          if (mocks) {
+          if (allMocks) {
             return mod.getName().then(name => {
-              if (mocks[name]) {
-                const mockModule =
-                  this._moduleCache.getModule(mocks[name]);
-                depNames.push(name);
-                dependencies.push(mockModule);
+              if (allMocks) {
+                const names = [mod.getName()];
+                const pkg = mod.getPackage();
+                pkg && names.push(pkg.getName());
+                return Promise.all(names).then(names => {
+                  names.forEach(name => {
+                    if (allMocks[name] && !mocks[name]) {
+                      const mockModule =
+                        this._moduleCache.getModule(allMocks[name]);
+                      depNames.push(name);
+                      dependencies.push(mockModule);
+                      mocks[name] = allMocks[name];
+                    }
+                  });
+                  return [depNames, dependencies];
+                });
               }
               return [depNames, dependencies];
             });
           }
-          return Promise([depNames, dependencies]);
+          return [depNames, dependencies];
         })
 
         .then(([depNames, dependencies]) => {
@@ -174,8 +175,9 @@ class ResolutionRequest {
               // module backing them. If a dependency cannot be found but there
               // exists a mock with the desired ID, resolve it and add it as
               // a dependency.
-              if (mocks && mocks[name]) {
-                const mockModule = this._moduleCache.getModule(mocks[name]);
+              if (allMocks && allMocks[name] && !mocks[name]) {
+                const mockModule = this._moduleCache.getModule(allMocks[name]);
+                mocks[name] = allMocks[name];
                 return filteredPairs.push([name, mockModule]);
               }
 
@@ -188,7 +190,7 @@ class ResolutionRequest {
                 log.gray.dim(path.relative(lotus.path, mod.path));
                 log.moat(1);
               }
-              return;
+              return false;
             }
             return filteredPairs.push([name, modDep]);
           });
@@ -200,7 +202,10 @@ class ResolutionRequest {
               const hash = modDep.hash();
               if (!visited[hash]) {
                 visited[hash] = true;
-                return collect(modDep);
+                response.pushDependency(modDep);
+                if (recursive) {
+                  return collect(modDep);
+                }
               }
             });
           });
@@ -209,7 +214,9 @@ class ResolutionRequest {
         });
       };
 
-      return collect(entry);
+      return collect(entry)
+
+      .then(() => response.setMocks(mocks));
     });
   }
 
@@ -349,6 +356,35 @@ class ResolutionRequest {
     });
   }
 
+  // Attempts to resolve the given `filePath` by trying
+  // multiple extensions until a result is returned
+  // by the `resolver` function.
+  _resolveFilePath(filePath, resolver) {
+
+    // If an extension is provided, don't try the default extensions.
+    const ext = path.extname(filePath);
+    if (ext) {
+      return this._resolvePlatformVariant(
+        filePath.slice(0, 0 - ext.length),
+        ext,
+        resolver
+      );
+    }
+
+    // Try each default extension.
+    const exts = this._projectExts;
+    for (let i = 0; i < exts.length; i++) {
+      let result = this._resolvePlatformVariant(
+        filePath,
+        '.' + exts[i],
+        resolver
+      );
+      if (result !== undefined) {
+        return result;
+      }
+    }
+  }
+
   _resolveLotusPath(fromModule, toModuleName) {
 
     const resolve = (filePath) => {
@@ -418,35 +454,6 @@ class ResolutionRequest {
     result = resolver(filePath + ext);
     if (result !== undefined) {
       return result;
-    }
-  }
-
-  // Attempts to resolve the given `filePath` by trying
-  // multiple extensions until a result is returned
-  // by the `resolver` function.
-  _resolveFilePath(filePath, resolver) {
-
-    // If an extension is provided, don't try the default extensions.
-    const ext = path.extname(filePath);
-    if (ext) {
-      return this._resolvePlatformVariant(
-        filePath.slice(0, 0 - ext.length),
-        ext,
-        resolver
-      );
-    }
-
-    // Try each default extension.
-    const exts = this._projectExts;
-    for (let i = 0; i < exts.length; i++) {
-      let result = this._resolvePlatformVariant(
-        filePath,
-        '.' + exts[i],
-        resolver
-      );
-      if (result !== undefined) {
-        return result;
-      }
     }
   }
 

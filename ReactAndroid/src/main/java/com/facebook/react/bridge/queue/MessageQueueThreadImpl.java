@@ -11,7 +11,10 @@ package com.facebook.react.bridge.queue;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+<<<<<<< HEAD
 import java.util.concurrent.TimeUnit;
+=======
+>>>>>>> 0.20-stable
 
 import android.os.Looper;
 
@@ -158,7 +161,11 @@ public class MessageQueueThreadImpl implements MessageQueueThread {
               registrationFuture.set(null);
             }
           });
+<<<<<<< HEAD
       registrationFuture.getOrThrow(5000, TimeUnit.MILLISECONDS);
+=======
+      registrationFuture.getOrThrow();
+>>>>>>> 0.20-stable
     }
     return mqt;
   }
@@ -180,14 +187,22 @@ public class MessageQueueThreadImpl implements MessageQueueThread {
             Looper.prepare();
 
             looperFuture.set(Looper.myLooper());
+<<<<<<< HEAD
             MessageQueueThreadRegistry.register(mqtFuture.getOrThrow(5000, TimeUnit.MILLISECONDS));
+=======
+            MessageQueueThreadRegistry.register(mqtFuture.getOrThrow());
+>>>>>>> 0.20-stable
 
             Looper.loop();
           }
         }, "mqt_" + name);
     bgThread.start();
 
+<<<<<<< HEAD
     Looper myLooper = looperFuture.getOrThrow(5000, TimeUnit.MILLISECONDS);
+=======
+    Looper myLooper = looperFuture.getOrThrow();
+>>>>>>> 0.20-stable
     MessageQueueThreadImpl mqt = new MessageQueueThreadImpl(name, myLooper, exceptionHandler);
     mqtFuture.set(mqt);
 

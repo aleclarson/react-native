@@ -97,6 +97,11 @@ RCT_EXPORT_VIEW_PROPERTY(mapType, MKMapType)
 RCT_EXPORT_VIEW_PROPERTY(annotations, NSArray<RCTMapAnnotation *>)
 RCT_EXPORT_VIEW_PROPERTY(overlays, NSArray<RCTMapOverlay *>)
 RCT_EXPORT_VIEW_PROPERTY(onAnnotationDragStateChange, RCTBubblingEventBlock)
+<<<<<<< HEAD
+=======
+RCT_EXPORT_VIEW_PROPERTY(onAnnotationFocus, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onAnnotationBlur, RCTBubblingEventBlock)
+>>>>>>> 0.20-stable
 RCT_EXPORT_VIEW_PROPERTY(onChange, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
@@ -137,6 +142,10 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
 
 - (void)mapView:(RCTMap *)mapView didSelectAnnotationView:(MKAnnotationView *)view
 {
+<<<<<<< HEAD
+=======
+  // TODO: Remove deprecated onAnnotationPress API call later.
+>>>>>>> 0.20-stable
   if (mapView.onPress && [view.annotation isKindOfClass:[RCTMapAnnotation class]]) {
     RCTMapAnnotation *annotation = (RCTMapAnnotation *)view.annotation;
     mapView.onPress(@{
@@ -149,6 +158,27 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
         @"longitude": @(annotation.coordinate.longitude)
       }
     });
+  }
+
+  if ([view.annotation isKindOfClass:[RCTMapAnnotation class]]) {
+    RCTMapAnnotation *annotation = (RCTMapAnnotation *)view.annotation;
+    if (mapView.onAnnotationFocus) {
+      mapView.onAnnotationFocus(@{
+        @"annotationId": annotation.identifier
+      });
+    }
+  }
+}
+
+- (void)mapView:(RCTMap *)mapView didDeselectAnnotationView:(MKAnnotationView *)view
+{
+  if ([view.annotation isKindOfClass:[RCTMapAnnotation class]]) {
+    RCTMapAnnotation *annotation = (RCTMapAnnotation *)view.annotation;
+    if (mapView.onAnnotationBlur) {
+      mapView.onAnnotationBlur(@{
+        @"annotationId": annotation.identifier
+      });
+    }
   }
 }
 
@@ -176,6 +206,33 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
   }
 }
 
+<<<<<<< HEAD
+- (void)mapView:(RCTMap *)mapView annotationView:(MKAnnotationView *)view
+                              didChangeDragState:(MKAnnotationViewDragState)newState
+                                    fromOldState:(MKAnnotationViewDragState)oldState
+{
+  static NSArray *states;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    states = @[@"idle", @"starting", @"dragging", @"canceling", @"ending"];
+  });
+
+  if ([view.annotation isKindOfClass:[RCTMapAnnotation class]]) {
+    RCTMapAnnotation *annotation = (RCTMapAnnotation *)view.annotation;
+    if (mapView.onAnnotationDragStateChange) {
+      mapView.onAnnotationDragStateChange(@{
+        @"state": states[newState],
+        @"oldState": states[oldState],
+        @"annotationId": annotation.identifier,
+        @"latitude": @(annotation.coordinate.latitude),
+        @"longitude": @(annotation.coordinate.longitude),
+      });
+    }
+  }
+}
+
+=======
+>>>>>>> 0.20-stable
 - (MKAnnotationView *)mapView:(RCTMap *)mapView
             viewForAnnotation:(RCTMapAnnotation *)annotation
 {
@@ -212,6 +269,7 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
       [[MKPinAnnotationView alloc] initWithAnnotation:annotation
                                       reuseIdentifier:reuseIdentifier];
     ((MKPinAnnotationView *)annotationView).animatesDrop = annotation.animateDrop;
+<<<<<<< HEAD
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0
 
@@ -224,6 +282,20 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
 
 #endif
 
+=======
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0
+
+    if (![annotationView respondsToSelector:@selector(pinTintColor)]) {
+      NSString *hexColor = annotation.tintColor ?
+        RCTColorToHexString(annotation.tintColor.CGColor) : RCTMapPinRed;
+      ((MKPinAnnotationView *)annotationView).pinColor =
+        [RCTConvert MKPinAnnotationColor:hexColor];
+    } else
+
+#endif
+
+>>>>>>> 0.20-stable
     {
       ((MKPinAnnotationView *)annotationView).pinTintColor =
         annotation.tintColor ?: [MKPinAnnotationView redPinColor];
@@ -239,6 +311,7 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
       [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
   } else {
     annotationView.leftCalloutAccessoryView = nil;
+<<<<<<< HEAD
   }
 
   if (annotation.rightCalloutViewIndex != NSNotFound) {
@@ -279,6 +352,48 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, RCTMap)
     }
   }
 
+=======
+  }
+
+  if (annotation.rightCalloutViewIndex != NSNotFound) {
+    annotationView.rightCalloutAccessoryView =
+      mapView.reactSubviews[annotation.rightCalloutViewIndex];
+  } else if (annotation.hasRightCallout) {
+    annotationView.rightCalloutAccessoryView =
+      [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+  } else {
+    annotationView.rightCalloutAccessoryView = nil;
+  }
+
+  //http://stackoverflow.com/questions/32581049/mapkit-ios-9-detailcalloutaccessoryview-usage
+  if ([annotationView respondsToSelector:@selector(detailCalloutAccessoryView)]) {
+    if (annotation.detailCalloutViewIndex != NSNotFound) {
+      UIView *calloutView = mapView.reactSubviews[annotation.detailCalloutViewIndex];
+      NSLayoutConstraint *widthConstraint =
+        [NSLayoutConstraint constraintWithItem:calloutView
+                                     attribute:NSLayoutAttributeWidth
+                                     relatedBy:NSLayoutRelationEqual
+                                        toItem:nil
+                                     attribute:NSLayoutAttributeNotAnAttribute
+                                    multiplier:1
+                                      constant:calloutView.frame.size.width];
+      [calloutView addConstraint:widthConstraint];
+      NSLayoutConstraint *heightConstraint =
+        [NSLayoutConstraint constraintWithItem:calloutView
+                                     attribute:NSLayoutAttributeHeight
+                                     relatedBy:NSLayoutRelationEqual
+                                        toItem:nil
+                                     attribute:NSLayoutAttributeNotAnAttribute
+                                    multiplier:1
+                                      constant:calloutView.frame.size.height];
+      [calloutView addConstraint:heightConstraint];
+      annotationView.detailCalloutAccessoryView = calloutView;
+    } else {
+      annotationView.detailCalloutAccessoryView = nil;
+    }
+  }
+
+>>>>>>> 0.20-stable
   annotationView.draggable = annotation.draggable;
 
   return annotationView;

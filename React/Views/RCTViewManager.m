@@ -91,6 +91,14 @@ RCT_EXPORT_MODULE()
   return @[];
 }
 
+<<<<<<< HEAD
+=======
+- (NSDictionary<NSString *, id> *)constantsToExport
+{
+  return @{@"forceTouchAvailable": @(RCTForceTouchAvailable())};
+}
+
+>>>>>>> 0.20-stable
 - (RCTViewManagerUIBlock)uiBlockToAmendWithShadowView:(__unused RCTShadowView *)shadowView
 {
   return nil;

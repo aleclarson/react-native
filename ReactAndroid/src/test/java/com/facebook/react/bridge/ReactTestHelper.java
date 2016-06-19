@@ -9,9 +9,15 @@
 
 package com.facebook.react.bridge;
 
+<<<<<<< HEAD
 import com.facebook.react.bridge.queue.CatalystQueueConfiguration;
 import com.facebook.react.bridge.queue.CatalystQueueConfigurationImpl;
 import com.facebook.react.bridge.queue.CatalystQueueConfigurationSpec;
+=======
+import com.facebook.react.bridge.queue.ReactQueueConfiguration;
+import com.facebook.react.bridge.queue.ReactQueueConfigurationImpl;
+import com.facebook.react.bridge.queue.ReactQueueConfigurationSpec;
+>>>>>>> 0.20-stable
 import com.facebook.react.bridge.queue.MessageQueueThreadSpec;
 import com.facebook.react.bridge.queue.QueueThreadExceptionHandler;
 import com.facebook.react.uimanager.UIManagerModule;
@@ -38,6 +44,7 @@ public class ReactTestHelper {
   }
 
   /**
+<<<<<<< HEAD
    * @return a CatalystInstance mock that has a default working CatalystQueueConfiguration.
    */
   public static CatalystInstance createMockCatalystInstance() {
@@ -46,6 +53,16 @@ public class ReactTestHelper {
         .setNativeModulesQueueThreadSpec(MessageQueueThreadSpec.mainThreadSpec())
         .build();
     CatalystQueueConfiguration catalystQueueConfiguration = CatalystQueueConfigurationImpl.create(
+=======
+   * @return a CatalystInstance mock that has a default working ReactQueueConfiguration.
+   */
+  public static CatalystInstance createMockCatalystInstance() {
+    ReactQueueConfigurationSpec spec = ReactQueueConfigurationSpec.builder()
+        .setJSQueueThreadSpec(MessageQueueThreadSpec.mainThreadSpec())
+        .setNativeModulesQueueThreadSpec(MessageQueueThreadSpec.mainThreadSpec())
+        .build();
+    ReactQueueConfiguration ReactQueueConfiguration = ReactQueueConfigurationImpl.create(
+>>>>>>> 0.20-stable
         spec,
         new QueueThreadExceptionHandler() {
           @Override
@@ -55,7 +72,11 @@ public class ReactTestHelper {
         });
 
     CatalystInstance reactInstance = mock(CatalystInstance.class);
+<<<<<<< HEAD
     when(reactInstance.getCatalystQueueConfiguration()).thenReturn(catalystQueueConfiguration);
+=======
+    when(reactInstance.getReactQueueConfiguration()).thenReturn(ReactQueueConfiguration);
+>>>>>>> 0.20-stable
     when(reactInstance.getNativeModule(UIManagerModule.class))
         .thenReturn(mock(UIManagerModule.class));
 

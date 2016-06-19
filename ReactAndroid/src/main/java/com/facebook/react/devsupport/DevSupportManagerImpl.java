@@ -266,6 +266,7 @@ public class DevSupportManagerImpl implements DevSupportManager {
           }
         });
     options.put(
+<<<<<<< HEAD
             mDevSettings.isHotModuleReplacementEnabled()
                     ? mApplicationContext.getString(R.string.catalyst_hot_module_replacement_off)
                     : mApplicationContext.getString(R.string.catalyst_hot_module_replacement),
@@ -277,6 +278,8 @@ public class DevSupportManagerImpl implements DevSupportManager {
               }
             });
     options.put(
+=======
+>>>>>>> 0.20-stable
         mDevSettings.isReloadOnJSChangeEnabled()
             ? mApplicationContext.getString(R.string.catalyst_live_reload_off)
             : mApplicationContext.getString(R.string.catalyst_live_reload),

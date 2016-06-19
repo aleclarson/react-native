@@ -13,6 +13,8 @@ require(process.env.LOTUS_PATH + '/lotus');
 
 const checkNodeVersion = require('./checkNodeVersion');
 const formatBanner = require('./formatBanner');
+const path = require('path');
+const Promise = require('promise');
 const runServer = require('./runServer');
 
 /**

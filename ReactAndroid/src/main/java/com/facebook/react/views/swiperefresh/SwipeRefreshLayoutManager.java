@@ -47,7 +47,11 @@ public class SwipeRefreshLayoutManager extends ViewGroupManager<ReactSwipeRefres
     view.setEnabled(enabled);
   }
 
+<<<<<<< HEAD
   @ReactProp(name = "colors")
+=======
+  @ReactProp(name = "colors", customType = "ColorArray")
+>>>>>>> 0.20-stable
   public void setColors(ReactSwipeRefreshLayout view, @Nullable ReadableArray colors) {
     if (colors != null) {
       int[] colorValues = new int[colors.size()];

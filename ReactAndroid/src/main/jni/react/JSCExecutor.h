@@ -2,6 +2,10 @@
 
 #pragma once
 
+<<<<<<< HEAD
+=======
+#include <cstdint>
+>>>>>>> 0.20-stable
 #include <memory>
 #include <unordered_map>
 #include <JavaScriptCore/JSContextRef.h>
@@ -30,6 +34,13 @@ public:
   virtual void executeApplicationScript(
     const std::string& script,
     const std::string& sourceURL) override;
+<<<<<<< HEAD
+=======
+  virtual void loadApplicationUnbundle(
+    JSModulesUnbundle&& unbundle,
+    const std::string& startupCode,
+    const std::string& sourceURL) override;
+>>>>>>> 0.20-stable
   virtual std::string flush() override;
   virtual std::string callFunction(
     const double moduleId,
@@ -59,10 +70,20 @@ private:
   std::unordered_map<int, JSCWebWorker> m_webWorkers;
   std::unordered_map<int, Object> m_webWorkerJSObjs;
   std::shared_ptr<JMessageQueueThread> m_messageQueueThread;
+<<<<<<< HEAD
+=======
+  JSModulesUnbundle m_unbundle;
+  bool m_isUnbundleInitialized = false;
+>>>>>>> 0.20-stable
 
   int addWebWorker(const std::string& script, JSValueRef workerRef);
   void postMessageToWebWorker(int worker, JSValueRef message, JSValueRef *exn);
   void terminateWebWorker(int worker);
+<<<<<<< HEAD
+=======
+  void loadModule(uint32_t moduleId);
+  std::string getDeviceCacheDir();
+>>>>>>> 0.20-stable
 
   static JSValueRef nativeStartWorker(
       JSContextRef ctx,
@@ -85,6 +106,16 @@ private:
       size_t argumentCount,
       const JSValueRef arguments[],
       JSValueRef *exception);
+<<<<<<< HEAD
+=======
+  static JSValueRef nativeRequire(
+    JSContextRef ctx,
+    JSObjectRef function,
+    JSObjectRef thisObject,
+    size_t argumentCount,
+    const JSValueRef arguments[],
+    JSValueRef *exception);
+>>>>>>> 0.20-stable
 };
 
 } }

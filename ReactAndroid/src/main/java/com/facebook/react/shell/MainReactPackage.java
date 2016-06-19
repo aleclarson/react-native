@@ -17,14 +17,26 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+<<<<<<< HEAD
 import com.facebook.react.modules.camera.CameraRollManager;
 import com.facebook.react.modules.dialog.DialogModule;
+=======
+import com.facebook.react.modules.appstate.AppStateModule;
+import com.facebook.react.modules.camera.CameraRollManager;
+import com.facebook.react.modules.camera.ImageEditingManager;
+import com.facebook.react.modules.camera.ImageStoreManager;
+import com.facebook.react.modules.clipboard.ClipboardModule;
+import com.facebook.react.modules.dialog.DialogModule;
+import com.facebook.react.modules.datepicker.DatePickerDialogModule;
+>>>>>>> 0.20-stable
 import com.facebook.react.modules.fresco.FrescoModule;
 import com.facebook.react.modules.intent.IntentModule;
 import com.facebook.react.modules.location.LocationModule;
 import com.facebook.react.modules.netinfo.NetInfoModule;
 import com.facebook.react.modules.network.NetworkingModule;
+import com.facebook.react.modules.statusbar.StatusBarModule;
 import com.facebook.react.modules.storage.AsyncStorageModule;
+import com.facebook.react.modules.timepicker.TimePickerDialogModule;
 import com.facebook.react.modules.toast.ToastModule;
 import com.facebook.react.modules.websocket.WebSocketModule;
 import com.facebook.react.uimanager.ViewManager;
@@ -49,7 +61,10 @@ import com.facebook.react.views.view.ReactViewManager;
 import com.facebook.react.views.viewpager.ReactViewPagerManager;
 import com.facebook.react.views.swiperefresh.SwipeRefreshLayoutManager;
 import com.facebook.react.views.webview.ReactWebViewManager;
+<<<<<<< HEAD
 import com.facebook.react.modules.clipboard.ClipboardModule;
+=======
+>>>>>>> 0.20-stable
 
 /**
  * Package defining basic modules and view managers.
@@ -59,17 +74,34 @@ public class MainReactPackage implements ReactPackage {
   @Override
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
     return Arrays.<NativeModule>asList(
+      new AppStateModule(reactContext),
       new AsyncStorageModule(reactContext),
       new CameraRollManager(reactContext),
       new ClipboardModule(reactContext),
+<<<<<<< HEAD
       new DialogModule(reactContext),
       new FrescoModule(reactContext),
+=======
+      new DatePickerDialogModule(reactContext),
+      new DialogModule(reactContext),
+      new FrescoModule(reactContext),
+      new ImageEditingManager(reactContext),
+      new ImageStoreManager(reactContext),
+>>>>>>> 0.20-stable
       new IntentModule(reactContext),
       new LocationModule(reactContext),
       new NetworkingModule(reactContext),
       new NetInfoModule(reactContext),
+<<<<<<< HEAD
       new WebSocketModule(reactContext),
       new ToastModule(reactContext));
+=======
+      new StatusBarModule(reactContext),
+      new TimePickerDialogModule(reactContext),
+      new ToastModule(reactContext),
+      new WebSocketModule(reactContext)
+    );
+>>>>>>> 0.20-stable
   }
 
   @Override
@@ -94,14 +126,22 @@ public class MainReactPackage implements ReactPackage {
       new RecyclerViewBackedScrollViewManager(),
       new ReactScrollViewManager(),
       new ReactSwitchManager(),
+      new ReactTextInlineImageViewManager(),
       new ReactTextInputManager(),
       new ReactTextViewManager(),
       new ReactToolbarManager(),
       new ReactViewManager(),
       new ReactViewPagerManager(),
+<<<<<<< HEAD
       new ReactTextInlineImageViewManager(),
       new ReactVirtualTextViewManager(),
       new SwipeRefreshLayoutManager(),
       new ReactWebViewManager());
+=======
+      new ReactVirtualTextViewManager(),
+      new ReactWebViewManager(),
+      new RecyclerViewBackedScrollViewManager(),
+      new SwipeRefreshLayoutManager());
+>>>>>>> 0.20-stable
   }
 }

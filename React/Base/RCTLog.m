@@ -163,7 +163,7 @@ NSString *RCTFormatLog(
     [log appendString:[formatter stringFromDate:timestamp]];
   }
   if (level) {
-    [log appendFormat:@"[%s]", RCTLogLevels[level - 1]];
+    [log appendFormat:@"[%s]", RCTLogLevels[level]];
   }
 
   [log appendFormat:@"[tid:%@]", RCTCurrentThreadName()];
@@ -199,7 +199,11 @@ void _RCTLogNativeInternal(RCTLogLevel level, const char *fileName, int lineNumb
       logFunction(level, RCTLogSourceNative, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message);
     }
 
+<<<<<<< HEAD
 //#if RCT_DEBUG
+=======
+#if RCT_DEBUG
+>>>>>>> 0.20-stable
 
     // Log to red box in debug mode.
     if ([UIApplication sharedApplication] && level >= RCTLOG_REDBOX_LEVEL) {

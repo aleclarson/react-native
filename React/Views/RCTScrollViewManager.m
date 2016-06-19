@@ -29,6 +29,12 @@ RCT_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
   @"onDrag": @(UIScrollViewKeyboardDismissModeOnDrag),
 }), UIScrollViewKeyboardDismissModeNone, integerValue)
 
+RCT_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
+  @"default": @(UIScrollViewIndicatorStyleDefault),
+  @"black": @(UIScrollViewIndicatorStyleBlack),
+  @"white": @(UIScrollViewIndicatorStyleWhite),
+}), UIScrollViewIndicatorStyleDefault, integerValue)
+
 @end
 
 @implementation RCTScrollViewManager
@@ -49,6 +55,7 @@ RCT_EXPORT_VIEW_PROPERTY(centerContent, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(automaticallyAdjustContentInsets, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(decelerationRate, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(directionalLockEnabled, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(indicatorStyle, UIScrollViewIndicatorStyle)
 RCT_EXPORT_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
 RCT_EXPORT_VIEW_PROPERTY(maximumZoomScale, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(minimumZoomScale, CGFloat)
@@ -132,14 +139,23 @@ RCT_EXPORT_METHOD(endRefreshing:(nonnull NSNumber *)reactTag)
 }
 
 RCT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)reactTag
+<<<<<<< HEAD
                   withOffset:(CGPoint)offset
+=======
+                  offsetX:(CGFloat)x
+                  offsetY:(CGFloat)y
+>>>>>>> 0.20-stable
                   animated:(BOOL)animated)
 {
   [self.bridge.uiManager addUIBlock:
    ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
     UIView *view = viewRegistry[reactTag];
     if ([view conformsToProtocol:@protocol(RCTScrollableProtocol)]) {
+<<<<<<< HEAD
       [(id<RCTScrollableProtocol>)view scrollToOffset:offset animated:animated];
+=======
+      [(id<RCTScrollableProtocol>)view scrollToOffset:(CGPoint){x, y} animated:animated];
+>>>>>>> 0.20-stable
     } else {
       RCTLogError(@"tried to scrollTo: on non-RCTScrollableProtocol view %@ "
                   "with tag #%@", view, reactTag);

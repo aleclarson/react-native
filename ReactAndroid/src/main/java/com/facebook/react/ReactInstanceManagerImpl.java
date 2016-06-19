@@ -11,6 +11,11 @@ package com.facebook.react;
 
 import javax.annotation.Nullable;
 
+<<<<<<< HEAD
+=======
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+>>>>>>> 0.20-stable
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,8 +26,17 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+<<<<<<< HEAD
 import android.os.Bundle;
 import android.view.View;
+=======
+import android.os.Build;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.View;
+import android.view.WindowManager;
+>>>>>>> 0.20-stable
 
 import com.facebook.common.logging.FLog;
 import com.facebook.infer.annotation.Assertions;
@@ -46,7 +60,11 @@ import com.facebook.react.bridge.ReactMarker;
 import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
+<<<<<<< HEAD
 import com.facebook.react.bridge.queue.CatalystQueueConfigurationSpec;
+=======
+import com.facebook.react.bridge.queue.ReactQueueConfigurationSpec;
+>>>>>>> 0.20-stable
 import com.facebook.react.common.ApplicationHolder;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.common.annotations.VisibleForTesting;
@@ -58,6 +76,10 @@ import com.facebook.react.devsupport.ReactInstanceDevCommandsHandler;
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.AppRegistry;
+<<<<<<< HEAD
+=======
+import com.facebook.react.uimanager.DisplayMetricsHolder;
+>>>>>>> 0.20-stable
 import com.facebook.react.uimanager.UIImplementationProvider;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.ViewManager;
@@ -248,6 +270,10 @@ import com.facebook.systrace.Systrace;
 
     // TODO(9577825): remove this
     ApplicationHolder.setApplication((Application) applicationContext.getApplicationContext());
+<<<<<<< HEAD
+=======
+    setDisplayMetrics(applicationContext);
+>>>>>>> 0.20-stable
 
     mApplicationContext = applicationContext;
     mJSBundleFile = jsBundleFile;
@@ -286,6 +312,43 @@ import com.facebook.systrace.Systrace;
     SoLoader.init(applicationContext, /* native exopackage */ false);
   }
 
+<<<<<<< HEAD
+=======
+  private static void setDisplayMetrics(Context context) {
+    DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+    DisplayMetricsHolder.setWindowDisplayMetrics(displayMetrics);
+
+    DisplayMetrics screenDisplayMetrics = new DisplayMetrics();
+    screenDisplayMetrics.setTo(displayMetrics);
+    WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    Display display = wm.getDefaultDisplay();
+
+    // Get the real display metrics if we are using API level 17 or higher.
+    // The real metrics include system decor elements (e.g. soft menu bar).
+    //
+    // See: http://developer.android.com/reference/android/view/Display.html#getRealMetrics(android.util.DisplayMetrics)
+    if (Build.VERSION.SDK_INT >= 17) {
+      display.getRealMetrics(screenDisplayMetrics);
+    } else {
+      // For 14 <= API level <= 16, we need to invoke getRawHeight and getRawWidth to get the real dimensions.
+      // Since react-native only supports API level 16+ we don't have to worry about other cases.
+      //
+      // Reflection exceptions are rethrown at runtime.
+      //
+      // See: http://stackoverflow.com/questions/14341041/how-to-get-real-screen-height-and-width/23861333#23861333
+      try {
+        Method mGetRawH = Display.class.getMethod("getRawHeight");
+        Method mGetRawW = Display.class.getMethod("getRawWidth");
+        screenDisplayMetrics.widthPixels = (Integer) mGetRawW.invoke(display);
+        screenDisplayMetrics.heightPixels = (Integer) mGetRawH.invoke(display);
+      } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+        throw new RuntimeException("Error getting real dimensions for API level < 17", e);
+      }
+    }
+    DisplayMetricsHolder.setScreenDisplayMetrics(screenDisplayMetrics);
+  }
+
+>>>>>>> 0.20-stable
   /**
    * Trigger react context initialization asynchronously in a background async task. This enables
    * applications to pre-load the application JS, and execute global code before
@@ -711,7 +774,11 @@ import com.facebook.systrace.Systrace;
         ? mNativeModuleCallExceptionHandler
         : mDevSupportManager;
     CatalystInstanceImpl.Builder catalystInstanceBuilder = new CatalystInstanceImpl.Builder()
+<<<<<<< HEAD
         .setCatalystQueueConfigurationSpec(CatalystQueueConfigurationSpec.createDefault())
+=======
+        .setReactQueueConfigurationSpec(ReactQueueConfigurationSpec.createDefault())
+>>>>>>> 0.20-stable
         .setJSExecutor(jsExecutor)
         .setRegistry(nativeModuleRegistry)
         .setJSModulesConfig(javaScriptModulesConfig)

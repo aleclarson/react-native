@@ -16,6 +16,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+<<<<<<< HEAD
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +29,19 @@ import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.common.annotations.VisibleForTesting;
 import com.facebook.infer.annotation.Assertions;
+=======
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.facebook.common.logging.FLog;
+import com.facebook.infer.annotation.Assertions;
+import com.facebook.proguard.annotations.DoNotStrip;
+import com.facebook.react.bridge.queue.ReactQueueConfiguration;
+import com.facebook.react.bridge.queue.ReactQueueConfigurationImpl;
+import com.facebook.react.bridge.queue.ReactQueueConfigurationSpec;
+import com.facebook.react.bridge.queue.QueueThreadExceptionHandler;
+import com.facebook.react.common.ReactConstants;
+import com.facebook.react.common.annotations.VisibleForTesting;
+>>>>>>> 0.20-stable
 import com.facebook.systrace.Systrace;
 import com.facebook.systrace.TraceListener;
 
@@ -41,6 +55,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 @DoNotStrip
 public class CatalystInstanceImpl implements CatalystInstance {
 
+<<<<<<< HEAD
   private static final int BRIDGE_SETUP_TIMEOUT_MS = 30000;
   private static final int LOAD_JS_BUNDLE_TIMEOUT_MS = 30000;
 
@@ -48,6 +63,12 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
   // Access from any thread
   private final CatalystQueueConfigurationImpl mCatalystQueueConfiguration;
+=======
+  private static final AtomicInteger sNextInstanceIdForTrace = new AtomicInteger(1);
+
+  // Access from any thread
+  private final ReactQueueConfigurationImpl mReactQueueConfiguration;
+>>>>>>> 0.20-stable
   private final CopyOnWriteArrayList<NotThreadSafeBridgeIdleDebugListener> mBridgeIdleListeners;
   private final AtomicInteger mPendingJSCalls = new AtomicInteger(0);
   private final String mJsPendingCallsTitleForTrace =
@@ -68,14 +89,23 @@ public class CatalystInstanceImpl implements CatalystInstance {
   private boolean mJSBundleHasLoaded;
 
   private CatalystInstanceImpl(
+<<<<<<< HEAD
       final CatalystQueueConfigurationSpec catalystQueueConfigurationSpec,
+=======
+      final ReactQueueConfigurationSpec ReactQueueConfigurationSpec,
+>>>>>>> 0.20-stable
       final JavaScriptExecutor jsExecutor,
       final NativeModuleRegistry registry,
       final JavaScriptModulesConfig jsModulesConfig,
       final JSBundleLoader jsBundleLoader,
       NativeModuleCallExceptionHandler nativeModuleCallExceptionHandler) {
+<<<<<<< HEAD
     mCatalystQueueConfiguration = CatalystQueueConfigurationImpl.create(
         catalystQueueConfigurationSpec,
+=======
+    mReactQueueConfiguration = ReactQueueConfigurationImpl.create(
+        ReactQueueConfigurationSpec,
+>>>>>>> 0.20-stable
         new NativeExceptionHandler());
     mBridgeIdleListeners = new CopyOnWriteArrayList<>();
     mJavaRegistry = registry;
@@ -85,7 +115,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
     mTraceListener = new JSProfilerTraceListener();
 
     try {
+<<<<<<< HEAD
       mBridge = mCatalystQueueConfiguration.getJSQueueThread().callOnQueue(
+=======
+      mBridge = mReactQueueConfiguration.getJSQueueThread().callOnQueue(
+>>>>>>> 0.20-stable
           new Callable<ReactBridge>() {
             @Override
             public ReactBridge call() throws Exception {
@@ -96,7 +130,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
                 Systrace.endSection(Systrace.TRACE_TAG_REACT_JAVA_BRIDGE);
               }
             }
+<<<<<<< HEAD
           }).get(BRIDGE_SETUP_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+=======
+          }).get();
+>>>>>>> 0.20-stable
     } catch (Exception t) {
       throw new RuntimeException("Failed to initialize bridge", t);
     }
@@ -105,7 +143,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
   private ReactBridge initializeBridge(
       JavaScriptExecutor jsExecutor,
       JavaScriptModulesConfig jsModulesConfig) {
+<<<<<<< HEAD
     mCatalystQueueConfiguration.getJSQueueThread().assertIsOnThread();
+=======
+    mReactQueueConfiguration.getJSQueueThread().assertIsOnThread();
+>>>>>>> 0.20-stable
     Assertions.assertCondition(mBridge == null, "initializeBridge should be called once");
 
     Systrace.beginSection(Systrace.TRACE_TAG_REACT_JAVA_BRIDGE, "ReactBridgeCtor");
@@ -114,7 +156,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
       bridge = new ReactBridge(
           jsExecutor,
           new NativeModulesReactCallback(),
+<<<<<<< HEAD
           mCatalystQueueConfiguration.getNativeModulesQueueThread());
+=======
+          mReactQueueConfiguration.getNativeModulesQueueThread());
+>>>>>>> 0.20-stable
     } finally {
       Systrace.endSection(Systrace.TRACE_TAG_REACT_JAVA_BRIDGE);
     }
@@ -137,7 +183,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
   @Override
   public void runJSBundle() {
     try {
+<<<<<<< HEAD
       mJSBundleHasLoaded = mCatalystQueueConfiguration.getJSQueueThread().callOnQueue(
+=======
+      mJSBundleHasLoaded = mReactQueueConfiguration.getJSQueueThread().callOnQueue(
+>>>>>>> 0.20-stable
           new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
@@ -159,7 +209,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
               return true;
             }
+<<<<<<< HEAD
           }).get(LOAD_JS_BUNDLE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+=======
+          }).get();
+>>>>>>> 0.20-stable
     } catch (Exception t) {
       throw new RuntimeException(t);
     }
@@ -183,11 +237,19 @@ public class CatalystInstanceImpl implements CatalystInstance {
         tracingName,
         traceID);
 
+<<<<<<< HEAD
     mCatalystQueueConfiguration.getJSQueueThread().runOnQueue(
         new Runnable() {
           @Override
           public void run() {
             mCatalystQueueConfiguration.getJSQueueThread().assertIsOnThread();
+=======
+    mReactQueueConfiguration.getJSQueueThread().runOnQueue(
+        new Runnable() {
+          @Override
+          public void run() {
+            mReactQueueConfiguration.getJSQueueThread().assertIsOnThread();
+>>>>>>> 0.20-stable
 
             Systrace.endAsyncFlow(
                 Systrace.TRACE_TAG_REACT_JAVA_BRIDGE,
@@ -226,11 +288,19 @@ public class CatalystInstanceImpl implements CatalystInstance {
         "<callback>",
         traceID);
 
+<<<<<<< HEAD
     mCatalystQueueConfiguration.getJSQueueThread().runOnQueue(
         new Runnable() {
           @Override
           public void run() {
             mCatalystQueueConfiguration.getJSQueueThread().assertIsOnThread();
+=======
+    mReactQueueConfiguration.getJSQueueThread().runOnQueue(
+        new Runnable() {
+          @Override
+          public void run() {
+            mReactQueueConfiguration.getJSQueueThread().assertIsOnThread();
+>>>>>>> 0.20-stable
 
             Systrace.endAsyncFlow(
                 Systrace.TRACE_TAG_REACT_JAVA_BRIDGE,
@@ -252,7 +322,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
   }
 
   /**
+<<<<<<< HEAD
    * Destroys this catalyst instance, waiting for any other threads in CatalystQueueConfiguration
+=======
+   * Destroys this catalyst instance, waiting for any other threads in ReactQueueConfiguration
+>>>>>>> 0.20-stable
    * (besides the UI thread) to finish running. Must be called from the UI thread so that we can
    * fully shut down other threads.
    */
@@ -267,7 +341,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
     // TODO: tell all APIs to shut down
     mDestroyed = true;
     mJavaRegistry.notifyCatalystInstanceDestroy();
+<<<<<<< HEAD
     mCatalystQueueConfiguration.destroy();
+=======
+    mReactQueueConfiguration.destroy();
+>>>>>>> 0.20-stable
     boolean wasIdle = (mPendingJSCalls.getAndSet(0) == 0);
     if (!wasIdle && !mBridgeIdleListeners.isEmpty()) {
       for (NotThreadSafeBridgeIdleDebugListener listener : mBridgeIdleListeners) {
@@ -278,7 +356,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
     Systrace.unregisterListener(mTraceListener);
 
     // We can access the Bridge from any thread now because we know either we are on the JS thread
+<<<<<<< HEAD
     // or the JS thread has finished via CatalystQueueConfiguration#destroy()
+=======
+    // or the JS thread has finished via ReactQueueConfiguration#destroy()
+>>>>>>> 0.20-stable
     mBridge.dispose();
   }
 
@@ -302,6 +384,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
   }
 
   @Override
+<<<<<<< HEAD
   public CatalystQueueConfiguration getCatalystQueueConfiguration() {
     return mCatalystQueueConfiguration;
   }
@@ -309,6 +392,10 @@ public class CatalystInstanceImpl implements CatalystInstance {
   @VisibleForTesting
   public ReactBridge getBridge() {
     return mBridge;
+=======
+  public ReactQueueConfiguration getReactQueueConfiguration() {
+    return mReactQueueConfiguration;
+>>>>>>> 0.20-stable
   }
 
   @Override
@@ -366,6 +453,15 @@ public class CatalystInstanceImpl implements CatalystInstance {
     mBridge.stopProfiler(title, filename);
   }
 
+<<<<<<< HEAD
+=======
+  @VisibleForTesting
+  @Override
+  public void setGlobalVariable(String propName, String jsonValue) {
+    mBridge.setGlobalVariable(propName, jsonValue);
+  }
+
+>>>>>>> 0.20-stable
   private String buildModulesConfigJSONProperty(
       NativeModuleRegistry nativeModuleRegistry,
       JavaScriptModulesConfig jsModulesConfig) {
@@ -421,7 +517,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
     @Override
     public void call(int moduleId, int methodId, ReadableNativeArray parameters) {
+<<<<<<< HEAD
       mCatalystQueueConfiguration.getNativeModulesQueueThread().assertIsOnThread();
+=======
+      mReactQueueConfiguration.getNativeModulesQueueThread().assertIsOnThread();
+>>>>>>> 0.20-stable
 
       // Suppress any callbacks if destroyed - will only lead to sadness.
       if (mDestroyed) {
@@ -433,7 +533,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
     @Override
     public void onBatchComplete() {
+<<<<<<< HEAD
       mCatalystQueueConfiguration.getNativeModulesQueueThread().assertIsOnThread();
+=======
+      mReactQueueConfiguration.getNativeModulesQueueThread().assertIsOnThread();
+>>>>>>> 0.20-stable
 
       // The bridge may have been destroyed due to an exception during the batch. In that case
       // native modules could be in a bad state so we don't want to call anything on them. We
@@ -460,7 +564,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
       // framework/native code, it was triggered by JS and theoretically since we were able
       // to set up the bridge, JS could change its logic, reload, and not trigger that crash.
       mNativeModuleCallExceptionHandler.handleException(e);
+<<<<<<< HEAD
       mCatalystQueueConfiguration.getUIQueueThread().runOnQueue(
+=======
+      mReactQueueConfiguration.getUIQueueThread().runOnQueue(
+>>>>>>> 0.20-stable
           new Runnable() {
             @Override
             public void run() {
@@ -484,16 +592,26 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
   public static class Builder {
 
+<<<<<<< HEAD
     private @Nullable CatalystQueueConfigurationSpec mCatalystQueueConfigurationSpec;
+=======
+    private @Nullable ReactQueueConfigurationSpec mReactQueueConfigurationSpec;
+>>>>>>> 0.20-stable
     private @Nullable JSBundleLoader mJSBundleLoader;
     private @Nullable NativeModuleRegistry mRegistry;
     private @Nullable JavaScriptModulesConfig mJSModulesConfig;
     private @Nullable JavaScriptExecutor mJSExecutor;
     private @Nullable NativeModuleCallExceptionHandler mNativeModuleCallExceptionHandler;
 
+<<<<<<< HEAD
     public Builder setCatalystQueueConfigurationSpec(
         CatalystQueueConfigurationSpec catalystQueueConfigurationSpec) {
       mCatalystQueueConfigurationSpec = catalystQueueConfigurationSpec;
+=======
+    public Builder setReactQueueConfigurationSpec(
+        ReactQueueConfigurationSpec ReactQueueConfigurationSpec) {
+      mReactQueueConfigurationSpec = ReactQueueConfigurationSpec;
+>>>>>>> 0.20-stable
       return this;
     }
 
@@ -525,7 +643,11 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
     public CatalystInstanceImpl build() {
       return new CatalystInstanceImpl(
+<<<<<<< HEAD
           Assertions.assertNotNull(mCatalystQueueConfigurationSpec),
+=======
+          Assertions.assertNotNull(mReactQueueConfigurationSpec),
+>>>>>>> 0.20-stable
           Assertions.assertNotNull(mJSExecutor),
           Assertions.assertNotNull(mRegistry),
           Assertions.assertNotNull(mJSModulesConfig),

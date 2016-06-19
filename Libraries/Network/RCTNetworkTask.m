@@ -33,7 +33,6 @@
     _request = request;
     _handler = handler;
     _completionBlock = completionBlock;
-    NSLog(@"%@: %@", _requestID, _request.URL.absoluteString);
   }
   return self;
 }

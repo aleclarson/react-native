@@ -11,16 +11,19 @@ package com.facebook.react.uimanager;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+<<<<<<< HEAD
 import android.util.DisplayMetrics;
 
 import com.facebook.csslayout.CSSLayoutContext;
 import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.animation.Animation;
 import com.facebook.react.bridge.Arguments;
+=======
+import com.facebook.react.animation.Animation;
+>>>>>>> 0.20-stable
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.OnBatchCompleteListener;
@@ -29,7 +32,10 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+<<<<<<< HEAD
 import com.facebook.react.bridge.WritableArray;
+=======
+>>>>>>> 0.20-stable
 import com.facebook.react.uimanager.debug.NotThreadSafeViewHierarchyUpdateDebugListener;
 import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.systrace.Systrace;
@@ -84,9 +90,13 @@ public class UIManagerModule extends ReactContextBaseJavaModule implements
       UIImplementation uiImplementation) {
     super(reactContext);
     mEventDispatcher = new EventDispatcher(reactContext);
+<<<<<<< HEAD
     DisplayMetrics displayMetrics = reactContext.getResources().getDisplayMetrics();
     DisplayMetricsHolder.setDisplayMetrics(displayMetrics);
     mModuleConstants = createConstants(displayMetrics, viewManagerList);
+=======
+    mModuleConstants = createConstants(viewManagerList);
+>>>>>>> 0.20-stable
     mUIImplementation = uiImplementation;
 
     reactContext.addLifecycleEventListener(this);
@@ -123,6 +133,7 @@ public class UIManagerModule extends ReactContextBaseJavaModule implements
     mEventDispatcher.onCatalystInstanceDestroyed();
   }
 
+<<<<<<< HEAD
   private static Map<String, Object> createConstants(
       DisplayMetrics displayMetrics,
       List<ViewManager> viewManagerList) {
@@ -131,6 +142,12 @@ public class UIManagerModule extends ReactContextBaseJavaModule implements
       return UIManagerModuleConstantsHelper.createConstants(
           displayMetrics,
           viewManagerList);
+=======
+  private static Map<String, Object> createConstants(List<ViewManager> viewManagerList) {
+    Systrace.beginSection(Systrace.TRACE_TAG_REACT_JAVA_BRIDGE, "CreateUIManagerConstants");
+    try {
+      return UIManagerModuleConstantsHelper.createConstants(viewManagerList);
+>>>>>>> 0.20-stable
     } finally {
       Systrace.endSection(Systrace.TRACE_TAG_REACT_JAVA_BRIDGE);
     }

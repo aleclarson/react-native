@@ -17,7 +17,10 @@ import android.graphics.Paint;
 
 import com.facebook.react.bridge.JSApplicationIllegalArgumentException;
 import com.facebook.react.bridge.ReadableArray;
+<<<<<<< HEAD
 import com.facebook.react.uimanager.CatalystStylesDiffMap;
+=======
+>>>>>>> 0.20-stable
 import com.facebook.react.uimanager.DisplayMetricsHolder;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.ReactShadowNode;
@@ -39,7 +42,11 @@ public abstract class ARTVirtualNode extends ReactShadowNode {
   protected final float mScale;
 
   public ARTVirtualNode() {
+<<<<<<< HEAD
     mScale = DisplayMetricsHolder.getDisplayMetrics().density;
+=======
+    mScale = DisplayMetricsHolder.getWindowDisplayMetrics().density;
+>>>>>>> 0.20-stable
   }
 
   @Override

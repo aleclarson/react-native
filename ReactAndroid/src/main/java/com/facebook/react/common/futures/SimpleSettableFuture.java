@@ -37,8 +37,13 @@ public class SimpleSettableFuture<T> implements Future<T> {
   }
 
   /**
+<<<<<<< HEAD
    * Sets the eception. If another thread has called {@link #get}, they will immediately receive the
    * exception. set or setException must only be called once.
+=======
+   * Sets the exception. If another thread has called {@link #get}, they will immediately receive
+   * the exception. set or setException must only be called once.
+>>>>>>> 0.20-stable
    */
   public void setException(Exception exception) {
     checkNotSet();
@@ -61,10 +66,21 @@ public class SimpleSettableFuture<T> implements Future<T> {
     return mReadyLatch.getCount() == 0;
   }
 
+<<<<<<< HEAD
   @Deprecated
   @Override
   public T get() throws InterruptedException, ExecutionException {
     throw new UnsupportedOperationException("Must use a timeout");
+=======
+  @Override
+  public @Nullable T get() throws InterruptedException, ExecutionException {
+    mReadyLatch.await();
+    if (mException != null) {
+      throw new ExecutionException(mException);
+    }
+
+    return mResult;
+>>>>>>> 0.20-stable
   }
 
   /**
@@ -77,6 +93,7 @@ public class SimpleSettableFuture<T> implements Future<T> {
   @Override
   public @Nullable T get(long timeout, TimeUnit unit) throws
       InterruptedException, ExecutionException, TimeoutException {
+<<<<<<< HEAD
     try {
       if (!mReadyLatch.await(timeout, unit)) {
         throw new TimeoutException("Timed out waiting for result");
@@ -89,6 +106,28 @@ public class SimpleSettableFuture<T> implements Future<T> {
     }
 
     return mResult;
+=======
+    if (!mReadyLatch.await(timeout, unit)) {
+      throw new TimeoutException("Timed out waiting for result");
+    }
+    if (mException != null) {
+      throw new ExecutionException(mException);
+    }
+
+    return mResult;
+  }
+
+  /**
+   * Convenience wrapper for {@link #get()} that re-throws get()'s Exceptions as
+   * RuntimeExceptions.
+   */
+  public @Nullable T getOrThrow() {
+    try {
+      return get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+>>>>>>> 0.20-stable
   }
 
   /**

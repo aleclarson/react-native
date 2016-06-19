@@ -33,6 +33,7 @@ RCT_EXPORT_MODULE()
   return webView;
 }
 
+<<<<<<< HEAD
 RCT_REMAP_VIEW_PROPERTY(url, URL, NSURL)
 RCT_REMAP_VIEW_PROPERTY(html, HTML, NSString)
 RCT_REMAP_VIEW_PROPERTY(bounces, _webView.scrollView.bounces, BOOL)
@@ -40,6 +41,13 @@ RCT_REMAP_VIEW_PROPERTY(scrollEnabled, _webView.scrollView.scrollEnabled, BOOL)
 RCT_REMAP_VIEW_PROPERTY(contentOffset, _webView.scrollView.contentOffset, CGPoint)
 RCT_REMAP_VIEW_PROPERTY(userInteractionEnabled, _webView.userInteractionEnabled, BOOL)
 RCT_REMAP_VIEW_PROPERTY(scalesPageToFit, _webView.scalesPageToFit, BOOL)
+=======
+RCT_EXPORT_VIEW_PROPERTY(source, NSDictionary)
+RCT_REMAP_VIEW_PROPERTY(bounces, _webView.scrollView.bounces, BOOL)
+RCT_REMAP_VIEW_PROPERTY(scrollEnabled, _webView.scrollView.scrollEnabled, BOOL)
+RCT_REMAP_VIEW_PROPERTY(scalesPageToFit, _webView.scalesPageToFit, BOOL)
+RCT_REMAP_VIEW_PROPERTY(decelerationRate, _webView.scrollView.decelerationRate, CGFloat)
+>>>>>>> 0.20-stable
 RCT_EXPORT_VIEW_PROPERTY(injectedJavaScript, NSString)
 RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets)
 RCT_EXPORT_VIEW_PROPERTY(automaticallyAdjustContentInsets, BOOL)
@@ -100,6 +108,7 @@ RCT_EXPORT_METHOD(reload:(nonnull NSNumber *)reactTag)
   }];
 }
 
+<<<<<<< HEAD
 RCT_EXPORT_METHOD(stopLoading:(nonnull NSNumber *)reactTag)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTWebView *> *viewRegistry) {
@@ -124,6 +133,8 @@ RCT_EXPORT_METHOD(removeAllRanges:(nonnull NSNumber *)reactTag)
   }];
 }
 
+=======
+>>>>>>> 0.20-stable
 #pragma mark - Exported synchronous methods
 
 - (BOOL)webView:(__unused RCTWebView *)webView

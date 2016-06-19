@@ -84,13 +84,10 @@ function _dependencies(argv, config, resolve, reject) {
     : process.stdout;
 
   // TODO: allow to configure which logging namespaces should get logged
-  // log('Running ReactPackager');
-  // log('Waiting for the packager.');
   resolve(ReactPackager.createClientFor(packageOpts).then(client => {
     // log('Packager client was created');
     return client.getOrderedDependencyPaths(options)
       .then(deps => {
-        // log('Packager returned dependencies');
         client.close();
 
         deps.forEach(modulePath => {
@@ -109,7 +106,6 @@ function _dependencies(argv, config, resolve, reject) {
         return writeToFile
           ? Promise.ify(outStream.end).bind(outStream)()
           : Promise();
-        // log('Wrote dependencies to output file');
       });
   }));
 }

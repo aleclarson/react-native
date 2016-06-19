@@ -8,13 +8,12 @@
  */
 'use strict';
 
-const isAbsolutePath = require('absolute-path');
-const Promise = require('Promise');
-const tmpDir = require('os').tmpDir();
+const Promise = require('promise');
 const fs = require('graceful-fs');
-
 const getCacheFilePath = require('./lib/getCacheFilePath');
+const isAbsolutePath = require('absolute-path');
 const loadCacheSync = require('./lib/loadCacheSync');
+const tmpDir = require('os').tmpDir();
 
 function getObjectValues(object) {
   return Object.keys(object).map(key => object[key]);
@@ -52,16 +51,20 @@ class Cache {
       throw new Error('Use absolute paths');
     }
 
-    var recordP = this._has(filepath, field)
+    var recordP = this.has(filepath, field)
       ? this._data[filepath].data[field]
-      : this._set(filepath, field, loaderCb(filepath));
+      : this.set(filepath, field, loaderCb(filepath));
 
     return recordP.then(record => record);
   }
 
-  invalidate(filepath) {
-    if (this._has(filepath)) {
-      delete this._data[filepath];
+  invalidate(filepath, field) {
+    if (this.has(filepath, field)) {
+      if (field == null) {
+        delete this._data[filepath];
+      } else {
+        delete this._data[filepath].data[field];
+      }
     }
   }
 
@@ -69,17 +72,12 @@ class Cache {
     return this._persistCache();
   }
 
-  reset() {
-    this._data = Object.create(null);
-    this._persistEventually();
-  }
-
-  _has(filepath, field) {
+  has(filepath, field) {
     return Object.prototype.hasOwnProperty.call(this._data, filepath) &&
-      (!field || Object.prototype.hasOwnProperty.call(this._data[filepath].data, field));
+      (field == null || Object.prototype.hasOwnProperty.call(this._data[filepath].data, field));
   }
 
-  _set(filepath, field, loaderPromise) {
+  set(filepath, field, loaderPromise) {
     let record = this._data[filepath];
     if (!record) {
       record = Object.create(null);
@@ -91,7 +89,7 @@ class Cache {
     record.data[field] = loaderPromise
       .then(data => Promise.all([
         data,
-        Promise.ify(fs.stat)(filepath),
+        Promise.denodeify(fs.stat)(filepath),
       ]))
       .then(([data, stat]) => {
         this._persistEventually();
@@ -111,69 +109,60 @@ class Cache {
   }
 
   _persistCache() {
-    return Promise();
+    if (this._persisting != null) {
+      return this._persisting;
+    }
 
-    // if (this._persisting != null) {
-    //   return this._persisting;
-    // }
-    //
-    // const data = this._data;
-    // const dataKeys = Object.keys(data);
-    // const cacheFilepath = this._cacheFilePath;
-    //
-    // const allPromises = getObjectValues(data)
-    //   .map(record => {
-    //     const fieldNames = Object.keys(record.data);
-    //     const fieldValues = getObjectValues(record.data);
-    //
-    //     return Q
-    //       .all(fieldValues)
-    //       .then(ref => {
-    //         const ret = Object.create(null);
-    //         ret.metadata = record.metadata;
-    //         ret.data = Object.create(null);
-    //         fieldNames.forEach((field, index) =>
-    //           ret.data[field] = ref[index]
-    //         );
-    //
-    //         return ret;
-    //       });
-    //   }
-    // );
-    //
-    // this._persisting = Promise.all(allPromises)
-    //   .then(values => {
-    //     const json = Object.create(null);
-    //     dataKeys.forEach((key, i) => {
-    //       // make sure the key wasn't added nor removed after we started
-    //       // persisting the cache
-    //       const value = values[i];
-    //       if (!value) {
-    //         return;
-    //       }
-    //
-    //       json[key] = Object.create(null);
-    //       json[key].metadata = data[key].metadata;
-    //       json[key].data = value.data;
-    //     });
-    //     return Promise.ify(fs.writeFile)(cacheFilepath, JSON.stringify(json));
-    //   })
-    //   .catch(e => console.error('Error while persisting cache:', e.stack))
-    //   .then(() => {
-    //     this._persisting = null;
-    //     return true;
-    //   });
-    //
-    // return this._persisting;
+    const data = this._data;
+    const cacheFilepath = this._cacheFilePath;
+
+    const allPromises = getObjectValues(data)
+      .map(record => {
+        const fieldNames = Object.keys(record.data);
+        const fieldValues = getObjectValues(record.data);
+
+        return Promise
+          .all(fieldValues)
+          .then(ref => {
+            const ret = Object.create(null);
+            ret.metadata = record.metadata;
+            ret.data = Object.create(null);
+            fieldNames.forEach((field, index) =>
+              ret.data[field] = ref[index]
+            );
+
+            return ret;
+          });
+      }
+    );
+
+    this._persisting = Promise.all(allPromises)
+      .then(values => {
+        const json = Object.create(null);
+        Object.keys(data).forEach((key, i) => {
+          // make sure the key wasn't added nor removed after we started
+          // persisting the cache
+          const value = values[i];
+          if (!value) {
+            return;
+          }
+
+          json[key] = Object.create(null);
+          json[key].metadata = data[key].metadata;
+          json[key].data = value.data;
+        });
+        return Promise.denodeify(fs.writeFile)(cacheFilepath, JSON.stringify(json));
+      })
+      .catch(e => console.error('Error while persisting cache:', e.message))
+      .then(() => {
+        this._persisting = null;
+        return true;
+      });
+
+    return this._persisting;
   }
 
   _loadCacheSync(cachePath) {
-
-    log.moat(1);
-    log.white('Loading: ');
-    log.yellow(cachePath);
-    log.moat(1);
-
     var ret = Object.create(null);
     var cacheOnDisk = loadCacheSync(cachePath);
 
@@ -191,7 +180,7 @@ class Cache {
         ret[key].metadata.mtime = record.metadata.mtime;
 
         Object.keys(record.data).forEach(field => {
-          ret[key].data[field] = Promise(record.data[field]);
+          ret[key].data[field] = Promise.resolve(record.data[field]);
         });
       }
     });

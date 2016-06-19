@@ -38,7 +38,7 @@ class Package {
           main;
       }
 
-      if (!path.extname(main)) {
+      if (ext) {
         main += ext;
       }
 

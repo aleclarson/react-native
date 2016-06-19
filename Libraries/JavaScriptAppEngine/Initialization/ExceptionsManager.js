@@ -11,60 +11,34 @@
  */
 'use strict';
 
-var loadSourceMap = require('loadSourceMap');
-var Promise = require ('Promise');
+const SourceMapsCache = require('SourceMapsCache');
 
-var exceptionID = 0;
-
-GLOBAL.bundleMap = null;
-GLOBAL.loadingBundleMap = null;
+let exceptionID = 0;
 
 module.exports = {
   reportException,
   createException,
 };
 
-function getBundleMap(onLoad) {
-  if (GLOBAL.bundleMap) {
-    return onLoad(GLOBAL.bundleMap);
-  }
-  if (GLOBAL.loadingBundleMap) {
-    return GLOBAL.loadingBundleMap.then(onLoad);
-  }
-  GLOBAL.loadingBundleMap =
-    loadSourceMap.forBundle()
-    .then(bundleSourceMap => {
-      GLOBAL.bundleMap = bundleSourceMap;
-      onLoad(bundleSourceMap);
-      return bundleSourceMap;
-    })
-    .fail(error => {
-      console.warn('Failed to load bundle source map!');
-      console.log(error.stack);
-      GLOBAL.loadingBundleMap = null;
-      return null;
-    });
-}
-
 function createException(error, isFatal, stack, onLoad) {
-  var resolveSourceMaps = require('resolveSourceMaps');
-  var filterErrorStack = require('filterErrorStack');
-  var parseErrorStack = require('parseErrorStack');
+  const resolveSourceMaps = require('resolveSourceMaps');
+  const filterErrorStack = require('filterErrorStack');
+  const parseErrorStack = require('parseErrorStack');
 
-  var exception = {
+  const exception = {
     id: ++exceptionID,
     isFatal: isFatal,
     reason: error.message,
     stack: stack || parseErrorStack(error),
   };
 
-  getBundleMap(bundleSourceMap => {
+  SourceMapsCache.fetchMain(mainSourceMap => {
 
     exception.stack = exception.stack.filter(frame => {
       if (typeof frame === 'string') {
         return true;
       } else if (frame instanceof Object) {
-        resolveSourceMaps(bundleSourceMap, frame);
+        resolveSourceMaps(mainSourceMap, frame);
         return frame.file.indexOf('/http:/') !== 0;
       } else {
         return false;
@@ -81,14 +55,12 @@ function createException(error, isFatal, stack, onLoad) {
     }
 
     // Map the JS files to any original dialects.
-    return Promise.all(
-      stack.map(frame =>
-        loadSourceMap
-          .forFile(frame.file)
-          .fail(error => null) // Ignore file-specific loading failures.
-      )
-    ).then(sourceMaps => {
+    return Promise.map(stack, (frame) =>
+      SourceMapsCache
+        .fetch({ modulePath: frame.file })
+        .fail(error => null)) // Ignore file-specific loading failures.
 
+    .then(sourceMaps => {
       stack.forEach((frame, index) => {
         var sourceMap = sourceMaps[index];
         if (!sourceMap) { return; }

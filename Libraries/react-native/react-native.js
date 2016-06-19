@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule react-native
  * @noflow - get/set properties not yet supported by flow. also `...require(x)` is broken #6560135
  */
 'use strict';
@@ -26,7 +25,7 @@ var ReactNative = {
   get Modal() { return require('Modal'); },
   get Navigator() { return require('Navigator'); },
   get NavigatorIOS() { return require('NavigatorIOS'); },
-  get PickerAndroid() { return require('PickerAndroid'); },
+  get Picker() { return require('Picker'); },
   get PickerIOS() { return require('PickerIOS'); },
   get ProgressBarAndroid() { return require('ProgressBarAndroid'); },
   get ProgressViewIOS() { return require('ProgressViewIOS'); },
@@ -38,6 +37,7 @@ var ReactNative = {
   get PullToRefreshViewAndroid() { return require('PullToRefreshViewAndroid'); },
   get RecyclerViewBackedScrollView() { return require('RecyclerViewBackedScrollView'); },
   get RefreshControl() { return require('RefreshControl'); },
+  get StatusBar() { return require('StatusBar'); },
   get SwitchAndroid() { return require('SwitchAndroid'); },
   get SwitchIOS() { return require('SwitchIOS'); },
   get TabBarIOS() { return require('TabBarIOS'); },
@@ -59,18 +59,22 @@ var ReactNative = {
   get AdSupportIOS() { return require('AdSupportIOS'); },
   get Alert() { return require('Alert'); },
   get AlertIOS() { return require('AlertIOS'); },
+  get Animated() { return require('Animated'); },
   get AppRegistry() { return require('AppRegistry'); },
+  get AppState() { return require('AppState'); },
   get AppStateIOS() { return require('AppStateIOS'); },
   get AsyncStorage() { return require('AsyncStorage'); },
   get BackAndroid() { return require('BackAndroid'); },
   get CameraRoll() { return require('CameraRoll'); },
   get Clipboard() { return require('Clipboard'); },
+  get DatePickerAndroid() { return require('DatePickerAndroid'); },
   get Dimensions() { return require('Dimensions'); },
   get Easing() { return require('Easing'); },
   get ImagePickerIOS() { return require('ImagePickerIOS'); },
   get IntentAndroid() { return require('IntentAndroid'); },
   get InteractionManager() { return require('InteractionManager'); },
   get LayoutAnimation() { return require('LayoutAnimation'); },
+  get Linking() { return require('Linking'); },
   get LinkingIOS() { return require('LinkingIOS'); },
   get NetInfo() { return require('NetInfo'); },
   get PanResponder() { return require('PanResponder'); },
@@ -79,6 +83,7 @@ var ReactNative = {
   get Settings() { return require('Settings'); },
   get StatusBarIOS() { return require('StatusBarIOS'); },
   get StyleSheet() { return require('StyleSheet'); },
+  get TimePickerAndroid() { return require('TimePickerAndroid'); },
   get UIManager() { return require('UIManager'); },
   get VibrationIOS() { return require('VibrationIOS'); },
 

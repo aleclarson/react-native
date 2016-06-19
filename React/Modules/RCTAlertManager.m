@@ -75,6 +75,10 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args
   NSString *message = [RCTConvert NSString:args[@"message"]];
   UIAlertViewStyle type = [RCTConvert UIAlertViewStyle:args[@"type"]];
   NSArray<NSDictionary *> *buttons = [RCTConvert NSDictionaryArray:args[@"buttons"]];
+<<<<<<< HEAD
+=======
+  NSString *defaultValue = [RCTConvert NSString:args[@"defaultValue"]];
+>>>>>>> 0.20-stable
   NSString *cancelButtonKey = [RCTConvert NSString:args[@"cancelButtonKey"]];
   NSString *destructiveButtonKey = [RCTConvert NSString:args[@"destructiveButtonKey"]];
 
@@ -111,6 +115,7 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args
     alertView.alertViewStyle = type;
     alertView.message = message;
 
+<<<<<<< HEAD
     NSMutableArray<NSString *> *buttonKeys =
       [[NSMutableArray alloc] initWithCapacity:buttons.count];
 
@@ -129,10 +134,35 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args
       index ++;
     }
 
+=======
+    if (type != UIAlertViewStyleDefault) {
+      [alertView textFieldAtIndex:0].text = defaultValue;
+    }
+
+    NSMutableArray<NSString *> *buttonKeys =
+      [[NSMutableArray alloc] initWithCapacity:buttons.count];
+
+    NSInteger index = 0;
+    for (NSDictionary<NSString *, id> *button in buttons) {
+      if (button.count != 1) {
+        RCTLogError(@"Button definitions should have exactly one key.");
+      }
+      NSString *buttonKey = button.allKeys.firstObject;
+      NSString *buttonTitle = [RCTConvert NSString:button[buttonKey]];
+      [alertView addButtonWithTitle:buttonTitle];
+      if ([buttonKey isEqualToString:cancelButtonKey]) {
+        alertView.cancelButtonIndex = buttonKeys.count;
+      }
+      [buttonKeys addObject:buttonKey];
+      index ++;
+    }
+
+>>>>>>> 0.20-stable
     if (!_alerts) {
       _alerts = [NSMutableArray new];
       _alertCallbacks = [NSMutableArray new];
       _alertButtonKeys = [NSMutableArray new];
+<<<<<<< HEAD
     }
     [_alerts addObject:alertView];
     [_alertCallbacks addObject:callback ?: ^(__unused id unused) {}];
@@ -228,6 +258,103 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args
     }
     [_alertControllers addObject:alertController];
 
+=======
+    }
+    [_alerts addObject:alertView];
+    [_alertCallbacks addObject:callback ?: ^(__unused id unused) {}];
+    [_alertButtonKeys addObject:buttonKeys];
+
+    [alertView show];
+
+  } else
+
+#endif
+
+  {
+    UIViewController *presentingController = RCTKeyWindow().rootViewController;
+    if (presentingController == nil) {
+      RCTLogError(@"Tried to display alert view but there is no application window. args: %@", args);
+      return;
+    }
+
+    // Walk the chain up to get the topmost modal view controller. If modals are
+    // presented the root view controller's view might not be in the window
+    // hierarchy, and presenting from it will fail.
+    while (presentingController.presentedViewController) {
+      presentingController = presentingController.presentedViewController;
+    }
+
+    UIAlertController *alertController =
+      [UIAlertController alertControllerWithTitle:title
+                                          message:nil
+                                   preferredStyle:UIAlertControllerStyleAlert];
+    switch (type) {
+      case UIAlertViewStylePlainTextInput:
+        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+          textField.secureTextEntry = NO;
+        }];
+        break;
+      case UIAlertViewStyleSecureTextInput:
+        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+          textField.placeholder = RCTUIKitLocalizedString(@"Password");
+          textField.secureTextEntry = YES;
+        }];
+        break;
+      case UIAlertViewStyleLoginAndPasswordInput:
+        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+          textField.placeholder = RCTUIKitLocalizedString(@"Login");
+        }];
+        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+          textField.placeholder = RCTUIKitLocalizedString(@"Password");
+          textField.secureTextEntry = YES;
+        }];
+      case UIAlertViewStyleDefault:
+        break;
+    }
+
+    alertController.message = message;
+
+    for (NSDictionary<NSString *, id> *button in buttons) {
+      if (button.count != 1) {
+        RCTLogError(@"Button definitions should have exactly one key.");
+      }
+      NSString *buttonKey = button.allKeys.firstObject;
+      NSString *buttonTitle = [RCTConvert NSString:button[buttonKey]];
+      UIAlertActionStyle buttonStyle = UIAlertActionStyleDefault;
+      if ([buttonKey isEqualToString:cancelButtonKey]) {
+        buttonStyle = UIAlertActionStyleCancel;
+      } else if ([buttonKey isEqualToString:destructiveButtonKey]) {
+        buttonStyle = UIAlertActionStyleDestructive;
+      }
+      [alertController addAction:[UIAlertAction actionWithTitle:buttonTitle
+                                                          style:buttonStyle
+                                                        handler:^(__unused UIAlertAction *action) {
+        switch (type) {
+          case UIAlertViewStylePlainTextInput:
+          case UIAlertViewStyleSecureTextInput:
+            callback(@[buttonKey, [alertController.textFields.firstObject text]]);
+            break;
+          case UIAlertViewStyleLoginAndPasswordInput: {
+            NSDictionary<NSString *, NSString *> *loginCredentials = @{
+              @"login": [alertController.textFields.firstObject text],
+              @"password": [alertController.textFields.lastObject text]
+            };
+            callback(@[buttonKey, loginCredentials]);
+            break;
+          }
+          case UIAlertViewStyleDefault:
+            callback(@[buttonKey]);
+            break;
+        }
+      }]];
+    }
+
+    if (!_alertControllers) {
+      _alertControllers = [NSMutableArray new];
+    }
+    [_alertControllers addObject:alertController];
+
+>>>>>>> 0.20-stable
     [presentingController presentViewController:alertController animated:YES completion:nil];
   }
 }

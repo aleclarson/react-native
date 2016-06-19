@@ -8,8 +8,7 @@
  */
 'use strict';
 
-const Promise = require('Promise');
-
+const Promise = require('promise');
 const log = require('../util/log').out('bundle');
 const outputBundle = require('./output/bundle');
 const ReactPackager = require('../../packager/react-packager');

@@ -17,11 +17,19 @@ public class ViewManagerPropertyUpdater {
   }
 
   public interface ViewManagerSetter<T extends ViewManager, V extends View> extends Settable {
+<<<<<<< HEAD
     void setProperty(T manager, V view, String name, CatalystStylesDiffMap props);
   }
 
   public interface ShadowNodeSetter<T extends ReactShadowNode> extends Settable {
     void setProperty(T node, String name, CatalystStylesDiffMap props);
+=======
+    void setProperty(T manager, V view, String name, ReactStylesDiffMap props);
+  }
+
+  public interface ShadowNodeSetter<T extends ReactShadowNode> extends Settable {
+    void setProperty(T node, String name, ReactStylesDiffMap props);
+>>>>>>> 0.20-stable
   }
 
   private static final String TAG = "ViewManagerPropertyUpdater";
@@ -33,7 +41,11 @@ public class ViewManagerPropertyUpdater {
   public static <T extends ViewManager, V extends View> void updateProps(
       T manager,
       V v,
+<<<<<<< HEAD
       CatalystStylesDiffMap props) {
+=======
+      ReactStylesDiffMap props) {
+>>>>>>> 0.20-stable
     ViewManagerSetter<T, V> setter = findManagerSetter(manager.getClass());
     ReadableMap propMap = props.mBackingMap;
     ReadableMapKeySetIterator iterator = propMap.keySetIterator();
@@ -43,7 +55,11 @@ public class ViewManagerPropertyUpdater {
     }
   }
 
+<<<<<<< HEAD
   public static <T extends ReactShadowNode> void updateProps(T node, CatalystStylesDiffMap props) {
+=======
+  public static <T extends ReactShadowNode> void updateProps(T node, ReactStylesDiffMap props) {
+>>>>>>> 0.20-stable
     ShadowNodeSetter<T> setter = findNodeSetter(node.getClass());
     ReadableMap propMap = props.mBackingMap;
     ReadableMapKeySetIterator iterator = propMap.keySetIterator();
@@ -117,7 +133,11 @@ public class ViewManagerPropertyUpdater {
     }
 
     @Override
+<<<<<<< HEAD
     public void setProperty(T manager, V v, String name, CatalystStylesDiffMap props) {
+=======
+    public void setProperty(T manager, V v, String name, ReactStylesDiffMap props) {
+>>>>>>> 0.20-stable
       ViewManagersPropertyCache.PropSetter setter = mPropSetters.get(name);
       if (setter != null) {
         setter.updateViewProp(manager, v, props);
@@ -144,7 +164,11 @@ public class ViewManagerPropertyUpdater {
     }
 
     @Override
+<<<<<<< HEAD
     public void setProperty(ReactShadowNode node, String name, CatalystStylesDiffMap props) {
+=======
+    public void setProperty(ReactShadowNode node, String name, ReactStylesDiffMap props) {
+>>>>>>> 0.20-stable
       ViewManagersPropertyCache.PropSetter setter = mPropSetters.get(name);
       if (setter != null) {
         setter.updateShadowNodeProp(node, props);

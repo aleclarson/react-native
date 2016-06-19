@@ -36,8 +36,13 @@ import android.provider.MediaStore.Images;
 import android.text.TextUtils;
 
 import com.facebook.common.logging.FLog;
+<<<<<<< HEAD
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.GuardedAsyncTask;
+=======
+import com.facebook.react.bridge.GuardedAsyncTask;
+import com.facebook.react.bridge.Promise;
+>>>>>>> 0.20-stable
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -59,7 +64,13 @@ import com.facebook.react.common.ReactConstants;
  */
 public class CameraRollManager extends ReactContextBaseJavaModule {
 
+<<<<<<< HEAD
   private static final String TAG = "Catalyst/CameraRollManager";
+=======
+  private static final String ERROR_UNABLE_TO_LOAD = "E_UNABLE_TO_LOAD";
+  private static final String ERROR_UNABLE_TO_LOAD_PERMISSION = "E_UNABLE_TO_LOAD_PERMISSION";
+  private static final String ERROR_UNABLE_TO_SAVE = "E_UNABLE_TO_SAVE";
+>>>>>>> 0.20-stable
 
   public static final boolean IS_JELLY_BEAN_OR_LATER =
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
@@ -112,6 +123,7 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
    * by the MediaScanner.
    *
    * @param uri the file:// URI of the image to save
+<<<<<<< HEAD
    * @param success callback to be invoked on successful save to gallery; the only argument passed
    *        to this callback is the MediaStore content:// URI of the new image.
    * @param error callback to be invoked on error (e.g. can't copy file, external storage not
@@ -120,6 +132,13 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
   @ReactMethod
   public void saveImageWithTag(String uri, final Callback success, final Callback error) {
     new SaveImageTag(getReactApplicationContext(), Uri.parse(uri), success, error)
+=======
+   * @param promise to be resolved or rejected
+   */
+  @ReactMethod
+  public void saveImageWithTag(String uri, Promise promise) {
+    new SaveImageTag(getReactApplicationContext(), Uri.parse(uri), promise)
+>>>>>>> 0.20-stable
         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
   }
 
@@ -127,6 +146,7 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
 
     private final Context mContext;
     private final Uri mUri;
+<<<<<<< HEAD
     private final Callback mSuccess;
     private final Callback mError;
 
@@ -136,6 +156,15 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
       mUri = uri;
       mSuccess = success;
       mError = error;
+=======
+    private final Promise mPromise;
+
+    public SaveImageTag(ReactContext context, Uri uri, Promise promise) {
+      super(context);
+      mContext = context;
+      mUri = uri;
+      mPromise = promise;
+>>>>>>> 0.20-stable
     }
 
     @Override
@@ -147,7 +176,11 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         pictures.mkdirs();
         if (!pictures.isDirectory()) {
+<<<<<<< HEAD
           mError.invoke("External storage pictures directory not available");
+=======
+          mPromise.reject(ERROR_UNABLE_TO_LOAD, "External storage pictures directory not available");
+>>>>>>> 0.20-stable
           return;
         }
         File dest = new File(pictures, source.getName());
@@ -178,14 +211,24 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
               @Override
               public void onScanCompleted(String path, Uri uri) {
                 if (uri != null) {
+<<<<<<< HEAD
                   mSuccess.invoke(uri.toString());
                 } else {
                   mError.invoke("Could not add image to gallery");
+=======
+                  mPromise.resolve(uri.toString());
+                } else {
+                  mPromise.reject(ERROR_UNABLE_TO_SAVE, "Could not add image to gallery");
+>>>>>>> 0.20-stable
                 }
               }
             });
       } catch (IOException e) {
+<<<<<<< HEAD
         mError.invoke(e.getMessage());
+=======
+        mPromise.reject(e);
+>>>>>>> 0.20-stable
       } finally {
         if (input != null && input.isOpen()) {
           try {
@@ -221,12 +264,20 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
    *            image/jpeg)
    *          </li>
    *        </ul>
+<<<<<<< HEAD
    * @param success the callback to be called when the photos are loaded; for a format of the
    *        parameters passed to this callback, see {@code getPhotosReturnChecker} in CameraRoll.js
    * @param error the callback to be called on error
    */
   @ReactMethod
   public void getPhotos(final ReadableMap params, final Callback success, Callback error) {
+=======
+   * @param promise the Promise to be resolved when the photos are loaded; for a format of the
+   *        parameters passed to this callback, see {@code getPhotosReturnChecker} in CameraRoll.js
+   */
+  @ReactMethod
+  public void getPhotos(final ReadableMap params, final Promise promise) {
+>>>>>>> 0.20-stable
     int first = params.getInt("first");
     String after = params.hasKey("after") ? params.getString("after") : null;
     String groupName = params.hasKey("groupName") ? params.getString("groupName") : null;
@@ -243,8 +294,12 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
           after,
           groupName,
           mimeTypes,
+<<<<<<< HEAD
           success,
           error)
+=======
+          promise)
+>>>>>>> 0.20-stable
           .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
   }
 
@@ -254,8 +309,12 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
     private final @Nullable String mAfter;
     private final @Nullable String mGroupName;
     private final @Nullable ReadableArray mMimeTypes;
+<<<<<<< HEAD
     private final Callback mSuccess;
     private final Callback mError;
+=======
+    private final Promise mPromise;
+>>>>>>> 0.20-stable
 
     private GetPhotosTask(
         ReactContext context,
@@ -263,16 +322,24 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
         @Nullable String after,
         @Nullable String groupName,
         @Nullable ReadableArray mimeTypes,
+<<<<<<< HEAD
         Callback success,
         Callback error) {
+=======
+        Promise promise) {
+>>>>>>> 0.20-stable
       super(context);
       mContext = context;
       mFirst = first;
       mAfter = after;
       mGroupName = groupName;
       mMimeTypes = mimeTypes;
+<<<<<<< HEAD
       mSuccess = success;
       mError = error;
+=======
+      mPromise = promise;
+>>>>>>> 0.20-stable
     }
 
     @Override
@@ -309,18 +376,33 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
             Images.Media.DATE_TAKEN + " DESC, " + Images.Media.DATE_MODIFIED + " DESC LIMIT " +
                 (mFirst + 1)); // set LIMIT to first + 1 so that we know how to populate page_info
         if (photos == null) {
+<<<<<<< HEAD
           mError.invoke("Could not get photos");
+=======
+          mPromise.reject(ERROR_UNABLE_TO_LOAD, "Could not get photos");
+>>>>>>> 0.20-stable
         } else {
           try {
             putEdges(resolver, photos, response, mFirst);
             putPageInfo(photos, response, mFirst);
           } finally {
             photos.close();
+<<<<<<< HEAD
             mSuccess.invoke(response);
           }
         }
       } catch (SecurityException e) {
         mError.invoke("Could not get photos: need READ_EXTERNAL_STORAGE permission");
+=======
+            mPromise.resolve(response);
+          }
+        }
+      } catch (SecurityException e) {
+        mPromise.reject(
+            ERROR_UNABLE_TO_LOAD_PERMISSION,
+            "Could not get photos: need READ_EXTERNAL_STORAGE permission",
+            e);
+>>>>>>> 0.20-stable
       }
     }
   }
@@ -416,7 +498,11 @@ public class CameraRollManager extends ReactContextBaseJavaModule {
         width = options.outWidth;
         height = options.outHeight;
       } catch (IOException e) {
+<<<<<<< HEAD
         FLog.e(TAG, "Could not get width/height for " + photoUri.toString(), e);
+=======
+        FLog.e(ReactConstants.TAG, "Could not get width/height for " + photoUri.toString(), e);
+>>>>>>> 0.20-stable
         return false;
       }
     }

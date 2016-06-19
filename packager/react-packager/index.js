@@ -15,7 +15,6 @@ useGracefulFs();
 var debug = require('debug');
 var omit = require('underscore').omit;
 var Activity = require('./src/Activity');
-var Transforms = require('./src/transforms');
 
 exports.createServer = createServer;
 exports.middleware = function(options) {
@@ -104,12 +103,7 @@ function createServer(options) {
     enableDebug();
   }
 
-  try { // Protect against compile-time errors.
-    startSocketInterface();
-  } catch(error) {
-    console.log(error.stack);
-  }
-
+  startSocketInterface();
   var Server = require('./src/Server');
   return new Server(omit(options, ['verbose']));
 }

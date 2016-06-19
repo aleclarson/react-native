@@ -14,6 +14,10 @@
 #include "Value.h"
 #include "jni/JMessageQueueThread.h"
 #include "jni/OnLoad.h"
+<<<<<<< HEAD
+=======
+#include <react/JSCHelpers.h>
+>>>>>>> 0.20-stable
 
 #ifdef WITH_JSC_EXTRA_TRACING
 #include <react/JSCTracing.h>
@@ -137,6 +141,29 @@ JSCExecutor::~JSCExecutor() {
   JSGlobalContextRelease(m_context);
 }
 
+std::string JSCExecutor::getDeviceCacheDir(){
+  // Get the Application Context object
+  auto getApplicationClass = findClassLocal(
+                              "com/facebook/react/common/ApplicationHolder");
+  auto getApplicationMethod = getApplicationClass->getStaticMethod<jobject()>(
+                              "getApplication",
+                              "()Landroid/app/Application;"
+                              );
+  auto application = getApplicationMethod(getApplicationClass);
+
+  // Get getCacheDir() from the context
+  auto getCacheDirMethod = findClassLocal("android/app/Application")
+                            ->getMethod<jobject()>("getCacheDir",
+                                                   "()Ljava/io/File;"
+                                                  );
+  auto cacheDirObj = getCacheDirMethod(application);
+
+  // Call getAbsolutePath() on the returned File object
+  auto getAbsolutePathMethod = findClassLocal("java/io/File")
+                                ->getMethod<jstring()>("getAbsolutePath");
+  return getAbsolutePathMethod(cacheDirObj)->toStdString();
+}
+
 void JSCExecutor::executeApplicationScript(
     const std::string& script,
     const std::string& sourceURL) {
@@ -157,6 +184,7 @@ void JSCExecutor::executeApplicationScript(
   FbSystraceSection s(TRACE_TAG_REACT_CXX_BRIDGE, "JSCExecutor::executeApplicationScript",
     "sourceURL", sourceURL);
   #endif
+<<<<<<< HEAD
   evaluateScript(m_context, jsScript, jsSourceURL);
 }
 
@@ -165,6 +193,35 @@ std::string JSCExecutor::flush() {
   return executeJSCallWithJSC(m_context, "flushedQueue", std::vector<folly::dynamic>());
 }
 
+=======
+  if (!jsSourceURL) {
+    evaluateScript(m_context, jsScript, jsSourceURL);
+  } else {
+    // If we're evaluating a script, get the device's cache dir 
+    //  in which a cache file for that script will be stored.
+    evaluateScript(m_context, jsScript, jsSourceURL, getDeviceCacheDir().c_str());
+  }
+}
+
+void JSCExecutor::loadApplicationUnbundle(
+    JSModulesUnbundle&& unbundle,
+    const std::string& startupCode,
+    const std::string& sourceURL) {
+
+  m_unbundle = std::move(unbundle);
+  if (!m_isUnbundleInitialized) {
+    m_isUnbundleInitialized = true;
+    installGlobalFunction(m_context, "nativeRequire", nativeRequire);
+  }
+  executeApplicationScript(startupCode, sourceURL);
+}
+
+std::string JSCExecutor::flush() {
+  // TODO: Make this a first class function instead of evaling. #9317773
+  return executeJSCallWithJSC(m_context, "flushedQueue", std::vector<folly::dynamic>());
+}
+
+>>>>>>> 0.20-stable
 std::string JSCExecutor::callFunction(const double moduleId, const double methodId, const folly::dynamic& arguments) {
   // TODO:  Make this a first class function instead of evaling. #9317773
   std::vector<folly::dynamic> call{
@@ -238,6 +295,16 @@ void JSCExecutor::flushQueueImmediate(std::string queueJSON) {
   m_flushImmediateCallback(queueJSON, false);
 }
 
+<<<<<<< HEAD
+=======
+void JSCExecutor::loadModule(uint32_t moduleId) {
+  auto module = m_unbundle.getModule(moduleId);
+  auto sourceUrl = String::createExpectingAscii(module.name);
+  auto source = String::createExpectingAscii(module.code);
+  evaluateScript(m_context, source, sourceUrl);
+}
+
+>>>>>>> 0.20-stable
 // WebWorker impl
 
 JSGlobalContextRef JSCExecutor::getContext() {
@@ -287,12 +354,63 @@ void JSCExecutor::terminateWebWorker(int workerId) {
   m_webWorkerJSObjs.erase(workerId);
 }
 
+<<<<<<< HEAD
+=======
+// Native JS hooks
+
+static JSValueRef makeInvalidModuleIdJSCException(
+    JSContextRef ctx,
+    const JSValueRef id,
+    JSValueRef *exception) {
+  std::string message = "Received invalid module ID: ";
+  message += String::adopt(JSValueToStringCopy(ctx, id, exception)).str();
+  return makeJSCException(ctx, message.c_str());
+}
+
+JSValueRef JSCExecutor::nativeRequire(
+  JSContextRef ctx,
+  JSObjectRef function,
+  JSObjectRef thisObject,
+  size_t argumentCount,
+  const JSValueRef arguments[],
+  JSValueRef *exception) {
+
+  if (argumentCount != 1) {
+    *exception = makeJSCException(ctx, "Got wrong number of args");
+    return JSValueMakeUndefined(ctx);
+  }
+
+  JSCExecutor *executor;
+  try {
+    executor = s_globalContextRefToJSCExecutor.at(JSContextGetGlobalContext(ctx));
+  } catch (std::out_of_range& e) {
+    *exception = makeJSCException(ctx, "Global JS context didn't map to a valid executor");
+    return JSValueMakeUndefined(ctx);
+  }
+
+  double moduleId = JSValueToNumber(ctx, arguments[0], exception);
+  if (moduleId <= (double) std::numeric_limits<uint32_t>::max() && moduleId >= 0.0) {
+    try {
+      executor->loadModule(moduleId);
+    } catch (JSModulesUnbundle::ModuleNotFound&) {
+      *exception = makeInvalidModuleIdJSCException(ctx, arguments[0], exception);
+    }
+  } else {
+    *exception = makeInvalidModuleIdJSCException(ctx, arguments[0], exception);
+  }
+  return JSValueMakeUndefined(ctx);
+}
+
+>>>>>>> 0.20-stable
 static JSValueRef createErrorString(JSContextRef ctx, const char *msg) {
   return JSValueMakeString(ctx, String(msg));
 }
 
+<<<<<<< HEAD
 // Native JS hooks
 
+=======
+>>>>>>> 0.20-stable
 static JSValueRef nativeFlushQueueImmediate(
     JSContextRef ctx,
     JSObjectRef function,

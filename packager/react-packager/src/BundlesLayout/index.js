@@ -13,7 +13,6 @@ const Activity = require('../Activity');
 const _ = require('underscore');
 const declareOpts = require('../lib/declareOpts');
 const fs = require('fs');
-const Promise = require('Promise');
 const getCacheFilePath = require('../DependencyResolver/Cache/lib/getCacheFilePath');
 const loadCacheSync = require('../DependencyResolver/Cache/lib/loadCacheSync');
 const version = require('../../../../package.json').version;

@@ -9,6 +9,10 @@ LOCAL_SRC_FILES := \
   JSCExecutor.cpp \
   JSCHelpers.cpp \
   JSCWebWorker.cpp \
+<<<<<<< HEAD
+=======
+  JSModulesUnbundle.cpp \
+>>>>>>> 0.20-stable
   MethodCall.cpp \
   Value.cpp \
 

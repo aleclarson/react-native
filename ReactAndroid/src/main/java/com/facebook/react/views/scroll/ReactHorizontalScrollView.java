@@ -31,6 +31,7 @@ public class ReactHorizontalScrollView extends HorizontalScrollView implements
 
   private final OnScrollDispatchHelper mOnScrollDispatchHelper = new OnScrollDispatchHelper();
 
+<<<<<<< HEAD
   private boolean mRemoveClippedSubviews;
   private boolean mSendMomentumEvents;
   private boolean mDragging;
@@ -38,6 +39,15 @@ public class ReactHorizontalScrollView extends HorizontalScrollView implements
   private boolean mDoneFlinging;
 
   private @Nullable Rect mClippingRect;
+=======
+  private @Nullable Rect mClippingRect;
+  private boolean mDoneFlinging;
+  private boolean mDragging;
+  private boolean mFlinging;
+  private boolean mRemoveClippedSubviews;
+  private boolean mScrollEnabled = true;
+  private boolean mSendMomentumEvents;
+>>>>>>> 0.20-stable
 
   public ReactHorizontalScrollView(Context context) {
     super(context);
@@ -61,6 +71,13 @@ public class ReactHorizontalScrollView extends HorizontalScrollView implements
     mSendMomentumEvents = sendMomentumEvents;
   }
 
+<<<<<<< HEAD
+=======
+  public void setScrollEnabled(boolean scrollEnabled) {
+    mScrollEnabled = scrollEnabled;
+  }
+
+>>>>>>> 0.20-stable
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     MeasureSpecAssertions.assertExplicitMeasureSpec(widthMeasureSpec, heightMeasureSpec);
@@ -95,6 +112,10 @@ public class ReactHorizontalScrollView extends HorizontalScrollView implements
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
+    if (!mScrollEnabled) {
+      return false;
+    }
+
     if (super.onInterceptTouchEvent(ev)) {
       NativeGestureUtil.notifyNativeGestureStarted(this, ev);
       ReactScrollViewHelper.emitScrollBeginDragEvent(this);
@@ -107,6 +128,13 @@ public class ReactHorizontalScrollView extends HorizontalScrollView implements
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
+<<<<<<< HEAD
+=======
+    if (!mScrollEnabled) {
+      return false;
+    }
+
+>>>>>>> 0.20-stable
     int action = ev.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_UP && mDragging) {
       ReactScrollViewHelper.emitScrollEndDragEvent(this);
@@ -147,6 +175,17 @@ public class ReactHorizontalScrollView extends HorizontalScrollView implements
   }
 
   @Override
+<<<<<<< HEAD
+=======
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    if (mRemoveClippedSubviews) {
+      updateClippingRect();
+    }
+  }
+
+  @Override
+>>>>>>> 0.20-stable
   public void updateClippingRect() {
     if (!mRemoveClippedSubviews) {
       return;

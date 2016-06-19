@@ -75,6 +75,7 @@ public class RecyclerViewBackedScrollViewManager extends
 
   @Override
   public void scrollTo(
+<<<<<<< HEAD
       RecyclerViewBackedScrollView view,
       ReactScrollViewCommandHelper.ScrollToCommandData data) {
     view.scrollTo(data.mDestX, data.mDestY, true);
@@ -85,6 +86,11 @@ public class RecyclerViewBackedScrollViewManager extends
       RecyclerViewBackedScrollView view,
       ReactScrollViewCommandHelper.ScrollToCommandData data) {
     view.scrollTo(data.mDestX, data.mDestY, false);
+=======
+      RecyclerViewBackedScrollView scrollView,
+      ReactScrollViewCommandHelper.ScrollToCommandData data) {
+    scrollView.scrollTo(data.mDestX, data.mDestY, data.mAnimated);
+>>>>>>> 0.20-stable
   }
 
   @Override

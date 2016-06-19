@@ -24,7 +24,11 @@ import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.bridge.BaseJavaModule;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactApplicationContext;
+<<<<<<< HEAD
 import com.facebook.react.bridge.CatalystInstanceImpl;
+=======
+import com.facebook.react.bridge.CatalystInstance;
+>>>>>>> 0.20-stable
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.SoftAssertions;
 import com.facebook.react.bridge.UiThreadUtil;
@@ -41,17 +45,27 @@ import com.facebook.react.modules.core.Timing;
  *
  * In order to write catalyst integration:
  *  1) Make {@link ReactIntegrationTestCase} a base class of your test case
+<<<<<<< HEAD
  *  2) Use {@link ReactIntegrationTestCase.ReactTestInstanceBuilder}
+=======
+ *  2) Use {@link ReactTestHelper#catalystInstanceBuilder()}
+>>>>>>> 0.20-stable
  *  instead of {@link com.facebook.react.bridge.CatalystInstanceImpl.Builder} to build catalyst
  *  instance for testing purposes
  *
  */
 public abstract class ReactIntegrationTestCase extends AndroidTestCase {
 
+<<<<<<< HEAD
   private static final long SETUP_TIMEOUT_MS = 5000;
   private static final long IDLE_TIMEOUT_MS = 15000;
 
   private @Nullable CatalystInstanceImpl mInstance;
+=======
+  private static final long IDLE_TIMEOUT_MS = 15000;
+
+  private @Nullable CatalystInstance mInstance;
+>>>>>>> 0.20-stable
   private @Nullable ReactBridgeIdleSignaler mBridgeIdleSignaler;
   private @Nullable ReactApplicationContext mReactContext;
 
@@ -143,6 +157,7 @@ public abstract class ReactIntegrationTestCase extends AndroidTestCase {
     }
   }
 
+<<<<<<< HEAD
   public class ReactTestInstanceBuilder extends CatalystInstanceImpl.Builder {
 
     @Override
@@ -168,6 +183,14 @@ public abstract class ReactIntegrationTestCase extends AndroidTestCase {
       }
       return mInstance;
     }
+=======
+  public void initializeWithInstance(CatalystInstance instance) {
+    mInstance = instance;
+    mBridgeIdleSignaler = new ReactBridgeIdleSignaler();
+    mInstance.addBridgeIdleDebugListener(mBridgeIdleSignaler);
+    getContext().initializeWithInstance(mInstance);
+    ApplicationHolder.setApplication((Application) getContext().getApplicationContext());
+>>>>>>> 0.20-stable
   }
 
   public boolean waitForBridgeIdle(long millis) {

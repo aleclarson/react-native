@@ -69,10 +69,17 @@ RCT_EXTERN void _RCTProfileBeginEvent(NSThread *calleeThread,
 #define RCT_PROFILE_BEGIN_EVENT(...) \
   do { \
     if (RCTProfileIsProfiling()) { \
+<<<<<<< HEAD:React/Profiler/RCTProfile.h
       NSThread *calleeThread = [NSThread currentThread]; \
       NSTimeInterval time = CACurrentMediaTime(); \
       dispatch_async(RCTProfileGetQueue(), ^{ \
         _RCTProfileBeginEvent(calleeThread, time, __VA_ARGS__); \
+=======
+      NSThread *__calleeThread = [NSThread currentThread]; \
+      NSTimeInterval __time = CACurrentMediaTime(); \
+      dispatch_async(RCTProfileGetQueue(), ^{ \
+        _RCTProfileBeginEvent(__calleeThread, __time, __VA_ARGS__); \
+>>>>>>> 0.20-stable:React/Profiler/RCTProfile.h
       }); \
     } \
   } while(0)
@@ -92,11 +99,19 @@ RCT_EXTERN void _RCTProfileEndEvent(NSThread *calleeThread,
 #define RCT_PROFILE_END_EVENT(...) \
   do { \
     if (RCTProfileIsProfiling()) { \
+<<<<<<< HEAD:React/Profiler/RCTProfile.h
       NSThread *calleeThread = [NSThread currentThread]; \
       NSString *threadName = RCTCurrentThreadName(); \
       NSTimeInterval time = CACurrentMediaTime(); \
       dispatch_async(RCTProfileGetQueue(), ^{ \
         _RCTProfileEndEvent(calleeThread, threadName, time, __VA_ARGS__); \
+=======
+      NSThread *__calleeThread = [NSThread currentThread]; \
+      NSString *__threadName = RCTCurrentThreadName(); \
+      NSTimeInterval __time = CACurrentMediaTime(); \
+      dispatch_async(RCTProfileGetQueue(), ^{ \
+        _RCTProfileEndEvent(__calleeThread, __threadName, __time, __VA_ARGS__); \
+>>>>>>> 0.20-stable:React/Profiler/RCTProfile.h
       }); \
     } \
   } while(0)
@@ -117,6 +132,7 @@ RCT_EXTERN void RCTProfileEndAsyncEvent(uint64_t tag,
                                         NSString *category,
                                         NSUInteger cookie,
                                         NSString *name,
+                                        NSString *threadName,
                                         NSDictionary *args);
 
 /**

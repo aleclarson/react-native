@@ -1,6 +1,10 @@
 Pod::Spec.new do |s|
   s.name                = "React"
+<<<<<<< HEAD
   s.version             = "0.19.0-rc"
+=======
+  s.version             = "0.20.0"
+>>>>>>> 0.20-stable
   s.summary             = "Build high quality mobile apps using React."
   s.description         = <<-DESC
                             React Native apps are built using the React JS

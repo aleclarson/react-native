@@ -20,7 +20,11 @@
 #import "RCTSourceCode.h"
 #import "RCTUtils.h"
 
+<<<<<<< HEAD
 //#if RCT_DEV
+=======
+#if RCT_DEV
+>>>>>>> 0.20-stable
 
 static NSString *const RCTShowDevMenuNotification = @"RCTShowDevMenuNotification";
 static NSString *const RCTDevMenuSettingsKey = @"RCTDevMenu";
@@ -267,7 +271,11 @@ RCT_EXPORT_MODULE()
   self.shakeToShow = [_settings[@"shakeToShow"] ?: @YES boolValue];
   self.profilingEnabled = [_settings[@"profilingEnabled"] ?: @NO boolValue];
   self.liveReloadEnabled = [_settings[@"liveReloadEnabled"] ?: @NO boolValue];
+<<<<<<< HEAD
   self.hotLoadingEnabled = [_settings[@"hotLoadingEnabled"] ?: @YES boolValue];
+=======
+  self.hotLoadingEnabled = [_settings[@"hotLoadingEnabled"] ?: @NO boolValue];
+>>>>>>> 0.20-stable
   self.showFPS = [_settings[@"showFPS"] ?: @NO boolValue];
   self.executorClass = NSClassFromString(_executorOverride ?: _settings[@"executorClass"]);
 }
@@ -491,6 +499,7 @@ RCT_EXPORT_METHOD(show)
 
 RCT_EXPORT_METHOD(reload)
 {
+<<<<<<< HEAD
   [self reloadWithCallback:nil];
 }
 
@@ -499,6 +508,9 @@ RCT_EXPORT_METHOD(reloadWithCallback:(RCTResponseSenderBlock)callback)
   _jsLoaded = NO;
   _liveReloadURL = nil;
   [_bridge reloadWithCallback:callback];
+=======
+  [_bridge reload];
+>>>>>>> 0.20-stable
 }
 
 - (void)setShakeToShow:(BOOL)shakeToShow
@@ -640,11 +652,19 @@ RCT_EXPORT_METHOD(reloadWithCallback:(RCTResponseSenderBlock)callback)
 
 - (RCTDevMenu *)devMenu
 {
+<<<<<<< HEAD
 //#if RCT_DEV
   return [self moduleForClass:[RCTDevMenu class]];
 //#else
 //  return nil;
 //#endif
+=======
+#if RCT_DEV
+  return [self moduleForClass:[RCTDevMenu class]];
+#else
+  return nil;
+#endif
+>>>>>>> 0.20-stable
 }
 
 @end

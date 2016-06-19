@@ -7,8 +7,11 @@
 #include <JavaScriptCore/JSValueRef.h>
 
 #define throwJSExecutionException(...) jni::throwNewJavaException("com/facebook/react/bridge/JSExecutionException", __VA_ARGS__)
+<<<<<<< HEAD
 
 #define throwJSExecutionException(...) jni::throwNewJavaException("com/facebook/react/bridge/JSExecutionException", __VA_ARGS__)
+=======
+>>>>>>> 0.20-stable
 
 namespace facebook {
 namespace react {
@@ -22,6 +25,10 @@ JSValueRef makeJSCException(
     JSContextRef ctx,
     const char* exception_text);
 
+<<<<<<< HEAD
 JSValueRef evaluateScript(JSContextRef context, JSStringRef script, JSStringRef source);
+=======
+JSValueRef evaluateScript(JSContextRef context, JSStringRef script, JSStringRef source, const char *cachePath = nullptr);
+>>>>>>> 0.20-stable
 
 } }

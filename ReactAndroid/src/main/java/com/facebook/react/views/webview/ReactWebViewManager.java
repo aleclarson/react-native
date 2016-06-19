@@ -9,10 +9,13 @@
 
 package com.facebook.react.views.webview;
 
+<<<<<<< HEAD
 import javax.annotation.Nullable;
 
 import java.util.Map;
 
+=======
+>>>>>>> 0.20-stable
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.SystemClock;
@@ -27,6 +30,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
+<<<<<<< HEAD
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.common.build.ReactBuildConfig;
@@ -37,6 +41,27 @@ import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
 
+=======
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.common.MapBuilder;
+import com.facebook.react.common.build.ReactBuildConfig;
+import com.facebook.react.uimanager.SimpleViewManager;
+import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.UIManagerModule;
+import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.uimanager.events.Event;
+import com.facebook.react.uimanager.events.EventDispatcher;
+
+import java.io.UnsupportedEncodingException;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+>>>>>>> 0.20-stable
 /**
  * Manages instances of {@link WebView}
  *
@@ -65,6 +90,11 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
   private static final String HTML_ENCODING = "UTF-8";
   private static final String HTML_MIME_TYPE = "text/html; charset=utf-8";
 
+<<<<<<< HEAD
+=======
+  private static final String HTTP_METHOD_POST = "POST";
+
+>>>>>>> 0.20-stable
   public static final int COMMAND_GO_BACK = 1;
   public static final int COMMAND_GO_FORWARD = 2;
   public static final int COMMAND_RELOAD = 3;
@@ -132,9 +162,15 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
       dispatchEvent(
           webView,
           new TopLoadingStartEvent(
+<<<<<<< HEAD
             webView.getId(),
             SystemClock.uptimeMillis(),
             createWebViewEvent(webView, url)));
+=======
+              webView.getId(),
+              SystemClock.uptimeMillis(),
+              createWebViewEvent(webView, url)));
+>>>>>>> 0.20-stable
     }
 
     private void emitFinishEvent(WebView webView, String url) {
@@ -205,10 +241,16 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
     }
 
     public void callInjectedJavaScript() {
+<<<<<<< HEAD
       if (
           getSettings().getJavaScriptEnabled() &&
               injectedJS != null &&
               !TextUtils.isEmpty(injectedJS)) {
+=======
+      if (getSettings().getJavaScriptEnabled() &&
+          injectedJS != null &&
+          !TextUtils.isEmpty(injectedJS)) {
+>>>>>>> 0.20-stable
         loadUrl("javascript:(function() {\n" + injectedJS + ";\n})();");
       }
     }
@@ -271,6 +313,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
     ((ReactWebView) view).setInjectedJavaScript(injectedJavaScript);
   }
 
+<<<<<<< HEAD
   @ReactProp(name = "html")
   public void setHtml(WebView view, @Nullable String html) {
     if (html != null) {
@@ -296,6 +339,56 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
     } else {
       view.loadUrl(BLANK_URL);
     }
+=======
+  @ReactProp(name = "source")
+  public void setSource(WebView view, @Nullable ReadableMap source) {
+    if (source != null) {
+      if (source.hasKey("html")) {
+        String html = source.getString("html");
+        if (source.hasKey("baseUrl")) {
+          view.loadDataWithBaseURL(
+              source.getString("baseUrl"), html, HTML_MIME_TYPE, HTML_ENCODING, null);
+        } else {
+          view.loadData(html, HTML_MIME_TYPE, HTML_ENCODING);
+        }
+        return;
+      }
+      if (source.hasKey("uri")) {
+        String url = source.getString("uri");
+        if (source.hasKey("method")) {
+          String method = source.getString("method");
+          if (method.equals(HTTP_METHOD_POST)) {
+            byte[] postData = null;
+            if (source.hasKey("body")) {
+              String body = source.getString("body");
+              try {
+                postData = body.getBytes("UTF-8");
+              } catch (UnsupportedEncodingException e) {
+                postData = body.getBytes();
+              }
+            }
+            if (postData == null) {
+              postData = new byte[0];
+            }
+            view.postUrl(url, postData);
+            return;
+          }
+        }
+        HashMap<String, String> headerMap = new HashMap<>();
+        if (source.hasKey("headers")) {
+          ReadableMap headers = source.getMap("headers");
+          ReadableMapKeySetIterator iter = headers.keySetIterator();
+          while (iter.hasNextKey()) {
+            String key = iter.nextKey();
+            headerMap.put(key, headers.getString(key));
+          }
+        }
+        view.loadUrl(url, headerMap);
+        return;
+      }
+    }
+    view.loadUrl(BLANK_URL);
+>>>>>>> 0.20-stable
   }
 
   @Override

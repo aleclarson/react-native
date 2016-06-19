@@ -11,6 +11,7 @@ package com.facebook.react.views.textinput;
 
 import javax.annotation.Nullable;
 
+import java.util.LinkedList;
 import java.util.Map;
 
 import android.graphics.PorterDuff;
@@ -28,16 +29,24 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import com.facebook.infer.annotation.Assertions;
+<<<<<<< HEAD
+=======
+import com.facebook.react.bridge.JSApplicationIllegalArgumentException;
+>>>>>>> 0.20-stable
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.BaseViewManager;
 import com.facebook.react.uimanager.PixelUtil;
+<<<<<<< HEAD
 import com.facebook.react.uimanager.annotations.ReactProp;
+=======
+>>>>>>> 0.20-stable
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.ViewDefaults;
 import com.facebook.react.uimanager.ViewProps;
+import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.views.text.DefaultStyleValuesUtil;
 import com.facebook.react.views.text.ReactTextUpdate;
@@ -193,6 +202,15 @@ public class ReactTextInputManager extends
     }
   }
 
+  @ReactProp(name = "selectionColor", customType = "Color")
+  public void setSelectionColor(ReactEditText view, @Nullable Integer color) {
+    if (color == null) {
+      view.setHighlightColor(DefaultStyleValuesUtil.getDefaultTextColorHighlight(view.getContext()));
+    } else {
+      view.setHighlightColor(color);
+    }
+  }
+
   @ReactProp(name = "underlineColorAndroid", customType = "Color")
   public void setUnderlineColor(ReactEditText view, @Nullable Integer underlineColor) {
     if (underlineColor == null) {
@@ -202,14 +220,34 @@ public class ReactTextInputManager extends
     }
   }
 
-  @ReactProp(name = "textAlign")
-  public void setTextAlign(ReactEditText view, int gravity) {
-    view.setGravityHorizontal(gravity);
+  @ReactProp(name = ViewProps.TEXT_ALIGN)
+  public void setTextAlign(ReactEditText view, @Nullable String textAlign) {
+    if (textAlign == null || "auto".equals(textAlign)) {
+      view.setGravityHorizontal(Gravity.NO_GRAVITY);
+    } else if ("left".equals(textAlign)) {
+      view.setGravityHorizontal(Gravity.LEFT);
+    } else if ("right".equals(textAlign)) {
+      view.setGravityHorizontal(Gravity.RIGHT);
+    } else if ("center".equals(textAlign)) {
+      view.setGravityHorizontal(Gravity.CENTER_HORIZONTAL);
+    } else {
+      throw new JSApplicationIllegalArgumentException("Invalid textAlign: " + textAlign);
+    }
   }
 
-  @ReactProp(name = "textAlignVertical")
-  public void setTextAlignVertical(ReactEditText view, int gravity) {
-    view.setGravityVertical(gravity);
+  @ReactProp(name = ViewProps.TEXT_ALIGN_VERTICAL)
+  public void setTextAlignVertical(ReactEditText view, @Nullable String textAlignVertical) {
+    if (textAlignVertical == null || "auto".equals(textAlignVertical)) {
+      view.setGravityVertical(Gravity.NO_GRAVITY);
+    } else if ("top".equals(textAlignVertical)) {
+      view.setGravityVertical(Gravity.TOP);
+    } else if ("bottom".equals(textAlignVertical)) {
+      view.setGravityVertical(Gravity.BOTTOM);
+    } else if ("center".equals(textAlignVertical)) {
+      view.setGravityVertical(Gravity.CENTER_VERTICAL);
+    } else {
+      throw new JSApplicationIllegalArgumentException("Invalid textAlignVertical: " + textAlignVertical);
+    }
   }
 
   @ReactProp(name = "editable", defaultBoolean = true)
@@ -224,6 +262,7 @@ public class ReactTextInputManager extends
 
   @ReactProp(name = "maxLength")
   public void setMaxLength(ReactEditText view, @Nullable Integer maxLength) {
+<<<<<<< HEAD
     if (maxLength == null) {
       view.setFilters(EMPTY_FILTERS);
     } else {
@@ -231,6 +270,45 @@ public class ReactTextInputManager extends
       filterArray[0] = new InputFilter.LengthFilter(maxLength);
       view.setFilters(filterArray);
     }
+=======
+    InputFilter [] currentFilters = view.getFilters();
+    InputFilter[] newFilters = EMPTY_FILTERS;
+
+    if (maxLength == null) {
+      if (currentFilters.length > 0) {
+        LinkedList<InputFilter> list = new LinkedList<>();
+        for (int i = 0; i < currentFilters.length; i++) {
+          if (!(currentFilters[i] instanceof InputFilter.LengthFilter)) {
+            list.add(currentFilters[i]);
+          }
+        }
+        if (!list.isEmpty()) {
+          newFilters = (InputFilter[]) list.toArray();
+        }
+      }
+    } else {
+      if (currentFilters.length > 0) {
+        newFilters = currentFilters;
+        boolean replaced = false;
+        for (int i = 0; i < currentFilters.length; i++) {
+          if (currentFilters[i] instanceof InputFilter.LengthFilter) {
+            currentFilters[i] = new InputFilter.LengthFilter(maxLength);
+            replaced = true;
+          }
+        }
+        if (!replaced) {
+          newFilters = new InputFilter[currentFilters.length + 1];
+          System.arraycopy(currentFilters, 0, newFilters, 0, currentFilters.length);
+          currentFilters[currentFilters.length] = new InputFilter.LengthFilter(maxLength);
+        }
+      } else {
+        newFilters = new InputFilter[1];
+        newFilters[0] = new InputFilter.LengthFilter(maxLength);
+      }
+    }
+
+    view.setFilters(newFilters);
+>>>>>>> 0.20-stable
   }
 
   @ReactProp(name = "autoCorrect")
@@ -349,6 +427,7 @@ public class ReactTextInputManager extends
       // Don't send same text changes
       if (count == before && newText.equals(oldText)) {
         return;
+<<<<<<< HEAD
       }
       int contentWidth = mEditText.getWidth();
       int contentHeight = mEditText.getHeight();
@@ -360,6 +439,19 @@ public class ReactTextInputManager extends
         contentHeight = mEditText.getCompoundPaddingTop() + mEditText.getLayout().getHeight() +
             mEditText.getCompoundPaddingTop();
       }
+=======
+      }
+      int contentWidth = mEditText.getWidth();
+      int contentHeight = mEditText.getHeight();
+
+      // Use instead size of text content within EditText when available
+      if (mEditText.getLayout() != null) {
+        contentWidth = mEditText.getCompoundPaddingLeft() + mEditText.getLayout().getWidth() +
+            mEditText.getCompoundPaddingRight();
+        contentHeight = mEditText.getCompoundPaddingTop() + mEditText.getLayout().getHeight() +
+            mEditText.getCompoundPaddingTop();
+      }
+>>>>>>> 0.20-stable
 
       // The event that contains the event counter and updates it must be sent first.
       // TODO: t7936714 merge these events
@@ -474,18 +566,16 @@ public class ReactTextInputManager extends
   @Override
   public @Nullable Map getExportedViewConstants() {
     return MapBuilder.of(
-        "TextAlign",
+        "AutoCapitalizationType",
         MapBuilder.of(
-            "start", Gravity.START,
-            "center", Gravity.CENTER_HORIZONTAL,
-            "end", Gravity.END),
-        "TextAlignVertical",
-        MapBuilder.of(
+<<<<<<< HEAD
             "top", Gravity.TOP,
             "center", Gravity.CENTER_VERTICAL,
             "bottom", Gravity.BOTTOM),
         "AutoCapitalizationType",
         MapBuilder.of(
+=======
+>>>>>>> 0.20-stable
             "none",
             0,
             "characters",

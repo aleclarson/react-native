@@ -1,6 +1,6 @@
 {
-  "version": "0.1.2",
-  "name": "react-native-packager",
+  "version": "0.1.3",
+  "name": "react-packager",
   "description": "Build native apps with React!",
   "repository": {
     "type": "git",

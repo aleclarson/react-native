@@ -70,7 +70,11 @@ public class NativeViewHierarchyOptimizer {
   public void handleCreateView(
       ReactShadowNode node,
       ThemedReactContext themedContext,
+<<<<<<< HEAD
       @Nullable CatalystStylesDiffMap initialProps) {
+=======
+      @Nullable ReactStylesDiffMap initialProps) {
+>>>>>>> 0.20-stable
     if (!ENABLED) {
       int tag = node.getReactTag();
       mUIViewOperationQueue.enqueueCreateView(
@@ -109,7 +113,7 @@ public class NativeViewHierarchyOptimizer {
   public void handleUpdateView(
       ReactShadowNode node,
       String className,
-      CatalystStylesDiffMap props) {
+      ReactStylesDiffMap props) {
     if (!ENABLED) {
       mUIViewOperationQueue.enqueueUpdateProperties(node.getReactTag(), className, props);
       return;
@@ -377,7 +381,7 @@ public class NativeViewHierarchyOptimizer {
 
   private void transitionLayoutOnlyViewToNativeView(
       ReactShadowNode node,
-      @Nullable CatalystStylesDiffMap props) {
+      @Nullable ReactStylesDiffMap props) {
     ReactShadowNode parent = node.getParent();
     if (parent == null) {
       node.setIsLayoutOnly(false);
@@ -419,7 +423,7 @@ public class NativeViewHierarchyOptimizer {
     mTagsWithLayoutVisited.clear();
   }
 
-  private static boolean isLayoutOnlyAndCollapsable(@Nullable CatalystStylesDiffMap props) {
+  private static boolean isLayoutOnlyAndCollapsable(@Nullable ReactStylesDiffMap props) {
     if (props == null) {
       return true;
     }
