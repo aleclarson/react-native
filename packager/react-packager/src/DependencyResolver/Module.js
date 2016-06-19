@@ -8,18 +8,23 @@
  */
 'use strict';
 
-const isAbsolutePath = require('absolute-path');
 const inArray = require('in-array');
 const sync = require('sync');
 const path = require('path');
-const Promise = require('Promise');
 
 const docblock = require('./DependencyGraph/docblock');
 const extractRequires = require('./lib/extractRequires');
 
 class Module {
 
-  constructor({ file, fastfs, moduleCache, cache, extractor }) {
+  constructor({
+    file,
+    fastfs,
+    moduleCache,
+    cache,
+    extractor = extractRequires,
+    transformCode,
+  }) {
     if (file[0] === '.') {
       throw Error('Path cannot be relative: ' + file);
     }
@@ -31,6 +36,7 @@ class Module {
     this._moduleCache = moduleCache;
     this._cache = cache;
     this._extractor = extractor;
+    this._transformCode = transformCode;
 
     this._dependers = Object.create(null);
     this._dependencies = Object.create(null);
@@ -52,7 +58,7 @@ class Module {
     return this._cache.get(
       this.path,
       'isHaste',
-      () => this.read().then(data => {
+      () => this._readDocBlock().then(data => {
         if (!!data.id) {
           return true;
         }
@@ -72,13 +78,17 @@ class Module {
     );
   }
 
+  getCode() {
+    return this.read().then(({code}) => code);
+  }
+
   getName() {
     return this._cache.get(
       this.path,
       'name',
-      () => this.read().then(data => {
-        if (!!data.id) {
-          return data.id;
+      () => this._readDocBlock().then(({id}) => {
+        if (id) {
+          return id;
         }
 
         if (!this._isHasteCompatible()) {
@@ -124,35 +134,40 @@ class Module {
     this._dependencies[hash] = mod;
   }
 
-  invalidate() {
-    this._cache.invalidate(this.path);
-  }
-
   read() {
-    if (!this._reading) {
-      this._reading = this._fastfs.readFile(this.path).then(content => {
-        const data = {};
-        const moduleDocBlock = docblock.parseAsObject(content);
-        if (moduleDocBlock.providesModule || moduleDocBlock.provides) {
-          data.id = /^(\S*)/.exec(
-            moduleDocBlock.providesModule || moduleDocBlock.provides
-          )[1];
-        }
-
-        // Ignore requires in JSON files or generated code. An example of this
-        // is prebuilt files like the SourceMap library.
-        if (this.isJSON() || 'extern' in moduleDocBlock) {
-          data.dependencies = [];
-          data.asyncDependencies = [];
-        } else {
-          var dependencies = (this._extractor || extractRequires)(content).deps;
-          data.dependencies = dependencies.sync;
-          data.asyncDependencies = dependencies.async;
-        }
-
-        return data;
-      });
+    if (this._reading) {
+      return this._reading;
     }
+
+    this._reading = this._fastfs.readFile(this.path).then(content => {
+      const [id, moduleDocBlock] = this._parseDocBlock(content);
+
+      // Ignore requires in JSON files or generated code. An example of this
+      // is prebuilt files like the SourceMap library.
+      if (this.isJSON() || 'extern' in moduleDocBlock) {
+        return {
+          id,
+          dependencies: [],
+          asyncDependencies: [],
+          code: content,
+        };
+      } else {
+        const transformCode = this._transformCode;
+        const codePromise = transformCode
+            ? transformCode(this, content)
+            : Promise.resolve({code: content});
+
+        return codePromise.then(({code, dependencies, asyncDependencies}) => {
+          const {deps} = this._extractor(code);
+          return {
+            id,
+            code,
+            dependencies: dependencies || deps.sync,
+            asyncDependencies: asyncDependencies || deps.async,
+          };
+        });
+      }
+    });
 
     return this._reading;
   }
@@ -205,6 +220,35 @@ class Module {
     return inArray(this._fastfs._roots, pkg.root);
   }
 
+  _parseDocBlock(docBlock) {
+    // Extract an id for the module if it's using @providesModule syntax
+    // and if it's NOT in node_modules (and not a whitelisted node_module).
+    // This handles the case where a project may have a dep that has @providesModule
+    // docblock comments, but doesn't want it to conflict with whitelisted @providesModule
+    // modules, such as react-haste, fbjs-haste, or react-native or with non-dependency,
+    // project-specific code that is using @providesModule.
+    const moduleDocBlock = docblock.parseAsObject(docBlock);
+    const provides = moduleDocBlock.providesModule || moduleDocBlock.provides;
+
+    const id = provides && !/node_modules/.test(this.path)
+        ? /^\S+/.exec(provides)[0]
+        : undefined;
+    return [id, moduleDocBlock];
+  }
+
+  _readDocBlock() {
+    const reading = this._reading || this._docBlock;
+    if (reading) {
+      return reading;
+    }
+    this._docBlock = this._fastfs.readWhile(this.path, whileInDocBlock)
+      .then(docBlock => {
+        const [id] = this._parseDocBlock(docBlock);
+        return {id};
+      });
+    return this._docBlock;
+  }
+
   _processFileChange(type) {
 
     var newModule;
@@ -241,6 +285,21 @@ class Module {
       });
     }
   }
+}
+
+function whileInDocBlock(chunk, i, result) {
+  // consume leading whitespace
+  if (!/\S/.test(result)) {
+    return true;
+  }
+
+  // check for start of doc block
+  if (!/^\s*\/(\*{2}|\*?$)/.test(result)) {
+    return false;
+  }
+
+  // check for end of doc block
+  return !/\*\//.test(result);
 }
 
 module.exports = Module;

@@ -8,12 +8,19 @@ const path = require('path');
 
 class ModuleCache {
 
-  constructor(fastfs, cache, extractRequires) {
+  constructor({
+    fastfs,
+    cache,
+    extractRequires,
+    transformCode,
+  }) {
     this._moduleCache = Object.create(null);
     this._packageCache = Object.create(null);
     this._fastfs = fastfs;
     this._cache = cache;
     this._extractRequires = extractRequires;
+    this._transformCode = transformCode;
+
     fastfs.on('change', this._processFileChange.bind(this));
   }
 
@@ -25,24 +32,31 @@ class ModuleCache {
 
   getModule(filePath) {
     filePath = path.resolve(filePath);
-    const id = filePath.toLowerCase();
-    if (!this._moduleCache[id]) {
-      this._moduleCache[id] = new Module({
+
+    const hash = filePath.toLowerCase();
+    if (!this._moduleCache[hash]) {
+      this._moduleCache[hash] = new Module({
         file: filePath,
         fastfs: this._fastfs,
         moduleCache: this,
         cache: this._cache,
         extractor: this._extractRequires,
+        transformCode: this._transformCode,
       });
     }
     return this._moduleCache[id];
   }
 
+  getAllModules() {
+    return this._moduleCache;
+  }
+
   getAssetModule(filePath) {
     filePath = path.resolve(filePath);
-    const id = filePath.toLowerCase();
-    if (!this._moduleCache[id]) {
-      this._moduleCache[id] = new AssetModule({
+
+    const hash = filePath.toLowerCase();
+    if (!this._moduleCache[hash]) {
+      this._moduleCache[hash] = new AssetModule({
         file: filePath,
         fastfs: this._fastfs,
         moduleCache: this,
@@ -54,9 +68,10 @@ class ModuleCache {
 
   getPackage(filePath) {
     filePath = path.resolve(filePath);
-    const id = filePath.toLowerCase();
-    if (!this._packageCache[id]) {
-      this._packageCache[id] = new Package({
+
+    const hash = filePath.toLowerCase();
+    if (!this._packageCache[hash]) {
+      this._packageCache[hash] = new Package({
         file: filePath,
         fastfs: this._fastfs,
         cache: this._cache,

@@ -93,7 +93,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (void)openStackFrameInEditor:(NSDictionary *)stackFrame
 {
-  NSData *stackFrameJSON = [RCTJSONStringify(stackFrame, nil) dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *stackFrameJSON = [RCTJSONStringify(stackFrame, NULL) dataUsingEncoding:NSUTF8StringEncoding];
   NSString *postLength = [NSString stringWithFormat:@"%tu", stackFrameJSON.length];
   NSMutableURLRequest *request = [NSMutableURLRequest new];
   request.URL = [RCTServerUtils serverURLForPath:@"open-stack-frame"];
@@ -315,7 +315,7 @@ RCT_EXPORT_MODULE()
   });
 }
 
-- (void)dismiss
+RCT_EXPORT_METHOD(dismiss)
 {
   dispatch_async(dispatch_get_main_queue(), ^{
     [_window dismiss];
@@ -338,25 +338,25 @@ RCT_EXPORT_MODULE()
 
 @end
 
-//#else // Disabled
+// #else // Disabled
 //
-//@implementation RCTRedBox
+// @implementation RCTRedBox
 //
-//+ (NSString *)moduleName { return nil; }
-//- (void)showError:(NSError *)message {}
-//- (void)showErrorMessage:(NSString *)message {}
-//- (void)showErrorMessage:(NSString *)message withDetails:(NSString *)details {}
-//- (void)showErrorMessage:(NSString *)message withStack:(NSArray *)stack {}
-//- (void)updateErrorMessage:(NSString *)message withStack:(NSArray *)stack {}
-//- (void)showErrorMessage:(NSString *)message withStack:(NSArray *)stack showIfHidden:(BOOL)shouldShow {}
-//- (void)dismiss {}
+// + (NSString *)moduleName { return nil; }
+// - (void)showError:(NSError *)message {}
+// - (void)showErrorMessage:(NSString *)message {}
+// - (void)showErrorMessage:(NSString *)message withDetails:(NSString *)details {}
+// - (void)showErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack {}
+// - (void)updateErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack {}
+// - (void)showErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack showIfHidden:(BOOL)shouldShow {}
+// - (void)dismiss {}
 //
-//@end
+// @end
 //
-//@implementation RCTBridge (RCTRedBox)
+// @implementation RCTBridge (RCTRedBox)
 //
-//- (RCTRedBox *)redBox { return nil; }
+// - (RCTRedBox *)redBox { return nil; }
 //
-//@end
-
+// @end
+//
 // #endif

@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Promise = require('promise');
+const Promise = require('Promise');
 const sign = require('../sign');
 const writeFile = require('./writeFile');
 

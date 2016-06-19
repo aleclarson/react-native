@@ -34,20 +34,36 @@ module.exports = {
 function readBundle(req, res) {
   return this.buildBundleFromUrl(req.url)
   .then(bundle => {
-    const code = bundle.getSource({
+    const bundleSource = bundle.getSource({
       inlineSourceMap: false,
       minify: false
+      // inlineSourceMap: options.inlineSourceMap,
+      // minify: options.minify,
+      // dev: options.dev,
     });
+
     res.setHeader('Content-Type', 'application/javascript');
-    res.end(code);
+    res.setHeader('ETag', bundle.getEtag());
+
+    if (req.headers['if-none-match'] === res.getHeader('ETag')){
+      res.statusCode = 304;
+      res.end();
+    } else {
+      res.end(bundleSource);
+    }
   });
 }
 
 function readMap(req, res) {
   return this.buildBundleFromUrl(req.url)
   .then(bundle => {
-    var sourceMap = bundle.getSourceMap();
-    sourceMap = JSON.stringify(sourceMap);
+    var sourceMap = bundle.getSourceMap({
+      // minify: options.minify,
+      // dev: options.dev,
+    });
+    if (typeof sourceMap !== 'string') {
+      sourceMap = JSON.stringify(sourceMap);
+    }
     res.setHeader('Content-Type', 'application/json');
     res.end(sourceMap);
   });

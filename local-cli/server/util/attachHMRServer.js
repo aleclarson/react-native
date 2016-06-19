@@ -74,6 +74,7 @@ function attachHMRServer({httpServer, path, packagerServer}) {
             dependenciesCache,
             dependenciesModulesCache,
             shallowDependencies,
+            resolutionResponse: response,
           };
         });
       });
@@ -86,17 +87,7 @@ function attachHMRServer({httpServer, path, packagerServer}) {
     path: path,
   });
 
-  // log.moat(1)
-  // log.white('Started HMR server: ')
-  // log.yellow(path)
-  // log.moat(1);
-
   wss.on('connection', ws => {
-
-    // log.moat(1)
-    // log.white('HMR client connected!')
-    // log.moat(1);
-
     const params = querystring.parse(url.parse(ws.upgradeReq.url).query);
 
     getDependencies(params.platform, params.bundleEntry)
@@ -116,10 +107,11 @@ function attachHMRServer({httpServer, path, packagerServer}) {
 
         packagerServer.setHMRFileChangeListener((filename, stat) => {
           if (!client) {
-            return Promise();
+            return;
           }
 
-          return stat.then(() => {
+          client.ws.send(JSON.stringify({type: 'update-start'}));
+          stat.then(() => {
             return packagerServer.getShallowDependencies(filename)
               .then(deps => {
                 if (!client) {
@@ -131,7 +123,23 @@ function attachHMRServer({httpServer, path, packagerServer}) {
                 // to the client may have changed
                 const oldDependencies = client.shallowDependencies[filename];
                 if (arrayEquals(deps, oldDependencies)) {
-                  return [packagerServer.getModuleForPath(filename)];
+                  // Need to create a resolution response to pass to the bundler
+                  // to process requires after transform. By providing a
+                  // specific response we can compute a non recursive one which
+                  // is the least we need and improve performance.
+                  return packagerServer.getDependencies({
+                    platform: client.platform,
+                    dev: true,
+                    entryFile: filename,
+                    recursive: true,
+                  }).then(response => {
+                    const module = packagerServer.getModuleForPath(filename);
+
+                    return {
+                      modulesToUpdate: [module],
+                      resolutionResponse: response,
+                    };
+                  });
                 }
 
                 // if there're new dependencies compare the full list of
@@ -141,9 +149,10 @@ function attachHMRServer({httpServer, path, packagerServer}) {
                     dependenciesCache,
                     dependenciesModulesCache,
                     shallowDependencies,
+                    resolutionResponse,
                   }) => {
                     if (!client) {
-                      return [];
+                      return {};
                     }
 
                     // build list of modules for which we'll send HMR updates
@@ -159,10 +168,13 @@ function attachHMRServer({httpServer, path, packagerServer}) {
                     client.dependenciesModulesCache = dependenciesModulesCache;
                     client.shallowDependencies = shallowDependencies;
 
-                    return modulesToUpdate;
+                    return {
+                      modulesToUpdate,
+                      resolutionResponse,
+                    };
                   });
               })
-              .then(modulesToUpdate => {
+              .then(({modulesToUpdate, resolutionResponse}) => {
                 if (!client) {
                   return;
                 }
@@ -176,20 +188,22 @@ function attachHMRServer({httpServer, path, packagerServer}) {
                   entryFile: client.bundleEntry,
                   platform: client.platform,
                   modules: modulesToUpdate,
-                });
+                  resolutionResponse,
+                })
               })
-              .then(update => {
-                if (!client) {
+              .then(bundle => {
+                if (!client || !bundle || bundle.isEmpty()) {
                   return;
                 }
 
-                // check we actually want to send an HMR update
-                if (update) {
-                  return JSON.stringify({
-                    type: 'update',
-                    body: update,
-                  });
-                }
+                return JSON.stringify({
+                  type: 'update',
+                  body: {
+                    modules: bundle.getModulesCode(),
+                    sourceURLs: bundle.getSourceURLs(),
+                    sourceMappingURLs: bundle.getSourceMappingURLs(),
+                  },
+                });
               })
               .fail(error => {
                 // send errors to the client instead of killing packager server
@@ -214,29 +228,24 @@ function attachHMRServer({httpServer, path, packagerServer}) {
 
                 return JSON.stringify({type: 'error', body});
               })
-              .then(bundle => {
-                if (!client) {
+              .then(update => {
+                if (!client || !update) {
                   return;
                 }
 
-                // check we actually want to send an HMR update
-                if (bundle) {
-                  client.ws.send(bundle);
-                }
+                client.ws.send(update);
               });
             },
             () => {
               // do nothing, file was removed
             },
-          );
+          ).always(() => {
+            client.ws.send(JSON.stringify({type: 'update-done'}));
+          });
         });
 
         client.ws.on('error', e => {
-          // log.moat(1)
-          // log.red('HMR Error: ')
-          // log.white(e.message)
-          // log.moat(1);
-          console.log(e.stack);
+          console.log('[HMR] ' + e.stack);
           disconnect();
         });
 

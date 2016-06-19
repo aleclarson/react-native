@@ -17,133 +17,89 @@
 <script>
 (function() {
 
-var head = document.getElementsByTagName('head')[0];
+var sessionID = window.localStorage.getItem('sessionID');
+window.localStorage.removeItem('sessionID');
 
-function loadScript(url, callback) {
-  // Adding the script tag to the head as suggested before
-  var script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = url;
+window.onbeforeunload = function() {
+  if (sessionID) {
+    return 'If you reload this page, it is going to break the debugging session. ' +
+      'You should press ⌘R in simulator to reload.';
+  }
+};
 
-  script.onreadystatechange = callback;
-  script.onload = callback;
+window.addEventListener('load', function () {
+  if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'undefined') {
+    document.getElementById('devtools-banner').style.display = 'block';
+  }
+});
 
-  head.appendChild(script);
-}
+// Alias native implementations needed by the debugger before platform-specific
+// implementations are loaded into the global namespace
+var debuggerSetTimeout = window.setTimeout;
+var DebuggerWebSocket = window.WebSocket;
 
 function setStatus(status) {
   document.getElementById('status').innerHTML = status;
 }
 
+// This worker will run the application javascript code,
+// making sure that it's run in an environment without a global
+// document, to make it consistent with the JSC executor environment.
+var worker = new Worker('debuggerWorker.js');
+
+var messageHandlers = {
+  // This method is a bit hacky. Catalyst asks for a new clean JS runtime.
+  // The easiest way to do this is to reload this page. That also means that
+  // web socket connection will be lost. To send reply back we need to remember
+  // message id.
+  // This message also needs to be handled outside of the worker, since the worker
+  // doesn't have access to local storage.
+  'prepareJSRuntime': function(message) {
+    window.onbeforeunload = undefined;
+    window.localStorage.setItem('sessionID', message.id);
+    window.location.reload();
+  }
+};
+
 function connectToDebuggerProxy() {
-
-  var enqueueMethod = function(message) {
-    this.methodQueue.push(message);
-  };
-
-  var executeMethod = function(message) {
-    var method = window.__fbBatchedBridge[message.method];
-    if (!method) {
-      throw Error('Unknown method: ' + message.method);
-    }
-    var result = [[], [], [], [], []];
-    try {
-      result = method.apply(null, message.arguments);
-    } finally {
-      this.sendReply(message, {
-        result: JSON.stringify(result),
-      });
-    }
-  };
-
-  var ws = new WebSocket('ws://' + window.location.host + '/debugger-proxy?role=debugger&name=Chrome');
-
-  window.Debugger = {
-    socket: ws,
-    methodQueue: [],
-    executeMethod: enqueueMethod,
-    onMessage: function(message) {
-      var method = this.specialMethods[message.method] || this.executeMethod;
-      method.call(this, message);
-    },
-    sendMessage: function(data) {
-      ws.send(JSON.stringify(data));
-    },
-    sendReply: function(message, data) {
-      if (data === undefined) { data = {}; }
-      data.replyID = message.id;
-      this.sendMessage(data);
-    },
-    shutdownJSRuntime: function() {
-      if (window.isReloading) { return; }
-      window.isReloading = true;
-      window.location.reload();
-    },
-    specialMethods: {
-      prepareJSRuntime: function(message) {
-        if (window.__fbBatchedBridge) {
-          return this.shutdownJSRuntime();
-        }
-        setStatus('Debugger session #' + message.id + ' active.');
-        this.sendReply(message);
-      },
-      $disconnected: function() {
-        this.shutdownJSRuntime();
-      },
-      executeApplicationScript: function(message) {
-        if (window.isReloading) { return; }
-        var self = this;
-        for (var key in message.inject) {
-          window[key] = JSON.parse(message.inject[key]);
-        }
-        loadScript(message.url, function() {
-          self.executeMethod = executeMethod;
-          if (!self.methodQueue.length) {
-            return;
-          }
-          self.methodQueue.forEach(function(message) {
-            try {
-              self.executeMethod(message);
-            } catch (error) {
-              console.warn(error.message);
-              self.sendReply(message);
-            }
-          });
-          self.methodQueue = [];
-        });
-        self.sendReply(message);
-      },
-    },
-  };
-
-  var INITIAL_MESSAGE = 'Waiting, press <span class="shortcut">⌘R</span> in simulator to reload and connect.';
+  var ws = new DebuggerWebSocket('ws://' + window.location.host + '/debugger-proxy');
 
   ws.onopen = function() {
-    setStatus(INITIAL_MESSAGE);
+    if (sessionID) {
+      setStatus('Debugger session #' + sessionID + ' active.');
+      ws.send(JSON.stringify({replyID: parseInt(sessionID, 10)}));
+    } else {
+      setStatus('Waiting, press <span class="shortcut">⌘R</span> in simulator to reload and connect.');
+    }
   };
 
   ws.onmessage = function(message) {
-    if (!message.data) {
+    var object = JSON.parse(message.data);
+    if (!object.method) {
       return;
     }
-    message = JSON.parse(message.data);
-    if (message.$event === 'client-disconnected') {
-      setStatus('Waiting, press <span class="shortcut">⌘R</span> in simulator to reload and connect.');
-      Debugger.shutdownJSRuntime();
-    } else if (message.method) {
-      Debugger.onMessage(message);
+
+    var handler = messageHandlers[object.method];
+    if (handler) {
+      // If we have a local handler, use it.
+      handler(object);
+    } else {
+      // Otherwise, pass through to the worker.
+      worker.postMessage(object);
     }
   };
 
-  ws.onclose = function(e) {
+  ws.onclose = function() {
     setStatus('Disconnected from proxy. Attempting reconnection. Is node server running?');
-    if (e.reason) {
-      setStatus(e.reason);
-      console.warn(e.reason);
-    }
-    console.log('ws.onclose()');
-    Debugger.shutdownJSRuntime();
+
+    sessionID = null;
+    window.localStorage.removeItem('sessionID');
+    debuggerSetTimeout(connectToDebuggerProxy, 100);
   };
+
+  worker.onmessage = function(message) {
+    ws.send(JSON.stringify(message.data));
+  }
 }
 
 connectToDebuggerProxy();
@@ -158,15 +114,61 @@ connectToDebuggerProxy();
     font-family: Helvetica, Verdana, sans-serif;
     font-weight: 200;
   }
+  .shortcut {
+    font-family: "Monaco", monospace;
+    font-size: medium;
+    color: #eee;
+    background-color: #333;
+    padding: 4px;
+    border-radius: 4px;
+    letter-spacing: 3px;
+  }
+  #devtools-banner {
+    display: none;
+    background-color: #FDFDD5;
+    padding: 10px;
+  }
+  #devtools-banner h3 {
+    margin: 0;
+    font-weight: normal;
+  }
+  #devtools-banner a {
+    display: none;
+    padding: 10px 20px 10px 20px;
+    margin-bottom: 10px;
+    color: white;
+    text-decoration: none;
+    font-size: 11px;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    font-weight: bold;
+    background-color: #4d7bd6;
+    border-radius: 2px;
+    border: 1px solid #2d53af;
+    display: inline-block;
+  }
   .content {
     padding: 10px;
   }
 </style>
 </head>
 <body>
+  <div id="devtools-banner">
+    <h3>Install React DevTools</h3>
+    <p>
+       React Developer Tools is an extension that allows you to inspect the
+       React component hierarchies in the Chrome Developer Tools.
+    </p>
+    <a href="https://fb.me/react-devtools" target="_blank">
+      Install
+    </a>
+  </div>
   <div class="content">
+    <p>
+      React Native JS code runs inside this Chrome tab.
+    </p>
+    <p>Press <span class="shortcut">⌘⌥J</span> to open Developer Tools. Enable <a href="http://stackoverflow.com/a/17324511/232122" target="_blank">Pause On Caught Exceptions</a> for a better debugging experience.</p>
     <p>Status: <span id="status">Loading...</span></p>
-    <button onclick="NativeModules.DevMenu.reload()">Reload app</button>
   </div>
 </body>
 </html>

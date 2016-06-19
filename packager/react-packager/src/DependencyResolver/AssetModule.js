@@ -1,7 +1,6 @@
 'use strict';
 
 const Module = require('./Module');
-const Promise = require('Promise');
 const getAssetDataFromName = require('./lib/getAssetDataFromName');
 
 class AssetModule extends Module {

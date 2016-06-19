@@ -20,9 +20,6 @@ var sharedWhitelist = [
 // Don't forget to everything listed here to `package.json`
 // modulePathIgnorePatterns.
 var sharedBlacklist = [
-  // /node_modules[/\\]react[/\\]dist[/\\].*/,
-  // 'react/lib/React.js',
-  // 'react/lib/ReactDOM.js',
   'react/src/test/**',
   'react/src/renderers/dom/**',
 

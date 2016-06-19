@@ -10,7 +10,7 @@
 
 const mkdirp = require('mkdirp');
 const path = require('path');
-const Promise = require('promise');
+const Promise = require('Promise');
 
 const writeFile = require('../writeFile');
 const writeSourceMap = require('./write-sourcemap');
@@ -53,7 +53,7 @@ function saveAsAssets(bundle, options, log) {
 }
 
 function createDir(dirName) {
-  return new Promise((resolve, reject) =>
+  return Promise.resolve((resolve, reject) =>
     mkdirp(dirName, error => error ? reject(error) : resolve()));
 }
 
