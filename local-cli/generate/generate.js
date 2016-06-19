@@ -10,14 +10,14 @@
 
 const parseCommandLine = require('../util/parseCommandLine');
 const path = require('path');
-const Q = require('q');
+const Promise = require('Promise');
 const yeoman = require('yeoman-environment');
 
 /**
  * Generates the template for the given platform.
  */
 function generate(argv, config) {
-  return Q.promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
     _generate(argv, config, resolve, reject);
   });
 }

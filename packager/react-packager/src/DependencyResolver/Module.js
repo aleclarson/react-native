@@ -12,7 +12,7 @@ const isAbsolutePath = require('absolute-path');
 const inArray = require('in-array');
 const sync = require('sync');
 const path = require('path');
-const Q = require('q');
+const Promise = require('Promise');
 
 const docblock = require('./DependencyGraph/docblock');
 const extractRequires = require('./lib/extractRequires');
@@ -113,12 +113,13 @@ class Module {
     );
   }
 
-  // Get or set a resolved dependency.
-  resolveDependency(name, mod) {
+  getDependency(name) {
     const hash = this.path + ':' + name;
-    if (!mod) {
-      return this._dependencies[hash];
-    }
+    return this._dependencies[hash];
+  }
+
+  setDependency(name, mod) {
+    const hash = this.path + ':' + name;
     mod._dependers[hash] = this;
     this._dependencies[hash] = mod;
   }

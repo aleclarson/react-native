@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule Image
+ * @providesModule ImageView
  * @flow
  */
 'use strict';
@@ -44,11 +44,11 @@ var {
  * renderImages: function() {
  *   return (
  *     <View>
- *       <Image
+ *       <ImageView
  *         style={styles.icon}
  *         source={require('./myIcon.png')}
  *       />
- *       <Image
+ *       <ImageView
  *         style={styles.logo}
  *         source={{uri: 'http://facebook.github.io/react/img/logo_og.png'}}
  *       />
@@ -57,7 +57,7 @@ var {
  * },
  * ```
  */
-var Image = React.createClass({
+var ImageView = React.createClass({
   propTypes: {
     style: StyleSheetPropType(ImageStylePropTypes),
     /**
@@ -176,23 +176,23 @@ var Image = React.createClass({
     var source = resolveAssetSource(this.props.source) || {};
     var {width, height} = source;
     var style = flattenStyle([{width, height}, styles.base, this.props.style]) || {};
+    var resizeMode = this.props.resizeMode || style.resizeMode || 'cover'; // Workaround for flow bug t7737108
+    var tintColor = style.tintColor; // Workaround for flow bug t7737108
 
     var isNetwork = source.uri && source.uri.match(/^https?:/);
-    var RawImage = isNetwork ? RCTNetworkImageView : RCTImageView;
-    var resizeMode = this.props.resizeMode || (style || {}).resizeMode || 'cover'; // Workaround for flow bug t7737108
-    var tintColor = (style || {}).tintColor; // Workaround for flow bug t7737108
+    var NativeImageView = isNetwork ? RCTNetworkImageView : RCTImageView;
 
     // This is a workaround for #8243665. RCTNetworkImageView does not support tintColor
     // TODO: Remove this hack once we have one image implementation #8389274
     if (isNetwork && tintColor) {
-      RawImage = RCTImageView;
+      NativeImageView = RCTImageView;
     }
 
     if (this.context.isInAParentText) {
       return <RCTVirtualImage source={source}/>;
     } else {
       return (
-        <RawImage
+        <NativeImageView
           {...this.props}
           style={style}
           resizeMode={resizeMode}
@@ -210,9 +210,9 @@ var styles = StyleSheet.create({
   },
 });
 
-var RCTImageView = requireNativeComponent('RCTImageView', Image);
-var RCTNetworkImageView = NetworkImageViewManager ? requireNativeComponent('RCTNetworkImageView', Image) : RCTImageView;
-var RCTVirtualImage = requireNativeComponent('RCTVirtualImage', Image);
+var RCTImageView = requireNativeComponent('RCTImageView', ImageView);
+var RCTNetworkImageView = NetworkImageViewManager ? requireNativeComponent('RCTNetworkImageView', ImageView) : RCTImageView;
+var RCTVirtualImage = requireNativeComponent('RCTVirtualImage', ImageView);
 
 /**
  * Retrieve the width and height (in pixels) of an image prior to displaying it.
@@ -227,7 +227,7 @@ var RCTVirtualImage = requireNativeComponent('RCTVirtualImage', Image);
  *
  * @platform ios
  */
-Image.getSize = function(
+ImageView.getSize = function(
   uri: string,
   success: (width: number, height: number) => void,
   failure: (error: any) => void,
@@ -237,4 +237,4 @@ Image.getSize = function(
   });
 };
 
-module.exports = Image;
+module.exports = ImageView;

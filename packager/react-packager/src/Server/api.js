@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 const url = require('url');
 const path = require('path');
 const syncFs = require('io/sync');
@@ -227,7 +227,7 @@ function debugLastBundle(req, res) {
 function debugBundles(req, res) {
   var ret = '<!doctype html>';
   ret += '<h1> Cached Bundles </h1>';
-  Q.all(
+  Promise.all(
     Object.keys(this._bundles).map(hash => {
       return this._bundles[hash].then(p => {
         ret += '<div><h2>' + hash + '</h2>';

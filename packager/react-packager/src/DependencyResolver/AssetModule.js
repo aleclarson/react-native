@@ -1,7 +1,7 @@
 'use strict';
 
 const Module = require('./Module');
-const Q = require('q');
+const Promise = require('Promise');
 const getAssetDataFromName = require('./lib/getAssetDataFromName');
 
 class AssetModule extends Module {
@@ -14,19 +14,19 @@ class AssetModule extends Module {
   }
 
   isHaste() {
-    return Q(false);
+    return Promise(false);
   }
 
   getDependencies() {
-    return Q([]);
+    return Promise([]);
   }
 
   getAsyncDependencies() {
-    return Q([]);
+    return Promise([]);
   }
 
   read() {
-    return Q({});
+    return Promise({});
   }
 
   getName() {

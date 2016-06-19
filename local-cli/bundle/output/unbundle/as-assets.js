@@ -73,9 +73,7 @@ function createDirectoriesForModules(modulesDir, modules) {
       return !next || next !== dir && !next.startsWith(dir + path.sep);
     });
 
-  return dirNames.reduce(
-    (promise, dirName) =>
-      promise.then(() => createDir(dirName)), Promise.resolve());
+  return Promise.chain(dirNames, createDir);
 }
 
 function writeModuleFile(module, modulesDir, encoding) {
@@ -84,16 +82,14 @@ function writeModuleFile(module, modulesDir, encoding) {
 }
 
 function writeModuleFiles(modules, modulesDir, encoding) {
-  const writeFiles =
-    modules.map(module => writeModuleFile(module, modulesDir, encoding));
-  return Promise.all(writeFiles);
+  return Promise.map(modules, module =>
+    writeModuleFile(module, modulesDir, encoding));
 }
 
 function writeModules(modulesDir, modules, encoding) {
-  return (
-    createDirectoriesForModules(modulesDir, modules.map(({name}) => name))
-      .then(() => writeModuleFiles(modules, modulesDir, encoding))
-  );
+  const moduleNames = modules.map(({ name }) => name);
+  return createDirectoriesForModules(modulesDir, moduleNames)
+    .then(() => writeModuleFiles(modules, modulesDir, encoding));
 }
 
 function writeMagicFlagFile(outputDir) {

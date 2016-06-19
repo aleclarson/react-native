@@ -9,7 +9,7 @@
 'use strict';
 
 const ModuleTransport = require('../lib/ModuleTransport');
-const Q = require('q');
+const Promise = require('Promise');
 const declareOpts = require('../lib/declareOpts');
 const path = require('path');
 const fs = require('fs');
@@ -95,7 +95,7 @@ class Transformer {
         maxRetries: MAX_RETRIES,
       }, transformer);
 
-      this._transform = Q.denodeify(this._workers);
+      this._transform = Promise.ify(this._workers);
     }
   }
 
@@ -113,7 +113,7 @@ class Transformer {
 
   loadFileAndTransform(filePath, options) {
     if (this._transform == null) {
-      return Q.reject(new Error('No transfrom module'));
+      return Promise.reject(new Error('No transfrom module'));
     }
 
     debug('transforming file', filePath);

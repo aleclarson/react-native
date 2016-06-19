@@ -13,6 +13,7 @@ const Activity = require('../Activity');
 const _ = require('underscore');
 const declareOpts = require('../lib/declareOpts');
 const fs = require('fs');
+const Promise = require('Promise');
 const getCacheFilePath = require('../DependencyResolver/Cache/lib/getCacheFilePath');
 const loadCacheSync = require('../DependencyResolver/Cache/lib/loadCacheSync');
 const version = require('../../../../package.json').version;
@@ -159,7 +160,7 @@ class BundlesLayout {
     // TODO: create single-module bundles for unexistent modules
     // TODO: remove modules that no longer exist
     cacheKeys.forEach(entryPath => {
-      this._layouts[entryPath] = Q.resolve(cacheOnDisk[entryPath]);
+      this._layouts[entryPath] = Promise(cacheOnDisk[entryPath]);
       this._fillModuleToBundleMap(cacheOnDisk[entryPath]);
     });
 
@@ -179,33 +180,33 @@ class BundlesLayout {
   }
 
   _persistCache() {
-    if (this._persisting !== null) {
-      return this._persisting;
-    }
+    return Promise();
+
+    // if (this._persisting !== null) {
+    //   return this._persisting;
+    // }
 
     // log.moat(1);
     // log.white('Persisting bundles layout: ');
     // log.green(this._cacheFilePath);
     // log.moat(1);
 
-    this._persisting = Q
-      .all(_.values(this._layouts))
-      .then(bundlesLayout => {
-        var json = Object.create(null);
-        Object.keys(this._layouts).forEach((p, i) =>
-          json[p] = bundlesLayout[i]
-        );
-
-        return Q.denodeify(fs.writeFile)(
-          this._cacheFilepath,
-          JSON.stringify(json),
-        );
-      })
-      .then(() => this._persisting = null);
-
-    this._persisting.done();
-
-    return this._persisting;
+    // this._persisting = Q
+    //   .all(_.values(this._layouts))
+    //   .then(bundlesLayout => {
+    //     var json = Object.create(null);
+    //     Object.keys(this._layouts).forEach((p, i) =>
+    //       json[p] = bundlesLayout[i]
+    //     );
+    //
+    //     return Promise.ify(fs.writeFile)(
+    //       this._cacheFilepath,
+    //       JSON.stringify(json),
+    //     );
+    //   })
+    //   .then(() => this._persisting = null);
+    //
+    // return this._persisting;
   }
 
   _getCacheFilePath(options) {
@@ -228,7 +229,7 @@ function promiseWhile(condition, result, body) {
 
 function _promiseWhile(condition, result, body, index) {
   if (!condition()) {
-    return Q(result());
+    return Promise(result());
   }
 
   return body(index).then(() =>

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule Image
+ * @providesModule ImageView
  * @flow
  */
 'use strict';
@@ -29,18 +29,18 @@ var requireNativeComponent = require('requireNativeComponent');
 var resolveAssetSource = require('resolveAssetSource');
 
 /**
- * <Image> - A react component for displaying different types of images,
+ * <ImageView> - A react component for displaying different types of images,
  * including network images, static resources, temporary local images, and
  * images from local disk, such as the camera roll.  Example usage:
  *
  *   renderImages: function() {
  *     return (
  *       <View>
- *         <Image
+ *         <ImageView
  *           style={styles.icon}
  *           source={require('image!myIcon')}
  *         />
- *         <Image
+ *         <ImageView
  *           style={styles.logo}
  *           source={{uri: 'http://facebook.github.io/react/img/logo_og.png'}}
  *         />
@@ -60,10 +60,10 @@ var ImageViewAttributes = merge(ReactNativeViewAttributes.UIView, {
   shouldNotifyLoadEvents: true,
 });
 
-var Image = React.createClass({
+var ImageView = React.createClass({
   propTypes: {
     ...View.propTypes,
-    style: StyleSheetPropType(ImageStylePropTypes), 
+    style: StyleSheetPropType(ImageStylePropTypes),
    /**
      * `uri` is a string representing the resource identifier for the image, which
      * could be an http address, a local file path, or the name of a static image
@@ -220,7 +220,7 @@ var cfg = {
     shouldNotifyLoadEvents: true,
   },
 };
-var RKImage = requireNativeComponent('RCTImageView', Image, cfg);
-var RCTTextInlineImage = requireNativeComponent('RCTTextInlineImage', Image, cfg);
+var RKImage = requireNativeComponent('RCTImageView', ImageView, cfg);
+var RCTTextInlineImage = requireNativeComponent('RCTTextInlineImage', ImageView, cfg);
 
-module.exports = Image;
+module.exports = ImageView;

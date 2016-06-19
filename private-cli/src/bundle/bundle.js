@@ -11,7 +11,7 @@
 const log = require('../util/log').out('bundle');
 const parseCommandLine = require('../../../packager/parseCommandLine');
 const processBundle = require('./processBundle');
-const Q = require('q');
+const Promise = require('Promise');
 const ReactPackager = require('../../../packager/react-packager');
 const saveBundleAndMap = require('./saveBundleAndMap');
 
@@ -19,7 +19,7 @@ const saveBundleAndMap = require('./saveBundleAndMap');
  * Builds the bundle starting to look for dependencies at the given entry path.
  */
 function bundle(argv, config) {
-  return Q.promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
     _bundle(argv, config, resolve, reject);
   });
 }

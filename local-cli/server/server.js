@@ -8,16 +8,8 @@
  */
 'use strict';
 
-global.lotus = require('lotus-require');
-lotus.register({
-  exclude: [ '.*/node_modules/.*' ]
-});
-
-require('reactive-var');
-require('lazy-var');
-require('Type');
-
-global.log = require('log');
+// TODO: Support globally installed 'lotus'
+require(process.env.LOTUS_PATH + '/lotus');
 
 const checkNodeVersion = require('./checkNodeVersion');
 const formatBanner = require('./formatBanner');

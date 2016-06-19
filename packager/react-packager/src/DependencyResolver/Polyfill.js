@@ -1,6 +1,6 @@
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 const path = require('path');
 const Module = require('./Module');
 
@@ -12,11 +12,11 @@ class Polyfill extends Module {
   }
 
   isHaste() {
-    return Q(false);
+    return Promise(false);
   }
 
   getName() {
-    return Q.try(() => {
+    return Promise.try(() => {
       const name = this._id;
       if (name[0] === path.sep) {
         return path.relative(lotus.path, name);
@@ -30,7 +30,7 @@ class Polyfill extends Module {
   }
 
   getDependencies() {
-    return Q(this._depNames);
+    return Promise(this._depNames);
   }
 
   isJSON() {

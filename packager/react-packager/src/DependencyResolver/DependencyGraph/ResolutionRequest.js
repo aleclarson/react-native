@@ -10,7 +10,7 @@
 
 const debug = require('debug')('ReactNativePackager:DependencyGraph');
 
-const Q = require('q');
+const Promise = require('Promise');
 const util = require('util');
 const path = require('path');
 const syncFs = require('io/sync');
@@ -49,15 +49,15 @@ class ResolutionRequest {
   }
 
   resolveDependency(fromModule, toModuleName) {
-    return Q.try(() =>
+    return Promise.try(() =>
       this._resolveAssetDependency(toModuleName) ||
         this._resolveJSDependency(fromModule, toModuleName))
 
     .then(resolvedModule => {
-      if (this._ignoreFilePath(resolvedModule.path)) {
+      if (!resolvedModule || this._ignoreFilePath(resolvedModule.path)) {
         return null;
       }
-      fromModule.resolveDependency(toModuleName, resolvedModule);
+      fromModule.setDependency(toModuleName, resolvedModule);
       return resolvedModule;
     })
 
@@ -68,13 +68,6 @@ class ResolutionRequest {
       log.moat(0);
       log.gray('  fromModule = ');
       log.white(path.relative(lotus.path, fromModule.path));
-      log.moat(0);
-      log.gray.dim(
-        error.stack
-          .split(log.ln)
-          .slice(1) // Remove the first line.
-          .join(log.ln)
-      );
       log.moat(1);
       if (this._shouldThrowOnUnresolvedErrors(this._entryPath, this._platform)) {
         throw error;
@@ -105,14 +98,15 @@ class ResolutionRequest {
 
         .then(depNames => {
           const promises = depNames.map(name => {
-            return Q.try(() => {
-              const result = mod.resolveDependency(name);
+            return Promise.try(() => {
+              const result = mod.getDependency(name);
               if (result) {
                 return result;
               }
               return this.resolveDependency(mod, name)
               .fail(error => {
                 failed = true;
+                console.log(error.stack);
                 if (error.type !== 'UnableToResolveError') {
                   throw error;
                 }
@@ -139,7 +133,7 @@ class ResolutionRequest {
             });
           });
 
-          return Q.all(promises)
+          return Promise.all(promises)
           .then(dependencies => [
             depNames,
             dependencies,
@@ -166,11 +160,11 @@ class ResolutionRequest {
               return [depNames, dependencies];
             });
           }
-          return Q([depNames, dependencies]);
+          return Promise([depNames, dependencies]);
         })
 
         .then(([depNames, dependencies]) => {
-          let queue = Q();
+          let queue = Promise();
           const filteredPairs = [];
 
           dependencies.forEach((modDep, i) => {
@@ -220,11 +214,11 @@ class ResolutionRequest {
   }
 
   getAsyncDependencies(response) {
-    return Q().then(() => {
+    return Promise().then(() => {
       const mod = this._moduleCache.getModule(this._entryPath);
       return mod.getAsyncDependencies().then(bundles =>
-        Q.all(bundles.map(bundle =>
-          Q.all(bundle.map(
+        Promise.all(bundles.map(bundle =>
+          Promise.all(bundle.map(
             dep => this.resolveDependency(mod, dep)
           ))
         ))
@@ -236,7 +230,7 @@ class ResolutionRequest {
   }
 
   _resolveJSDependency(fromModule, toModuleName) {
-    return Q.all([
+    return Promise.all([
       toModuleName,
       this._redirectRequire(fromModule, toModuleName)
     ])
@@ -259,7 +253,12 @@ class ResolutionRequest {
         () => this._resolveHasteDependency(fromModule, toModuleName),
         () => this._resolveNodeDependency(fromModule, toModuleName),
       );
-    });
+    })
+    .fail(error => {
+      log.moat(1);
+      log.gray.dim(error.stack);
+      log.moat(1);
+    })
   }
 
   _resolveAssetDependency(toModuleName) {
@@ -272,7 +271,7 @@ class ResolutionRequest {
   _resolveHasteDependency(fromModule, toModuleName) {
 
     if (!this._isModuleName(toModuleName)) {
-      throw new UnableToResolveError();
+      throw UnableToResolveError(toModuleName);
     }
 
     let dep = this._hasteMap.getModule(toModuleName, this._platform);
@@ -291,20 +290,28 @@ class ResolutionRequest {
     }
 
     if (dep && dep.type === 'Package') {
-      if (toModuleName === packageName) {
-        return this._loadAsDir(dep.root, fromModule, toModuleName);
-      }
-      const filePath = path.join(
-        dep.root,
-        path.relative(packageName, toModuleName)
-      );
-      return this._tryResolve(
-        () => this._loadAsFile(filePath, fromModule, toModuleName),
-        () => this._loadAsDir(filePath, fromModule, toModuleName),
-      );
+      return Promise.try(() => {
+        if (toModuleName === packageName) {
+          return this._loadAsDir(dep.root, fromModule, toModuleName);
+        }
+        const filePath = path.join(
+          dep.root,
+          path.relative(packageName, toModuleName)
+        );
+        return this._tryResolve(
+          () => this._loadAsFile(filePath, fromModule, toModuleName),
+          () => this._loadAsDir(filePath, fromModule, toModuleName),
+        );
+      })
+      .fail(error => {
+        if (error.type !== 'UnableToResolveError') {
+          throw error;
+        }
+        throw UnableToResolveError(toModuleName);
+      });
     }
 
-    throw new UnableToResolveError();
+    throw UnableToResolveError(toModuleName);
   }
 
   _resolveNodeDependency(fromModule, toModuleName) {
@@ -338,7 +345,7 @@ class ResolutionRequest {
         );
       }
 
-      throw new UnableToResolveError();
+      throw UnableToResolveError(toModuleName);
     });
   }
 
@@ -364,7 +371,7 @@ class ResolutionRequest {
         resolve
       );
       if (toModulePath) {
-        return Q(toModulePath);
+        return Promise(toModulePath);
       }
     }
 
@@ -378,7 +385,7 @@ class ResolutionRequest {
         .then(mainPath => this._resolveFilePath(mainPath, resolve));
     }
 
-    return Q.fulfill(
+    return Promise(
       this._resolveFilePath(toModuleName, resolve)
     );
   }
@@ -388,7 +395,7 @@ class ResolutionRequest {
     if (this._fileExists(pkgPath)) {
       return this._moduleCache.getPackage(pkgPath).getMain();
     }
-    return Q.fulfill(
+    return Promise(
       path.join(dirPath, 'index')
     );
   }
@@ -462,9 +469,12 @@ class ResolutionRequest {
       dirPath = path.dirname(dirPath);
     }
 
-    let promise = Q.reject(new UnableToResolveError());
+    let promise = Promise.reject(
+      UnableToResolveError(toModuleName)
+    );
+
     searchQueue.forEach(filePath => {
-      promise = promise.fail((error) => {
+      promise = promise.fail(error => {
         if (error.type !== 'UnableToResolveError') {
           throw error;
         }
@@ -475,6 +485,14 @@ class ResolutionRequest {
       });
     });
 
+    promise.fail(error => {
+      console.log('Failed to resolve: ' + toModuleName);
+      if (error.type !== 'UnableToResolveError') {
+        throw error;
+      }
+      throw UnableToResolveError(toModuleName);
+    });
+
     return promise;
   }
 
@@ -482,7 +500,7 @@ class ResolutionRequest {
 
     const pkg = fromModule.getPackage();
     if (!pkg) {
-      return Q(toModuleName);
+      return Promise(toModuleName);
     }
 
     let absPath = toModuleName;
@@ -510,19 +528,24 @@ class ResolutionRequest {
           return this._moduleCache.getModule(filePath);
         }
       } catch (error) {
-        if (error.code === 404) { return }
-        throw error;
+        if (error.code !== 404) {
+          throw error;
+        }
       }
     });
     if (result !== undefined) {
       return result;
     }
-    throw new UnableToResolveError();
+    return Promise.reject(
+      UnableToResolveError(filePath)
+    );
   }
 
   _loadAsDir(dirPath, fromModule, toModule) {
     if (!this._dirExists(dirPath)) {
-      throw new UnableToResolveError();
+      return Promise.reject(
+        UnableToResolveError(dirPath)
+      );
     }
     return this._resolvePackageMain(dirPath)
       .then(mainPath => this._loadAsFile(mainPath, fromModule, toModule));
@@ -551,7 +574,7 @@ class ResolutionRequest {
   }
 
   _tryResolve(action, secondaryAction) {
-    return Q.try(() => action())
+    return Promise.try(() => action())
     .fail((error) => {
       if (error.type !== 'UnableToResolveError') {
         throw error;
@@ -606,16 +629,14 @@ class ResolutionRequest {
         mocks[path.basename(file, path.extname(file))] = file
       );
     }
-    return Q(mocks);
+    return Promise(mocks);
   }
 }
 
-function UnableToResolveError() {
-  Error.call(this);
-  Error.captureStackTrace(this, this.constructor);
-  this.type = this.name = 'UnableToResolveError';
+function UnableToResolveError(path) {
+  var error = Error('Failed to resolve: ' + path);
+  error.type = 'UnableToResolveError';
+  return error;
 }
-
-util.inherits(UnableToResolveError, Error);
 
 module.exports = ResolutionRequest;

@@ -14,13 +14,13 @@ const path = require('path');
 const parseCommandLine = require('../util/parseCommandLine');
 const findXcodeProject = require('./findXcodeProject');
 const parseIOSSimulatorsList = require('./parseIOSSimulatorsList');
-const Q = require('q');
+const Promise = require('Promise');
 
 /**
  * Starts the app on iOS simulator
  */
 function runIOS(argv, config) {
-  return Q.promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
     _runIOS(argv, config, resolve, reject);
     resolve();
   });

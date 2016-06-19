@@ -34,9 +34,8 @@ function checkFlowAtRuntime() {
       };
     },
     () => {
-    //if fetch fails, silently give up
-    })
-    .done();
+      // if fetch fails, silently give up
+    });
 }
 
 function getPackagerURL() {

@@ -12,7 +12,9 @@ var path = require('path');
 var mm = require('micromatch');
 
 var sharedWhitelist = [
-  'react-native/node_modules/react-timer-mixin',
+  'react-native/node_modules/react-timer-mixin/**',
+  'react/src/renderers/dom/client/syntheticEvents/SyntheticEvent.js',
+  'react/src/test/ReactPerf.js',
 ];
 
 // Don't forget to everything listed here to `package.json`
@@ -21,6 +23,8 @@ var sharedBlacklist = [
   // /node_modules[/\\]react[/\\]dist[/\\].*/,
   // 'react/lib/React.js',
   // 'react/lib/ReactDOM.js',
+  'react/src/test/**',
+  'react/src/renderers/dom/**',
 
   // For each of these fbjs files (especially the non-forks/stubs), we should
   // consider deleting the conflicting copy and just using the fbjs version.
@@ -32,6 +36,7 @@ var sharedBlacklist = [
   // fbjs stubs:
   'fbjs/src/stubs/ErrorUtils.js',
   // fbjs modules:
+  'fbjs/src/core/dom/**',
   'fbjs/src/core/Deferred.js',
   'fbjs/src/core/PromiseMap.js',
   'fbjs/src/core/areEqual.js',

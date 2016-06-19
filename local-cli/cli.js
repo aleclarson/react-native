@@ -84,7 +84,7 @@ function run() {
     return;
   }
 
-  command[0](args, Config.get(__dirname, defaultConfig)).done();
+  command[0](args, Config.get(__dirname, defaultConfig));
 }
 
 function generateWrapper(args, config) {
@@ -111,7 +111,7 @@ function printUsage() {
 // The user should never get here because projects are inited by
 // using `react-native-cli` from outside a project directory.
 function printInitWarning() {
-  return Promise.resolve().then(function() {
+  return Promise().then(function() {
     console.log([
       'Looks like React Native project already exists in the current',
       'folder. Run this command from a different folder or remove node_modules/react-native'

@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 const _ = require('underscore');
 const mm = require('micromatch');
 const url = require('url');
@@ -195,7 +195,7 @@ class Server {
         this._hmrFileChangeListener(
           filePath,
           this._bundler.stat(filePath),
-        ).then(onFileChange).done();
+        ).then(onFileChange);
         return;
       }
 
@@ -204,7 +204,7 @@ class Server {
   }
 
   end() {
-    Q.all([
+    Promise.all([
       this._fileWatcher.end(),
       this._bundler.kill(),
     ]);
@@ -215,7 +215,7 @@ class Server {
   }
 
   buildBundle(options) {
-    return Q.try(() => {
+    return Promise.try(() => {
       if (!options.platform) {
         options.platform = getPlatformExtension(options.entryFile);
       }
@@ -226,7 +226,7 @@ class Server {
   }
 
   buildPrepackBundle(options) {
-    return Q.try(() => {
+    return Promise.try(() => {
       if (!options.platform) {
         options.platform = getPlatformExtension(options.entryFile);
       }
@@ -275,7 +275,7 @@ class Server {
   }
 
   getDependencies(options) {
-    return Q.try(() => {
+    return Promise.try(() => {
       if (!options.platform) {
         options.platform = getPlatformExtension(options.entryFile);
       }
@@ -290,7 +290,7 @@ class Server {
   }
 
   getOrderedDependencyPaths(options) {
-    return Q.try(() => {
+    return Promise.try(() => {
       const opts = dependencyOpts(options);
       return this._bundler.getOrderedDependencyPaths(opts);
     });
@@ -329,7 +329,7 @@ class Server {
       this._lastBundle = hash;
 
       // Wait for a previous build (if exists) to finish.
-      return bundles[hash] = (bundles[hash] || Q())
+      return bundles[hash] = (bundles[hash] || Promise())
         .then(buildBundle, buildBundle);
     });
   }
@@ -368,9 +368,8 @@ class Server {
         finishResponse.call(res, body);
       };
 
-      Q.try(() => endpoint.call(this, req, res))
-        .fail(error => this._handleError(res, error))
-        .done();
+      Promise.try(() => endpoint.call(this, req, res))
+        .fail(error => this._handleError(res, error));
     } else {
       next();
     }

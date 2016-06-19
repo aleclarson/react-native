@@ -86,10 +86,7 @@ function setUpTimers() {
   GLOBAL.clearInterval = JSTimers.clearInterval;
   GLOBAL.clearImmediate = JSTimers.clearImmediate;
   GLOBAL.cancelAnimationFrame = JSTimers.clearInterval;
-  GLOBAL.requestAnimationFrame = function(cb) {
-    /*requestAnimationFrame() { [native code] };*/  // Trick scroller library
-    return JSTimers.requestAnimationFrame(cb);      // into thinking it's native
-  };
+  GLOBAL.requestAnimationFrame = JSTimers.requestAnimationFrame;
 }
 
 function setUpAlert() {
@@ -103,7 +100,12 @@ function setUpAlert() {
 }
 
 function setUpPromise() {
-  GLOBAL.Promise = require('q').Promise;
+  GLOBAL.Promise = require('Promise');
+  Promise._onUnhandledRejection = function(error, promise) {
+    var failure = Failure(error);
+    failure.stacks.push(promise._tracers.init());
+    failure.throw();
+  }
 }
 
 function setUpXHR() {
@@ -124,9 +126,14 @@ function setUpFailure() {
 }
 
 function setUpProperty() {
-  // These modules inject themselves into the Property class.
-  require('lazy-var');
-  require('reactive-var');
+  var inject = require('Property/inject');
+  inject('ReactiveVar', require('ReactiveVar'));
+  inject('LazyVar', require('LazyVar'));
+}
+
+function setUpBuilder() {
+  var inject = require('Builder/inject');
+  inject('EventMap', require('Event').Map);
 }
 
 function setUpAnimated() {
@@ -186,6 +193,7 @@ setUpPromise();
 setUpXHR();
 setUpFailure();
 setUpProperty();
+setUpBuilder();
 setUpAnimated();
 setUpGeolocation();
 setUpProduct();

@@ -25,7 +25,12 @@ const webSocketProxy = require('./util/webSocketProxy.js');
 
 function runServer(args, config, readyCallback) {
   var wsProxy = null;
+
+  log.clear();
+  log.pushIndent(2);
+
   const packagerServer = getPackagerServer(args, config);
+
   const app = connect()
     .use(loadRawBodyMiddleware)
     .use(connect.compress())
@@ -43,14 +48,6 @@ function runServer(args, config, readyCallback) {
   app.use(connect.logger())
     .use(connect.errorHandler());
 
-  log.clear();
-  log.moat(1);
-  log.pushIndent(2);
-  log.gray.dim('Listening...');
-  log.moat(0);
-  log.green('http://', require('ip').address(), ':', args.port);
-  log.moat(1);
-
   const serverInstance = http.createServer(app).listen(
     args.port,
     args.host,
@@ -64,6 +61,11 @@ function runServer(args, config, readyCallback) {
       wsProxy = webSocketProxy.attachToServer(serverInstance, '/debugger-proxy');
       webSocketProxy.attachToServer(serverInstance, '/devtools');
 
+      log.moat(1);
+      log.gray.dim('Listening...');
+      log.moat(0);
+      log.green('http://', require('ip').address(), ':', args.port);
+      log.moat(1);
       readyCallback && readyCallback();
     }
   );

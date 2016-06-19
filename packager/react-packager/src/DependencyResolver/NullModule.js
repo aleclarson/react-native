@@ -1,6 +1,6 @@
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 const Module = require('./Module');
 
 class NullModule extends Module {
@@ -10,11 +10,11 @@ class NullModule extends Module {
   }
 
   isHaste() {
-    return Q(false);
+    return Promise(false);
   }
 
   getName() {
-    return Q(this.path);
+    return Promise(this.path);
   }
 
   getPackage() {
@@ -22,7 +22,7 @@ class NullModule extends Module {
   }
 
   getDependencies() {
-    return Q([]);
+    return Promise([]);
   }
 
   isJSON() {

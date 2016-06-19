@@ -22,7 +22,7 @@ function saveAssets(
 ) {
   if (!assetsDest) {
     console.warn('Assets destination folder is not set, skipping...');
-    return Q.resolve();
+    return Promise();
   }
 
   const getAssetDestPath = platform === 'android'
@@ -46,11 +46,11 @@ function saveAssets(
 function copyAll(filesToCopy) {
   const queue = Object.keys(filesToCopy);
   if (queue.length === 0) {
-    return Q.resolve();
+    return Promise();
   }
 
   log('Copying ' + queue.length + ' asset files');
-  return Q.promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
     const copyNext = (error) => {
       if (error) {
         return reject(error);

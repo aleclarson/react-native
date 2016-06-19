@@ -11,7 +11,7 @@
 const bundle = require('./bundle/bundle');
 const Config = require('./util/Config');
 const dependencies = require('./dependencies/dependencies');
-const Q = require('q');
+const Promise = require('Promise');
 
 const documentedCommands = {
   bundle: bundle,
@@ -38,7 +38,7 @@ function run(command, commandArgs) {
     throw new Error(helpMessage(command));
   }
 
-  commandToExec(commandArgs, Config.get()).done();
+  commandToExec(commandArgs, Config.get());
 }
 
 function helpMessage(command) {
@@ -58,7 +58,7 @@ function helpMessage(command) {
 
 function help() {
   console.log(helpMessage());
-  return Q.resolve();
+  return Promise();
 }
 
 module.exports.run = run;

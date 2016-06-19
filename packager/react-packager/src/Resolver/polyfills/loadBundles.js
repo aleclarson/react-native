@@ -1,7 +1,7 @@
 /* eslint global-strict:0 */
 (global => {
   let loadBundlesOnNative = (bundles) =>
-    Q.promise((resolve) =>
+    Promise.resolve((resolve) =>
       require('NativeModules').RCTBundlesLoader.loadBundles(bundles, resolve));
 
   let requestedBundles = Object.create(null);
@@ -31,7 +31,7 @@
       bundlesToRequest.forEach(b => requestedBundles[b] = nativePromise);
     }
 
-    return Q.all(bundles.map(bundle => requestedBundles[bundle]));
+    return Promise.all(bundles.map(bundle => requestedBundles[bundle]));
   };
 })(global);
 
@@ -42,7 +42,7 @@ function promisify(fn) {
     var self = this;
     var args = Array.prototype.slice.call(arguments);
 
-    return Q.promise((resolve, reject) => {
+    return Promise.resolve((resolve, reject) => {
       args.push(resolve);
       fn.apply(self, args);
     });

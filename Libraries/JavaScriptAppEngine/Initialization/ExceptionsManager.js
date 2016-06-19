@@ -12,7 +12,7 @@
 'use strict';
 
 var loadSourceMap = require('loadSourceMap');
-var Q = require ('q');
+var Promise = require ('Promise');
 
 var exceptionID = 0;
 
@@ -81,13 +81,13 @@ function createException(error, isFatal, stack, onLoad) {
     }
 
     // Map the JS files to any original dialects.
-    return Q.all(
+    return Promise.all(
       stack.map(frame =>
         loadSourceMap
           .forFile(frame.file)
           .fail(error => null) // Ignore file-specific loading failures.
       )
-    ).done(sourceMaps => {
+    ).then(sourceMaps => {
 
       stack.forEach((frame, index) => {
         var sourceMap = sourceMaps[index];

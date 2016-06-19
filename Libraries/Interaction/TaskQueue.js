@@ -133,7 +133,7 @@ class TaskQueue {
         this._queueStack[stackIdx].popable = true;
         this.hasTasksToProcess() && this._onMoreTasks();
       })
-      .catch((ex) => {
+      .fail((ex) => {
         console.warn(
           'TaskQueue: Error resolving Promise in task ' + task.name,
           ex

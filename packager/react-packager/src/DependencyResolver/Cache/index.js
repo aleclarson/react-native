@@ -8,12 +8,13 @@
  */
 'use strict';
 
-const Q = require('q');
-const fs = require('graceful-fs');
-const getCacheFilePath = require('./lib/getCacheFilePath');
 const isAbsolutePath = require('absolute-path');
-const loadCacheSync = require('./lib/loadCacheSync');
+const Promise = require('Promise');
 const tmpDir = require('os').tmpDir();
+const fs = require('graceful-fs');
+
+const getCacheFilePath = require('./lib/getCacheFilePath');
+const loadCacheSync = require('./lib/loadCacheSync');
 
 function getObjectValues(object) {
   return Object.keys(object).map(key => object[key]);
@@ -65,7 +66,7 @@ class Cache {
   }
 
   end() {
-    return this._persistCache().done();
+    return this._persistCache();
   }
 
   reset() {
@@ -88,9 +89,9 @@ class Cache {
     }
 
     record.data[field] = loaderPromise
-      .then(data => Q.all([
+      .then(data => Promise.all([
         data,
-        Q.denodeify(fs.stat)(filepath),
+        Promise.ify(fs.stat)(filepath),
       ]))
       .then(([data, stat]) => {
         this._persistEventually();
@@ -110,81 +111,74 @@ class Cache {
   }
 
   _persistCache() {
-    if (this._persisting != null) {
-      return this._persisting;
-    }
+    return Promise();
 
-    const data = this._data;
-    const dataKeys = Object.keys(data);
-    const cacheFilepath = this._cacheFilePath;
-
-    const allPromises = getObjectValues(data)
-      .map(record => {
-        const fieldNames = Object.keys(record.data);
-        const fieldValues = getObjectValues(record.data);
-
-        return Q
-          .all(fieldValues)
-          .then(ref => {
-            const ret = Object.create(null);
-            ret.metadata = record.metadata;
-            ret.data = Object.create(null);
-            fieldNames.forEach((field, index) =>
-              ret.data[field] = ref[index]
-            );
-
-            return ret;
-          });
-      }
-    );
-
-    this._persisting = Q.all(allPromises)
-      .then(values => {
-        const json = Object.create(null);
-        dataKeys.forEach((key, i) => {
-          // make sure the key wasn't added nor removed after we started
-          // persisting the cache
-          const value = values[i];
-          if (!value) {
-            return;
-          }
-
-          json[key] = Object.create(null);
-          json[key].metadata = data[key].metadata;
-          json[key].data = value.data;
-        });
-        return Q.denodeify(fs.writeFile)(cacheFilepath, JSON.stringify(json));
-      })
-      .catch(e => console.error('Error while persisting cache:', e.stack))
-      .then(() => {
-        this._persisting = null;
-        return true;
-      });
-
-    this._persisting.done();
-
-    return this._persisting;
+    // if (this._persisting != null) {
+    //   return this._persisting;
+    // }
+    //
+    // const data = this._data;
+    // const dataKeys = Object.keys(data);
+    // const cacheFilepath = this._cacheFilePath;
+    //
+    // const allPromises = getObjectValues(data)
+    //   .map(record => {
+    //     const fieldNames = Object.keys(record.data);
+    //     const fieldValues = getObjectValues(record.data);
+    //
+    //     return Q
+    //       .all(fieldValues)
+    //       .then(ref => {
+    //         const ret = Object.create(null);
+    //         ret.metadata = record.metadata;
+    //         ret.data = Object.create(null);
+    //         fieldNames.forEach((field, index) =>
+    //           ret.data[field] = ref[index]
+    //         );
+    //
+    //         return ret;
+    //       });
+    //   }
+    // );
+    //
+    // this._persisting = Promise.all(allPromises)
+    //   .then(values => {
+    //     const json = Object.create(null);
+    //     dataKeys.forEach((key, i) => {
+    //       // make sure the key wasn't added nor removed after we started
+    //       // persisting the cache
+    //       const value = values[i];
+    //       if (!value) {
+    //         return;
+    //       }
+    //
+    //       json[key] = Object.create(null);
+    //       json[key].metadata = data[key].metadata;
+    //       json[key].data = value.data;
+    //     });
+    //     return Promise.ify(fs.writeFile)(cacheFilepath, JSON.stringify(json));
+    //   })
+    //   .catch(e => console.error('Error while persisting cache:', e.stack))
+    //   .then(() => {
+    //     this._persisting = null;
+    //     return true;
+    //   });
+    //
+    // return this._persisting;
   }
 
   _loadCacheSync(cachePath) {
 
-    // log.moat(1);
-    // log.white('Loading cache: ');
-    // log.green(cachePath);
-    // log.moat(1);
+    log.moat(1);
+    log.white('Loading: ');
+    log.yellow(cachePath);
+    log.moat(1);
 
     var ret = Object.create(null);
     var cacheOnDisk = loadCacheSync(cachePath);
 
-    var cacheKeys = Object.keys(cacheOnDisk);
-    // log.moat(1);
-    // log.white('Cache has ');
-    // log.pink(cacheKeys.length);
-    // log.white(' modules!');
-    // log.moat(1);
-
     // Filter outdated cache and convert to promises.
-    cacheKeys.forEach(key => {
+    Object.keys(cacheOnDisk).forEach(key => {
       if (!fs.existsSync(key)) {
         return;
       }
@@ -197,7 +191,7 @@ class Cache {
         ret[key].metadata.mtime = record.metadata.mtime;
 
         Object.keys(record.data).forEach(field => {
-          ret[key].data[field] = Q(record.data[field]);
+          ret[key].data[field] = Promise(record.data[field]);
         });
       }
     });

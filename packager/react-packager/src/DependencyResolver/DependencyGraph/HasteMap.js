@@ -8,10 +8,10 @@
  */
 'use strict';
 
-const Q = require ('q');
 const log = require('log');
 const path = require('path');
 const inArray = require('in-array');
+const Promise = require('Promise');
 const getPlatformExtension = require('../lib/getPlatformExtension');
 
 const GENERIC_PLATFORM = 'generic';
@@ -43,11 +43,11 @@ class HasteMap {
         .map(file => this._processHastePackage(file))
     );
 
-    return Q.all(promises);
+    return Promise.all(promises);
   }
 
   processFileChange(type, absPath) {
-    return Q().then(() => {
+    return Promise().then(() => {
       /*eslint no-labels: 0 */
       if (type === 'delete' || type === 'change') {
         loop: for (const name in this._map) {

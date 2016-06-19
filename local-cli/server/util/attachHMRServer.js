@@ -37,7 +37,7 @@ function attachHMRServer({httpServer, path, packagerServer}) {
       return Promise.all(Object.values(response.dependencies).map(dep => {
         return dep.getName().then(depName => {
           if (dep.isAsset() || dep.isAsset_DEPRECATED() || dep.isJSON()) {
-            return Promise.resolve({path: dep.path, deps: []});
+            return Promise({path: dep.path, deps: []});
           }
           return packagerServer.getShallowDependencies(dep.path)
             .then(deps => {
@@ -116,7 +116,7 @@ function attachHMRServer({httpServer, path, packagerServer}) {
 
         packagerServer.setHMRFileChangeListener((filename, stat) => {
           if (!client) {
-            return Promise.resolve();
+            return Promise();
           }
 
           return stat.then(() => {
@@ -191,7 +191,7 @@ function attachHMRServer({httpServer, path, packagerServer}) {
                   });
                 }
               })
-              .catch(error => {
+              .fail(error => {
                 // send errors to the client instead of killing packager server
                 let body;
                 if (error.type === 'TransformError' ||
@@ -241,8 +241,7 @@ function attachHMRServer({httpServer, path, packagerServer}) {
         });
 
         client.ws.on('close', () => disconnect());
-      })
-    .done();
+      });
   });
 }
 

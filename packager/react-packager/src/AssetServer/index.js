@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 
 const crypto = require('crypto');
 const declareOpts = require('../lib/declareOpts');
@@ -17,9 +17,9 @@ const isAbsolutePath = require('absolute-path');
 const getAssetDataFromName = require('../DependencyResolver/lib/getAssetDataFromName');
 const path = require('path');
 
-const stat = Q.denodeify(fs.stat);
-const readDir = Q.denodeify(fs.readdir);
-const readFile = Q.denodeify(fs.readFile);
+const stat = Promise.ify(fs.stat);
+const readDir = Promise.ify(fs.readdir);
+const readFile = Promise.ify(fs.readFile);
 
 const validateOpts = declareOpts({
   projectRoots: {
@@ -116,7 +116,7 @@ class AssetServer {
       assetData.scales = record.scales;
       assetData.files = record.files;
 
-      return Q.all(
+      return Promise.all(
         record.files.map(file => stat(file))
       );
     }).then(stats => {
@@ -148,7 +148,7 @@ class AssetServer {
         this._roots,
         path.dirname(assetPath)
       )
-      .then(dir => Q.all([
+      .then(dir => Promise.all([
         dir,
         readDir(dir),
       ]))
@@ -178,7 +178,7 @@ class AssetServer {
   }
 
   _findRoot(roots, dir) {
-    return Q.all(
+    return Promise.all(
       roots.map(root => {
         const absPath = path.join(root, dir);
         return stat(absPath).then(fstat => {

@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 const SocketClient = require('./SocketClient');
 const SocketServer = require('./SocketServer');
 const _ = require('underscore');
@@ -24,7 +24,7 @@ const CREATE_SERVER_TIMEOUT = 5 * 60 * 1000;
 
 const SocketInterface = {
   getOrCreateSocketFor(options) {
-    return Q.promise((resolve, reject) => {
+    return Promise.resolve((resolve, reject) => {
       const hash = crypto.createHash('md5');
       Object.keys(options).sort().forEach(key => {
         const value = options[key];

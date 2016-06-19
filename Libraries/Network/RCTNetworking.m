@@ -398,6 +398,10 @@ RCT_EXPORT_MODULE()
                                 RCTNullIfNil(error.localizedDescription),
                                 ];
 
+      if (error) {
+        NSLog(@"%@: %@", task.requestID, error.localizedDescription);
+      }
+
       [_bridge.eventDispatcher sendDeviceEventWithName:@"didCompleteNetworkResponse"
                                                   body:responseJSON];
 

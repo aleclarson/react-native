@@ -11,10 +11,10 @@
  */
 'use strict';
 
-const Q = require('q');
 const Map = require('Map');
-const NativeModules = require('NativeModules');
+const Promise = require('Promise');
 const Platform = require('Platform');
+const NativeModules = require('NativeModules');
 const RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
 const RCTNetInfo = NativeModules.NetInfo;
 
@@ -189,8 +189,8 @@ const NetInfo = {
     _subscriptions.delete(handler);
   },
 
-  fetch(): Q.Promise {
-    return Q.promise((resolve, reject) => {
+  fetch(): Promise {
+    return Promise.resolve((resolve, reject) => {
       RCTNetInfo.getCurrentConnectivity(
         function(resp) {
           resolve(resp.network_info);
@@ -227,7 +227,7 @@ const NetInfo = {
       _isConnectedSubscriptions.delete(handler);
     },
 
-    fetch(): Q.Promise {
+    fetch(): Promise {
       return NetInfo.fetch().then(
         (connection) => _isConnected(connection)
       );

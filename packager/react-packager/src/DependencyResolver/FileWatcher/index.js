@@ -10,13 +10,13 @@
 
 const EventEmitter  = require('events').EventEmitter;
 const sane = require('sane');
-const Q = require('q');
+const Promise = require('Promise');
 const exec = require('child_process').exec;
 
 const MAX_WAIT_TIME = 120000;
 
 // TODO(amasad): can we use watchman version command instead?
-const detectingWatcherClass = Q.promise(function(resolve) {
+const detectingWatcherClass = Promise.resolve(function(resolve) {
   exec('which watchman', function(err, out) {
     if (err || out.length === 0) {
       resolve(sane.NodeWatcher);
@@ -26,22 +26,24 @@ const detectingWatcherClass = Q.promise(function(resolve) {
   });
 });
 
-let inited = false;
+let initialized = false;
 
 class FileWatcher extends EventEmitter {
 
   constructor(rootConfigs) {
-    if (inited) {
-      throw new Error('FileWatcher can only be instantiated once');
+    if (initialized) {
+      throw new Error('FileWatcher can only be constructed once!');
     }
-    inited = true;
+    initialized = true;
 
     super();
     this._watcherByRoot = Object.create(null);
 
-    this._loading = Q.all(
-      rootConfigs.map(createWatcher)
-    ).then(watchers => {
+    this._loading = Promise.map(
+      rootConfigs,
+      createWatcher
+    )
+    .then(watchers => {
       watchers.forEach((watcher, i) => {
         this._watcherByRoot[rootConfigs[i].dir] = watcher;
         watcher.on(
@@ -52,8 +54,6 @@ class FileWatcher extends EventEmitter {
       });
       return watchers;
     });
-
-    this._loading.done();
   }
 
   getWatchers() {
@@ -61,7 +61,9 @@ class FileWatcher extends EventEmitter {
   }
 
   getWatcherForRoot(root) {
-    return this._loading.then(() => this._watcherByRoot[root]);
+    return this._loading.then(() => {
+      return this._watcherByRoot[root];
+    });
   }
 
   isWatchman() {
@@ -74,15 +76,15 @@ class FileWatcher extends EventEmitter {
     inited = false;
     return this._loading.then(
       (watchers) => watchers.map(
-        watcher => Q.denodeify(watcher.close).call(watcher)
+        watcher => Promise.ify(watcher.close).call(watcher)
       )
     );
   }
 
   static createDummyWatcher() {
     return Object.assign(new EventEmitter(), {
-      isWatchman: () => Q(false),
-      end: () => Q(),
+      isWatchman: () => Promise(false),
+      end: () => Promise(),
     });
   }
 }
@@ -94,7 +96,7 @@ function createWatcher(rootConfig) {
       dot: false,
     });
 
-    return Q.promise(function(resolve, reject) {
+    return Promise.resolve(function(resolve, reject) {
       const rejectTimeout = setTimeout(function() {
         reject(new Error(timeoutMessage(Watcher)));
       }, MAX_WAIT_TIME);

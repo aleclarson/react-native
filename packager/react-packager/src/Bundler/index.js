@@ -12,7 +12,7 @@ const assert = require('assert');
 const fs = require('fs');
 const syncFs = require('io/sync');
 const path = require('path');
-const Q = require('q');
+const Promise = require('Promise');
 const BundlesLayout = require('../BundlesLayout');
 const Cache = require('../DependencyResolver/Cache');
 const Transformer = require('../JSTransformer');
@@ -25,8 +25,8 @@ const declareOpts = require('../lib/declareOpts');
 const imageSize = require('image-size');
 const version = require('../../../../package.json').version;
 
-const sizeOf = Q.denodeify(imageSize);
-const readFile = Q.denodeify(fs.readFile);
+const sizeOf = Promise.ify(imageSize);
+const readFile = Promise.ify(fs.readFile);
 
 const validateOpts = declareOpts({
   internalRoots: {
@@ -199,7 +199,7 @@ class Bundler {
         response.numPrependedDependencies + moduleSystem.length
       );
 
-      return Q.all(namedModules).then(namedModules => {
+      return Promise.all(namedModules).then(namedModules => {
 
         log.moat(1);
         log.white('Total dependencies: ');
@@ -233,7 +233,7 @@ class Bundler {
           })
         });
 
-        return Q.all(transforming)
+        return Promise.all(transforming)
 
         .then(transformedModules => {
           Activity.endEvent(transformEventId);
@@ -265,7 +265,7 @@ class Bundler {
     let transformEventId;
     let mainModuleId;
 
-    return Q.try(() => {
+    return Promise.try(() => {
       return this.getDependencies(entryFile, isDev, platform)
     })
 
@@ -306,7 +306,7 @@ class Bundler {
 
       Activity.endEvent(findEventId);
       transformEventId = Activity.startEvent('transform');
-      return Q.all(promises);
+      return Promise.all(promises);
     })
 
     .then(() => {
@@ -319,9 +319,9 @@ class Bundler {
   bundleForHMR({entryFile, platform, modules}) {
     return this.getDependencies(entryFile, /*isDev*/true, platform)
       .then(response => {
-        return Q.all(
+        return Promise.all(
           modules.map(module => {
-            return Q.all([
+            return Promise.all([
               module.getName(),
               this._transformModuleForHMR(module, platform),
             ]).then(([moduleName, transformed]) => {
@@ -405,7 +405,7 @@ class Bundler {
           }
         });
 
-        return Q.all(promises).then(assetsData => {
+        return Promise.all(promises).then(assetsData => {
           assetsData.forEach(({ files }) => {
             const index = ret.indexOf(placeHolder);
             ret.splice(index, 1, ...files);
@@ -421,7 +421,7 @@ class Bundler {
     // TODO Strip null references entirely?
     //      ie: Replace `require()` with `null`
     if (module.isNull()) {
-      return Q({
+      return Promise({
         sourceCode: module.code,
         sourcePath: module.path,
       });
@@ -478,7 +478,7 @@ class Bundler {
       assetUrlPath = assetUrlPath.replace(/\\/g, '/');
     }
 
-    return Q.all([
+    return Promise.all([
       sizeOf(module.path),
       this._assetServer.getAssetData(relPath, platform),
     ]).then(function(res) {

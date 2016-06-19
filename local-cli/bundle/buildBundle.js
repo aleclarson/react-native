@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 
 const log = require('../util/log').out('bundle');
 const outputBundle = require('./output/bundle');
@@ -16,7 +16,7 @@ const ReactPackager = require('../../packager/react-packager');
 const saveAssets = require('./saveAssets');
 
 function buildBundle(args, config, output = outputBundle) {
-  return Q.promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
 
     // This is used by a bazillion of npm modules we don't control so we don't
     // have other choice than defining it as an env variable here.
@@ -54,7 +54,7 @@ function buildBundle(args, config, output = outputBundle) {
       });
 
     // When we're done bundling, close the client
-    Q.all([clientPromise, bundlePromise])
+    Promise.all([clientPromise, bundlePromise])
       .then(([client]) => {
         log('Closing client');
         client.close();

@@ -13,7 +13,7 @@ const syncFs = require('io/sync');
 const sync = require('sync');
 const path = require('path');
 const util = require('util');
-const Q = require('q');
+const Promise = require('Promise');
 
 const crawl = require('../crawlers');
 const Fastfs = require('../fastfs');
@@ -207,7 +207,7 @@ class DependencyGraph {
 
       const response = new ResolutionResponse();
 
-      return Q.all([
+      return Promise.all([
         req.getOrderedDependencies(response, this._opts.mocksPattern),
         req.getAsyncDependencies(response),
       ])

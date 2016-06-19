@@ -14,7 +14,7 @@ const DependencyGraph = require('../DependencyResolver/DependencyGraph');
 const replacePatterns = require('../DependencyResolver/lib/replacePatterns');
 const Polyfill = require('../DependencyResolver/Polyfill');
 const declareOpts = require('../lib/declareOpts');
-const Q = require('q');
+const Promise = require('Promise');
 
 const validateOpts = declareOpts({
   internalRoots: {
@@ -161,7 +161,7 @@ class Resolver {
   }
 
   resolveRequires(resolutionResponse, module, code) {
-    return Q.try(() => {
+    return Promise.try(() => {
       if (module.isPolyfill()) {
         return { code };
       }
@@ -176,7 +176,7 @@ class Resolver {
       const resolvedDeps = Object.create(null);
       const resolvedDepsArr = [];
 
-      return Q.all(
+      return Promise.all(
         resolutionResponse.getResolvedDependencyPairs(module).map(
           ([depName, depModule]) => {
             if (depModule) {
@@ -212,7 +212,7 @@ class Resolver {
   wrapModule(resolutionResponse, module, code) {
 
     if (module.isPolyfill()) {
-      return Q({ code });
+      return Promise({ code });
     }
 
     return this.resolveRequires(resolutionResponse, module, code)

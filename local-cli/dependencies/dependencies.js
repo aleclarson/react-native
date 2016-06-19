@@ -12,14 +12,14 @@ const fs = require('fs');
 const log = require('../util/log').out('dependencies');
 const parseCommandLine = require('../util/parseCommandLine');
 const path = require('path');
-const Q = require('q');
+const Promise = require('Promise');
 const ReactPackager = require('../../packager/react-packager');
 
 /**
  * Returns the dependencies an entry path has.
  */
 function dependencies(argv, config) {
-  return Q.promise((resolve, reject) => {
+  return Promise.resolve((resolve, reject) => {
     _dependencies(argv, config, resolve, reject);
   });
 }
@@ -107,8 +107,8 @@ function _dependencies(argv, config, resolve, reject) {
           }
         });
         return writeToFile
-          ? Q.denodeify(outStream.end).bind(outStream)()
-          : Q.resolve();
+          ? Promise.ify(outStream.end).bind(outStream)()
+          : Promise();
         // log('Wrote dependencies to output file');
       });
   }));

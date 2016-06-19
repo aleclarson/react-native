@@ -13,7 +13,7 @@ const writeFile = require('../writeFile');
 
 function writeSourcemap(fileName, contents, log) {
   if (!fileName) {
-    return Promise.resolve();
+    return Promise();
   }
   log('Writing sourcemap output to:', fileName);
   const writeMap = writeFile(fileName, '', null);

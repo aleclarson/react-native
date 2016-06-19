@@ -116,7 +116,7 @@ var ReactNative = {
 if (__DEV__) {
   Object.defineProperty(ReactNative.addons, 'Perf', {
     enumerable: true,
-    get: () => require('ReactDefaultPerf'),
+    get: () => require('ReactPerf'),
   });
   Object.defineProperty(ReactNative.addons, 'TestUtils', {
     enumerable: true,

@@ -121,7 +121,7 @@ var ReactNative = Object.assign(Object.create(require('React')), {
 });
 
 if (__DEV__) {
-  ReactNative.addons.Perf = require('ReactDefaultPerf');
+  ReactNative.addons.Perf = require('ReactPerf');
   ReactNative.addons.TestUtils = require('ReactTestUtils');
 }
 

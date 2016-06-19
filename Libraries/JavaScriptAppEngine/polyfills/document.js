@@ -5,24 +5,11 @@
    * `ExecutionEnvironment` module (which checks for `document.createElement`).
    */
 
-  // The browser defines Text and Image globals by default. If you forget to
-  // require them, then the error message is very confusing.
-  function getInvalidGlobalUseError(name) {
-    return new Error(
-      'You are trying to render the global ' + name + ' variable as a ' +
-      'React element. You probably forgot to require ' + name + '.'
-    );
-  }
-  GLOBAL.Text = {
-    get defaultProps() {
-      throw getInvalidGlobalUseError('Text');
-    }
-  };
-  GLOBAL.Image = {
-    get defaultProps() {
-      throw getInvalidGlobalUseError('Image');
-    }
-  };
+  // Override global 'Text' and 'Image' document classes
+  // to prevent strange error messages when someone forgets
+  // to import the 'Text' or 'Image' module.
+  GLOBAL.Text = null;
+  GLOBAL.Image = null;
 
   // There is no DOM so MutationObserver doesn't make sense. It is used
   // as feature detection in Bluebird Promise implementation

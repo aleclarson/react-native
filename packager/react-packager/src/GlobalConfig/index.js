@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const Q = require('q');
+const Promise = require('Promise');
 const has = require('has');
 const path = require('path');
 const syncFs = require('io/sync');

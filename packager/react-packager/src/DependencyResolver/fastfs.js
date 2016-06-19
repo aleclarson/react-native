@@ -8,23 +8,18 @@
  */
 'use strict';
 
-const Q = require('q');
-const {EventEmitter} = require('events');
+const { EventEmitter } = require('events');
 
-const fs = require('graceful-fs');
-const path = require('path');
-
-const readFile = Q.denodeify(fs.readFile);
-const stat = Q.denodeify(fs.stat);
+const Promise = require('Promise');
+const syncFs = require('io/sync');
+const Path = require('path');
 
 const isDescendant = require('../lib/isDescendant');
-const hasOwn = Object.prototype.hasOwnProperty;
-
-const NOT_FOUND_IN_ROOTS = 'NotFoundInRootsError';
-
 const File = require('./File');
 
 require('./lotusfs').initialize();
+
+const NOT_FOUND_IN_ROOTS = 'NotFoundInRootsError';
 
 class Fastfs extends EventEmitter {
   constructor(name, roots, fileWatcher, {ignore, crawling, activity}) {
@@ -47,8 +42,11 @@ class Fastfs extends EventEmitter {
         fastfsActivity = activity.startEvent(this._name);
       }
       files.forEach(filePath => {
+        if (!syncFs.isFile(filePath)) {
+          debugger;
+        }
         const newFile = new File(filePath, { isDir: false });
-        const parent = this._fastPaths[path.dirname(filePath)];
+        const parent = this._fastPaths[Path.dirname(filePath)];
         if (parent) {
           parent.addChild(newFile);
         } else {
@@ -68,7 +66,7 @@ class Fastfs extends EventEmitter {
   }
 
   stat(filePath) {
-    return Q().then(() => {
+    return Promise().then(() => {
       const file = this._getFile(filePath);
       return file.stat();
     });
@@ -94,7 +92,7 @@ class Fastfs extends EventEmitter {
   findFilesByName(name, { ignore } = {}) {
     return this.getAllFiles()
       .filter(
-        file => path.basename(file.path) === name &&
+        file => Path.basename(file.path) === name &&
           (!ignore || !ignore(file.path))
       )
       .map(file => file.path);
@@ -161,7 +159,7 @@ class Fastfs extends EventEmitter {
 
     return Object.keys(dirFile.children)
       .filter(name => name.match(pattern))
-      .map(name => path.join(dirFile.path, name));
+      .map(name => Path.join(dirFile.path, name));
   }
 
   _getRoot(filePath) {
@@ -190,7 +188,7 @@ class Fastfs extends EventEmitter {
   }
 
   _getFile(filePath) {
-    filePath = path.normalize(filePath);
+    filePath = Path.normalize(filePath);
     var file = this._fastPaths[filePath];
 
     if (!file) {
@@ -206,8 +204,8 @@ class Fastfs extends EventEmitter {
           log.moat(1);
           log.red('Error: ');
           log.white(error.message);
-          log.moat(0);
-          log.gray.dim(error.stack.split(log.ln).slice(1).join(log.ln));
+          // log.moat(0);
+          // log.gray.dim(error.stack.split(log.ln).slice(1).join(log.ln));
           log.moat(1);
         }
       }
@@ -240,7 +238,7 @@ class Fastfs extends EventEmitter {
       return;
     }
 
-    const absPath = path.join(root, filePath);
+    const absPath = Path.join(root, filePath);
     if (!this._getRoot(absPath)) {
       // this._didAbortFileEvent(absPath, 'This path has an invalid root!');
       return;
@@ -268,7 +266,7 @@ class Fastfs extends EventEmitter {
       }
     }
 
-    const relPath = path.relative(lotus.path, absPath);
+    const relPath = Path.relative(lotus.path, absPath);
     log.moat(1);
     if (type === 'delete') {
       log.white('File deleted: ');

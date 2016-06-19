@@ -12,8 +12,8 @@
 
 'use strict';
 
-var Q = require('q');
 var Path = require('path');
+var Promise = require('Promise');
 var NativeModules = require('NativeModules');
 var SourceMapConsumer = require('SourceMap').SourceMapConsumer;
 var SourceMapURL = require('./source-map-url');
@@ -29,22 +29,22 @@ module.exports = loadSourceMap;
 loadSourceMap.forBundle = loadSourceMapForBundle;
 loadSourceMap.forFile = loadSourceMapForFile;
 
-function loadSourceMapForBundle(): Q.Promise {
+function loadSourceMapForBundle(): Promise {
 
   if (global.RAW_SOURCE_MAP) {
-    return Q(global.RAW_SOURCE_MAP);
+    return Promise(global.RAW_SOURCE_MAP);
   }
 
   if (!RCTSourceCode) {
-    return Q.reject(new Error('RCTSourceCode module is not available'));
+    return Promise.reject(new Error('RCTSourceCode module is not available'));
   }
 
   if (!RCTNetworking) {
     // Used internally by fetch
-    return Q.reject(new Error('RCTNetworking module is not available'));
+    return Promise.reject(new Error('RCTNetworking module is not available'));
   }
 
-  return Q.promise((resolve, reject) =>
+  return Promise.resolve((resolve, reject) =>
     RCTSourceCode.getScriptText(resolve, reject))
 
   .then(extractSourceMapURL)
@@ -58,10 +58,10 @@ function loadSourceMapForBundle(): Q.Promise {
   .then(loadSourceMap);
 }
 
-function loadSourceMapForFile(filePath): Q.Promise {
+function loadSourceMapForFile(filePath): Promise {
 
   if (filePath[0] !== '/') {
-    return Q.reject(Error('"filePath" must start with a "/".'));
+    return Promise.reject(Error('"filePath" must start with a "/".'));
   }
 
   var dirPath = filePath.slice(0, filePath.lastIndexOf('/'));
@@ -93,7 +93,7 @@ function loadSourceMapForFile(filePath): Q.Promise {
   .then(loadSourceMap);
 }
 
-function loadSourceMap(url): Q.Promise {
+function loadSourceMap(url): Promise {
 
   return fetch(url)
 
