@@ -8,19 +8,20 @@
  */
 'use strict';
 
-const attachHMRServer = require('./util/attachHMRServer');
-const connect = require('connect');
-const cpuProfilerMiddleware = require('./middleware/cpuProfilerMiddleware');
-const getDevToolsMiddleware = require('./middleware/getDevToolsMiddleware');
-const http = require('http');
-const isAbsolutePath = require('absolute-path');
-const loadRawBodyMiddleware = require('./middleware/loadRawBodyMiddleware');
-const openStackFrameInEditorMiddleware = require('./middleware/openStackFrameInEditorMiddleware');
 const path = require('path');
+const http = require('http');
+const connect = require('connect');
 const ReactPackager = require('react-packager');
-const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
-const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
+
 const webSocketProxy = require('./util/webSocketProxy.js');
+const attachHMRServer = require('./util/attachHMRServer');
+
+const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
+const getDevToolsMiddleware = require('./middleware/getDevToolsMiddleware');
+const cpuProfilerMiddleware = require('./middleware/cpuProfilerMiddleware');
+const loadRawBodyMiddleware = require('./middleware/loadRawBodyMiddleware');
+const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
+const openStackFrameInEditorMiddleware = require('./middleware/openStackFrameInEditorMiddleware');
 
 function runServer(args, config, readyCallback) {
   var wsProxy = null;
@@ -82,11 +83,11 @@ function getPackagerServer(args, config) {
   ].map(root => path.join(lotus.path, root));
 
   const transformModulePath =
-    isAbsolutePath(args.transformer) ? args.transformer :
+    path.isAbsolute(args.transformer) ? args.transformer :
     path.resolve(process.cwd(), args.transformer);
 
   const { projectRoots } = args;
-  const { projectExts, assetExts } = ReactPackager.globalConfig;
+  const { projectExts, assetExts } = ReactPackager.config;
 
   log.moat(1);
   log.white('Watching: ');
@@ -121,13 +122,12 @@ function getPackagerServer(args, config) {
 
   return ReactPackager.createServer({
     cacheVersion: '3',
+    resetCache: args.resetCache || args['reset-cache'],
+    nonPersistent: args.nonPersistent,
     internalRoots: internalRoots,
     projectRoots: projectRoots,
     projectExts: projectExts,
     assetExts: assetExts,
-    getBlacklist: (filePath) => globalConfig.getBlacklist(filePath),
-    nonPersistent: args.nonPersistent,
-    resetCache: args.resetCache || args['reset-cache'],
     transformModulePath: transformModulePath,
     getTransformOptionsModulePath: config.getTransformOptionsModulePath,
     verbose: args.verbose,

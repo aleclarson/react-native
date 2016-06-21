@@ -8,6 +8,7 @@
  */
 'use strict';
 
+const emptyFunction = require('emptyFunction');
 const querystring = require('querystring');
 const url = require('url');
 
@@ -34,21 +35,22 @@ function attachHMRServer({httpServer, path, packagerServer}) {
     }).then(response => {
       // for each dependency builds the object:
       // `{path: '/a/b/c.js', deps: ['modA', 'modB', ...]}`
-      return Promise.all(Object.values(response.dependencies).map(dep => {
-        return dep.getName().then(depName => {
+      return Promise.map(response.dependencies, (dep) => {
+        return dep.getName()
+        .then(depName => {
           if (dep.isAsset() || dep.isAsset_DEPRECATED() || dep.isJSON()) {
             return Promise({path: dep.path, deps: []});
           }
           return packagerServer.getShallowDependencies(dep.path)
-            .then(deps => {
-              return {
-                path: dep.path,
-                name: depName,
-                deps,
-              };
-            });
+          .then(deps => {
+            return {
+              path: dep.path,
+              name: depName,
+              deps,
+            };
+          });
         });
-      }))
+      })
       .then(deps => {
         // list with all the dependencies' filenames the bundle entry has
         const dependenciesCache = response.dependencies.map(dep => dep.path);
@@ -65,11 +67,11 @@ function attachHMRServer({httpServer, path, packagerServer}) {
         // map from module name to the modules' dependencies the bundle entry
         // has
         const dependenciesModulesCache = Object.create(null);
-        return Promise.all(response.dependencies.map(dep => {
+        return Promise.map(response.dependencies, (dep) => {
           return dep.getName().then(depName => {
             dependenciesModulesCache[depName] = dep;
           });
-        })).then(() => {
+        }).then(() => {
           return {
             dependenciesCache,
             dependenciesModulesCache,
@@ -113,135 +115,133 @@ function attachHMRServer({httpServer, path, packagerServer}) {
           client.ws.send(JSON.stringify({type: 'update-start'}));
           stat.then(() => {
             return packagerServer.getShallowDependencies(filename)
-              .then(deps => {
-                if (!client) {
-                  return [];
-                }
+            .then(deps => {
+              if (!client) {
+                return [];
+              }
 
-                // if the file dependencies have change we need to invalidate the
-                // dependencies caches because the list of files we need to send
-                // to the client may have changed
-                const oldDependencies = client.shallowDependencies[filename];
-                if (arrayEquals(deps, oldDependencies)) {
-                  // Need to create a resolution response to pass to the bundler
-                  // to process requires after transform. By providing a
-                  // specific response we can compute a non recursive one which
-                  // is the least we need and improve performance.
-                  return packagerServer.getDependencies({
-                    platform: client.platform,
-                    dev: true,
-                    entryFile: filename,
-                    recursive: true,
-                  }).then(response => {
-                    const module = packagerServer.getModuleForPath(filename);
-
-                    return {
-                      modulesToUpdate: [module],
-                      resolutionResponse: response,
-                    };
-                  });
-                }
-
-                // if there're new dependencies compare the full list of
-                // dependencies we used to have with the one we now have
-                return getDependencies(client.platform, client.bundleEntry)
-                  .then(({
-                    dependenciesCache,
-                    dependenciesModulesCache,
-                    shallowDependencies,
-                    resolutionResponse,
-                  }) => {
-                    if (!client) {
-                      return {};
-                    }
-
-                    // build list of modules for which we'll send HMR updates
-                    const modulesToUpdate = [packagerServer.getModuleForPath(filename)];
-                    Object.keys(dependenciesModulesCache).forEach(module => {
-                      if (!client.dependenciesModulesCache[module]) {
-                        modulesToUpdate.push(dependenciesModulesCache[module]);
-                      }
-                    });
-
-                    // invalidate caches
-                    client.dependenciesCache = dependenciesCache;
-                    client.dependenciesModulesCache = dependenciesModulesCache;
-                    client.shallowDependencies = shallowDependencies;
-
-                    return {
-                      modulesToUpdate,
-                      resolutionResponse,
-                    };
-                  });
-              })
-              .then(({modulesToUpdate, resolutionResponse}) => {
-                if (!client) {
-                  return;
-                }
-
-                // make sure the file was modified is part of the bundle
-                if (!client.shallowDependencies[filename]) {
-                  return;
-                }
-
-                return packagerServer.buildBundleForHMR({
-                  entryFile: client.bundleEntry,
+              // if the file dependencies have change we need to invalidate the
+              // dependencies caches because the list of files we need to send
+              // to the client may have changed
+              const oldDependencies = client.shallowDependencies[filename];
+              if (arrayEquals(deps, oldDependencies)) {
+                // Need to create a resolution response to pass to the bundler
+                // to process requires after transform. By providing a
+                // specific response we can compute a non recursive one which
+                // is the least we need and improve performance.
+                return packagerServer.getDependencies({
                   platform: client.platform,
-                  modules: modulesToUpdate,
-                  resolutionResponse,
-                })
-              })
-              .then(bundle => {
-                if (!client || !bundle || bundle.isEmpty()) {
-                  return;
-                }
+                  dev: true,
+                  entryFile: filename,
+                  recursive: true,
+                }).then(response => {
+                  const module = packagerServer.getModuleForPath(filename);
 
-                return JSON.stringify({
-                  type: 'update',
-                  body: {
-                    modules: bundle.getModulesCode(),
-                    sourceURLs: bundle.getSourceURLs(),
-                    sourceMappingURLs: bundle.getSourceMappingURLs(),
-                  },
+                  return {
+                    modulesToUpdate: [module],
+                    resolutionResponse: response,
+                  };
                 });
-              })
-              .fail(error => {
-                // send errors to the client instead of killing packager server
-                let body;
-                if (error.type === 'TransformError' ||
-                    error.type === 'NotFoundError' ||
-                    error.type === 'UnableToResolveError') {
-                  body = {
-                    type: error.type,
-                    description: error.description,
-                    filename: error.filename,
-                    lineNumber: error.lineNumber,
-                  };
-                } else {
-                  console.error(error.stack || error);
-                  body = {
-                    type: 'InternalError',
-                    description: 'react-packager has encountered an internal error, ' +
-                      'please check your terminal error output for more details',
-                  };
-                }
+              }
 
-                return JSON.stringify({type: 'error', body});
-              })
-              .then(update => {
-                if (!client || !update) {
-                  return;
-                }
+              // if there're new dependencies compare the full list of
+              // dependencies we used to have with the one we now have
+              return getDependencies(client.platform, client.bundleEntry)
+                .then(({
+                  dependenciesCache,
+                  dependenciesModulesCache,
+                  shallowDependencies,
+                  resolutionResponse,
+                }) => {
+                  if (!client) {
+                    return {};
+                  }
 
-                client.ws.send(update);
+                  // build list of modules for which we'll send HMR updates
+                  const modulesToUpdate = [packagerServer.getModuleForPath(filename)];
+                  Object.keys(dependenciesModulesCache).forEach(module => {
+                    if (!client.dependenciesModulesCache[module]) {
+                      modulesToUpdate.push(dependenciesModulesCache[module]);
+                    }
+                  });
+
+                  // invalidate caches
+                  client.dependenciesCache = dependenciesCache;
+                  client.dependenciesModulesCache = dependenciesModulesCache;
+                  client.shallowDependencies = shallowDependencies;
+
+                  return {
+                    modulesToUpdate,
+                    resolutionResponse,
+                  };
+                });
+            })
+            .then(({modulesToUpdate, resolutionResponse}) => {
+              if (!client) {
+                return;
+              }
+
+              // make sure the file was modified is part of the bundle
+              if (!client.shallowDependencies[filename]) {
+                return;
+              }
+
+              return packagerServer.buildBundleForHMR({
+                entryFile: client.bundleEntry,
+                platform: client.platform,
+                modules: modulesToUpdate,
+                resolutionResponse,
+              })
+            })
+            .then(bundle => {
+              if (!client || !bundle || bundle.isEmpty()) {
+                return;
+              }
+
+              return JSON.stringify({
+                type: 'update',
+                body: {
+                  modules: bundle.getModulesCode(),
+                  sourceURLs: bundle.getSourceURLs(),
+                  sourceMappingURLs: bundle.getSourceMappingURLs(),
+                },
               });
-            },
-            () => {
-              // do nothing, file was removed
-            },
-          ).always(() => {
-            client.ws.send(JSON.stringify({type: 'update-done'}));
-          });
+            })
+            .fail(error => {
+              // send errors to the client instead of killing packager server
+              let body;
+              if (error.type === 'TransformError' ||
+                  error.type === 'NotFoundError' ||
+                  error.type === 'UnableToResolveError') {
+                body = {
+                  type: error.type,
+                  description: error.description,
+                  filename: error.filename,
+                  lineNumber: error.lineNumber,
+                };
+              } else {
+                console.error(error.stack || error);
+                body = {
+                  type: 'InternalError',
+                  description: 'react-packager has encountered an internal error, ' +
+                    'please check your terminal error output for more details',
+                };
+              }
+
+              return JSON.stringify({type: 'error', body});
+            })
+            .then(update => {
+              if (!client || !update) {
+                return;
+              }
+
+              client.ws.send(update);
+            });
+          })
+          .fail(emptyFunction) // do nothing, file was removed
+          .always(() => client.ws.send(
+            JSON.stringify({type: 'update-done'})
+          ));
         });
 
         client.ws.on('error', e => {

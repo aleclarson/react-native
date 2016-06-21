@@ -229,7 +229,7 @@ void _RCTLogNativeInternal(RCTLogLevel level, const char *fileName, int lineNumb
     // Log to JS executor
     [[RCTBridge currentBridge] logMessage:message level:level ? @(RCTLogLevels[level]) : @"info"];
 
-//#endif
+#endif
 
   }
 }

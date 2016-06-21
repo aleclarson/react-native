@@ -22,7 +22,7 @@
 /* eslint strict: 0 */
 /* globals GLOBAL: true, window: true */
 
-require('regenerator/runtime');
+require('regenerator-runtime/runtime');
 
 require('isReactNative').set(true);
 
@@ -66,7 +66,6 @@ function polyfillGlobal(name, newValue, scope = GLOBAL) {
     var backupName = `original${name[0].toUpperCase()}${name.substr(1)}`;
     Object.defineProperty(scope, backupName, {...descriptor, value: scope[name]});
   }
-=======
 
   Object.defineProperty(scope, name, {...descriptor, value: newValue});
 }
@@ -148,10 +147,6 @@ function setUpXHR() {
   polyfillGlobal('Response', fetchPolyfill.Response);
 }
 
-function setUpFailure() {
-  require('failure/global');
-}
-
 function setUpProperty() {
   var inject = require('Property/inject');
   inject('ReactiveVar', require('ReactiveVar'));
@@ -228,7 +223,6 @@ setUpAlert();
 setUpPromise();
 setUpErrorHandler();
 setUpXHR();
-setUpFailure();
 setUpProperty();
 setUpBuilder();
 setUpAnimated();

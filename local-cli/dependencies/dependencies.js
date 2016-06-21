@@ -43,7 +43,7 @@ function _dependencies(argv, config, resolve, reject) {
     }, {
       command: 'transformer',
       type: 'string',
-      default: require.resolve('react-packager/defaultTransform'),
+      default: require.resolve('react-packager/transform'),
       description: 'Specify a custom transformer to be used (absolute path)'
     }, {
       command: 'verbose',

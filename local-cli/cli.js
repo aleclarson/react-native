@@ -8,33 +8,26 @@
  */
 'use strict';
 
-require('./babelRegisterOnly')([
-  /local-cli/
-]);
+require('./env');
 
-var bundle = require('./bundle/bundle');
-var childProcess = require('child_process');
-var Config = require('./util/Config');
-var dependencies = require('./dependencies/dependencies');
-var generate = require('./generate/generate');
-var library = require('./library/library');
 var link = require('./library/link');
+var Config = require('./util/Config');
+var bundle = require('./bundle/bundle');
+var server = require('./server/server');
+var runIOS = require('./runIOS/runIOS');
+var library = require('./library/library');
+var upgrade = require('./upgrade/upgrade');
+var unbundle = require('./bundle/unbundle');
+var generate = require('./generate/generate');
+var runAndroid = require('./runAndroid/runAndroid');
+var childProcess = require('child_process');
+var dependencies = require('./dependencies/dependencies');
+
 var path = require('path');
 var Promise = require('Promise');
-var runAndroid = require('./runAndroid/runAndroid');
-var runIOS = require('./runIOS/runIOS');
-var server = require('./server/server');
-var TerminalAdapter = require('yeoman-environment/lib/adapter.js');
+
 var yeoman = require('yeoman-environment');
-var unbundle = require('./bundle/unbundle');
-var upgrade = require('./upgrade/upgrade');
-
-var fs = require('fs');
-var gracefulFs = require('graceful-fs');
-
-// graceful-fs helps on getting an error when we run out of file
-// descriptors. When that happens it will enqueue the operation and retry it.
-gracefulFs.gracefulify(fs);
+var TerminalAdapter = require('yeoman-environment/lib/adapter.js');
 
 var documentedCommands = {
   'start': [server, 'starts the webserver'],
@@ -89,7 +82,7 @@ function generateWrapper(args, config) {
     '--platform', 'android',
     '--project-path', process.cwd(),
     '--project-name', JSON.parse(
-      fs.readFileSync('package.json', 'utf8')
+      require('fs').readFileSync('package.json', 'utf8')
     ).name
   ], config);
 }
