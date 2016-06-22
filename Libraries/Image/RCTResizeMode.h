@@ -14,6 +14,7 @@ typedef NS_ENUM(NSInteger, RCTResizeMode) {
   RCTResizeModeContain = UIViewContentModeScaleAspectFit,
   RCTResizeModeStretch = UIViewContentModeScaleToFill,
   RCTResizeModeCenter = UIViewContentModeCenter,
+  RCTResizeModeRepeat = -1, // Use negative values to avoid conflicts with iOS enum values.
 };
 
 @interface RCTConvert(RCTResizeMode)

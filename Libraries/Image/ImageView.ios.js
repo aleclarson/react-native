@@ -122,8 +122,11 @@ var ImageView = React.createClass({
      *
      * 'stretch': Scale width and height independently, This may change the
      * aspect ratio of the src.
+     *
+     * 'repeat': Repeat the image to cover the frame of the view. The
+     * image will keep it's size and aspect ratio. (iOS only)
      */
-    resizeMode: PropTypes.oneOf(['cover', 'contain', 'stretch', 'center']),
+    resizeMode: PropTypes.oneOf(['cover', 'contain', 'stretch', 'center', 'repeat']),
     /**
      * A unique identifier for this element to be used in UI Automation
      * testing scripts.

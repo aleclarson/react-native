@@ -22,5 +22,6 @@
 @property (nonatomic, strong) UIImage *defaultImage;
 @property (nonatomic, assign) UIImageRenderingMode renderingMode;
 @property (nonatomic, strong) RCTImageSource *source;
+@property (nonatomic, assign) RCTResizeMode resizeMode;
 
 @end
