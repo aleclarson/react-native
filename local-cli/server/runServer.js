@@ -8,6 +8,7 @@
  */
 'use strict';
 
+const fs = require('io');
 const path = require('path');
 const http = require('http');
 const connect = require('connect');
@@ -75,20 +76,43 @@ function runServer(args, config, readyCallback) {
 
 function getPackagerServer(args, config) {
 
+  // TODO: Load these from another module?
   const internalRoots = [
     'fbjs/src',
     'react/src',
     'react-native/Libraries',
     'react-native/node_modules/react-timer-mixin',
-  ].map(root => path.join(lotus.path, root));
+  ];
+
+  const fileWatcher = ReactPackager.createFileWatcher({
+    roots: args.projectRoots.concat(internalRoots),
+    extensions: config.projectExts.concat(config.assetExts),
+    nonPersistent: args.nonPersistent,
+  });
 
   const transformModulePath =
     path.isAbsolute(args.transformer) ? args.transformer :
     path.resolve(process.cwd(), args.transformer);
 
-  const { projectRoots } = args;
-  const { projectExts, assetExts } = ReactPackager.config;
+  const { projectRoots, resetCache, verbose } = args;
+  const { projectExts, assetExts } = config;
 
+  printWatchedRoots(projectRoots);
+  printWatchedExtensions(projectExts, assetExts);
+
+  return ReactPackager.createServer({
+    cacheVersion: '3',
+    resetCache,
+    fileWatcher,
+    projectRoots,
+    projectExts,
+    assetExts,
+    transformModulePath,
+    verbose,
+  });
+}
+
+function printWatchedRoots(projectRoots) {
   log.moat(1);
   log.white('Watching: ');
   log.plusIndent(2);
@@ -102,7 +126,9 @@ function getPackagerServer(args, config) {
   }
   log.popIndent();
   log.moat(1);
+}
 
+function printWatchedExtensions(projectExts, assetExts) {
   log.moat(1);
   log.white('Valid extensions: ');
   log.plusIndent(2);
@@ -119,19 +145,6 @@ function getPackagerServer(args, config) {
   }
   log.popIndent();
   log.moat(1);
-
-  return ReactPackager.createServer({
-    cacheVersion: '3',
-    resetCache: args.resetCache || args['reset-cache'],
-    nonPersistent: args.nonPersistent,
-    internalRoots: internalRoots,
-    projectRoots: projectRoots,
-    projectExts: projectExts,
-    assetExts: assetExts,
-    transformModulePath: transformModulePath,
-    getTransformOptionsModulePath: config.getTransformOptionsModulePath,
-    verbose: args.verbose,
-  });
 }
 
 module.exports = runServer;

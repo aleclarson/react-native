@@ -11,7 +11,7 @@
     "babel-core": "~6.4.5",
     "babel-plugin-external-helpers": "~6.4.0",
     "babel-polyfill": "~6.3.14",
-    "babel-preset-react-native": "^1.9.0",
+    "babel-preset-react-native": "aleclarson/babel-preset-react-native#1.4.0",
     "babel-register": "~6.4.3",
     "babel-types": "~6.4.5",
     "babylon": "~6.4.5",
@@ -68,7 +68,7 @@
       "/node_modules/"
     ],
     "modulePathIgnorePatterns": [
-      "/node_modules/(?!react|fbjs|react-native|parse|react-transform-hmr|core-js|promise)/",
+      "/node_modules/(?!react|fbjs|react-native|parse|react-transform-hmr|core-js|promise)/"
     ],
     "testFileExtensions": [
       "js"
@@ -77,5 +77,5 @@
       "promise",
       "source-map"
     ]
-  },
+  }
 }
