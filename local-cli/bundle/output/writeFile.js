@@ -12,7 +12,7 @@ const fs = require('fs');
 const Promise = require('Promise');
 
 function writeFile(file, data, encoding) {
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     fs.writeFile(
       file,
       data,

@@ -13,11 +13,24 @@
 
 var RCTNetworking = require('RCTNetworking');
 var RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
+var invariant = require('fbjs/lib/invariant');
+
+const UNSENT = 0;
+const OPENED = 1;
+const HEADERS_RECEIVED = 2;
+const LOADING = 3;
+const DONE = 4;
 
 /**
  * Shared base for platform-specific XMLHttpRequest implementations.
  */
 class XMLHttpRequestBase {
+
+  static UNSENT: number;
+  static OPENED: number;
+  static HEADERS_RECEIVED: number;
+  static LOADING: number;
+  static DONE: number;
 
   UNSENT: number;
   OPENED: number;
@@ -27,11 +40,12 @@ class XMLHttpRequestBase {
 
   onreadystatechange: ?Function;
   onload: ?Function;
-  onerror: ?Function;
   upload: any;
   readyState: number;
   responseHeaders: ?Object;
   responseText: ?string;
+  response: ?string;
+  responseType: '' | 'text';
   status: number;
   timeout: number;
   responseURL: ?string;
@@ -43,7 +57,6 @@ class XMLHttpRequestBase {
   _requestId: ?number;
   _subscriptions: [any];
 
-  _error: ?string;
   _method: ?string;
   _url: ?string;
   _headers: Object;
@@ -52,20 +65,18 @@ class XMLHttpRequestBase {
   _lowerCaseResponseHeaders: Object;
 
   constructor() {
-    this.UNSENT = 0;
-    this.OPENED = 1;
-    this.HEADERS_RECEIVED = 2;
-    this.LOADING = 3;
-    this.DONE = 4;
+    this.UNSENT = UNSENT;
+    this.OPENED = OPENED;
+    this.HEADERS_RECEIVED = HEADERS_RECEIVED;
+    this.LOADING = LOADING;
+    this.DONE = DONE;
 
     this.onreadystatechange = null;
     this.onload = null;
-    this.onerror = null;
     this.upload = undefined; /* Upload not supported yet */
     this.timeout = 0;
 
     this._reset();
-    this._error = null;
     this._method = null;
     this._url = null;
     this._aborted = false;
@@ -75,6 +86,8 @@ class XMLHttpRequestBase {
     this.readyState = this.UNSENT;
     this.responseHeaders = undefined;
     this.responseText = '';
+    this.response = null;
+    this.responseType = '';
     this.status = 0;
     delete this.responseURL;
 
@@ -137,6 +150,22 @@ class XMLHttpRequestBase {
         this.responseText = responseText;
       } else {
         this.responseText += responseText;
+      }
+      switch(this.responseType) {
+      case '':
+      case 'text':
+        this.response = this.responseText;
+        break;
+      case 'blob': // whatwg-fetch sets this in Chrome
+        /* global Blob: true */
+        invariant(
+          typeof Blob === 'function',
+          `responseType "blob" is only supported on platforms with native Blob support`
+        );
+        this.response = new Blob([this.responseText]);
+        break;
+      default: //TODO: Support other types, eg: document, arraybuffer, json
+        invariant(false, `responseType "${this.responseType}" is unsupported`);
       }
       this.setReadyState(this.LOADING);
     }
@@ -213,9 +242,6 @@ class XMLHttpRequestBase {
     if (this._sent) {
       throw new Error('Request has already been sent');
     }
-    if (typeof data === 'undefined') {
-      data = null;
-    }
     this._sent = true;
     this.sendImpl(this._method, this._url, this._headers, data, this.timeout);
   }
@@ -256,10 +282,6 @@ class XMLHttpRequestBase {
       // event anywhere, let's leave it empty
       onreadystatechange.call(this, null);
     }
-    if (this._error && this.onerror) {
-      this.onerror(this._error);
-      this._error = null;
-    }
     if (newState === this.DONE && !this._aborted) {
       this._sendLoad();
     }
@@ -275,5 +297,11 @@ class XMLHttpRequestBase {
     }
   }
 }
+
+XMLHttpRequestBase.UNSENT = UNSENT;
+XMLHttpRequestBase.OPENED = OPENED;
+XMLHttpRequestBase.HEADERS_RECEIVED = HEADERS_RECEIVED;
+XMLHttpRequestBase.LOADING = LOADING;
+XMLHttpRequestBase.DONE = DONE;
 
 module.exports = XMLHttpRequestBase;

@@ -46,7 +46,7 @@ var AsyncStorage = {
     key: string,
     callback?: ?(error: ?Error, result: ?string) => void
   ): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.multiGet([key], function(errors, result) {
         // Unpack result to get value from [[key,value]]
         var value = (result && result[0] && result[0][1]) ? result[0][1] : null;
@@ -70,7 +70,7 @@ var AsyncStorage = {
     value: string,
     callback?: ?(error: ?Error) => void
   ): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.multiSet([[key,value]], function(errors) {
         var errs = convertErrors(errors);
         callback && callback(errs && errs[0]);
@@ -90,7 +90,7 @@ var AsyncStorage = {
     key: string,
     callback?: ?(error: ?Error) => void
   ): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.multiRemove([key], function(errors) {
         var errs = convertErrors(errors);
         callback && callback(errs && errs[0]);
@@ -112,7 +112,7 @@ var AsyncStorage = {
     value: string,
     callback?: ?(error: ?Error) => void
   ): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.multiMerge([[key,value]], function(errors) {
         var errs = convertErrors(errors);
         callback && callback(errs && errs[0]);
@@ -131,7 +131,7 @@ var AsyncStorage = {
    * own keys instead. Returns a `Promise` object.
    */
   clear: function(callback?: ?(error: ?Error) => void): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.clear(function(error) {
         callback && callback(convertError(error));
         if (error && convertError(error)){
@@ -147,7 +147,7 @@ var AsyncStorage = {
    * Gets *all* keys known to the app, for all callers, libraries, etc. Returns a `Promise` object.
    */
   getAllKeys: function(callback?: ?(error: ?Error, keys: ?Array<string>) => void): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.getAllKeys(function(error, keys) {
         callback && callback(convertError(error), keys);
         if (error) {
@@ -223,7 +223,7 @@ var AsyncStorage = {
       reject: null,
     };
 
-    var promiseResult = Promise.resolve((resolve, reject) => {
+    var promiseResult = Promise.defer((resolve, reject) => {
       getRequest.resolve = resolve;
       getRequest.reject = reject;
     });
@@ -249,7 +249,7 @@ var AsyncStorage = {
     keyValuePairs: Array<Array<string>>,
     callback?: ?(errors: ?Array<Error>) => void
   ): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.multiSet(keyValuePairs, function(errors) {
         var error = convertErrors(errors);
         callback && callback(error);
@@ -269,7 +269,7 @@ var AsyncStorage = {
     keys: Array<string>,
     callback?: ?(errors: ?Array<Error>) => void
   ): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.multiRemove(keys, function(errors) {
         var error = convertErrors(errors);
         callback && callback(error);
@@ -292,7 +292,7 @@ var AsyncStorage = {
     keyValuePairs: Array<Array<string>>,
     callback?: ?(errors: ?Array<Error>) => void
   ): Promise {
-    return Promise.resolve((resolve, reject) => {
+    return Promise.defer((resolve, reject) => {
       RCTAsyncStorage.multiMerge(keyValuePairs, function(errors) {
         var error = convertErrors(errors);
         callback && callback(error);

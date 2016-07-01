@@ -20,7 +20,7 @@ const walk = require('../util/walk');
  * Creates a new native library with the given name
  */
 function library(argv, config) {
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     _library(argv, config, resolve, reject);
   });
 }

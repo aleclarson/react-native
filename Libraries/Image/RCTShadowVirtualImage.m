@@ -83,11 +83,4 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init)
   }
 }
 
-- (void)dealloc
-{
-  if (_cancellationBlock) {
-    _cancellationBlock();
-  }
-}
-
 @end

@@ -16,8 +16,8 @@ const EventEmitter = require('EventEmitter');
 const Set = require('Set');
 const TaskQueue = require('TaskQueue');
 
-const invariant = require('invariant');
-const keyMirror = require('keyMirror');
+const invariant = require('fbjs/lib/invariant');
+const keyMirror = require('fbjs/lib/keyMirror');
 const setImmediate = require('setImmediate');
 
 type Handle = number;
@@ -96,7 +96,7 @@ var InteractionManager = {
    * Schedule a function to run after all interactions have completed.
    */
   runAfterInteractions(task: ?Task): Promise {
-    return Promise.resolve(resolve => {
+    return Promise.defer(resolve => {
       _scheduleUpdate();
       if (task) {
         _taskQueue.enqueue(task);

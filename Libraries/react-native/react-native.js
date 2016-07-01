@@ -76,6 +76,7 @@ var ReactNative = {
   get LayoutAnimation() { return require('LayoutAnimation'); },
   get Linking() { return require('Linking'); },
   get LinkingIOS() { return require('LinkingIOS'); },
+  get NavigationExperimental() { return require('NavigationExperimental'); },
   get NetInfo() { return require('NetInfo'); },
   get PanResponder() { return require('PanResponder'); },
   get PixelRatio() { return require('PixelRatio'); },
@@ -85,6 +86,7 @@ var ReactNative = {
   get StyleSheet() { return require('StyleSheet'); },
   get TimePickerAndroid() { return require('TimePickerAndroid'); },
   get UIManager() { return require('UIManager'); },
+  get Vibration() { return require('Vibration'); },
   get VibrationIOS() { return require('VibrationIOS'); },
 
   // Plugins

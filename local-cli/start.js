@@ -55,9 +55,17 @@ args.projectRoots = args.projectRoots
   : config.getProjectRoots();
 
 // Start the server!
-runServer(args, {
-  // Configuration goes here.
-});
+const path = require('path');
+const ReactPackager = require('react-packager');
+runServer(
+  args,
+  ReactPackager.loadConfig(
+    path.resolve(
+      lotus.path,
+      'react-packager.json'
+    )
+  )
+);
 
 function argToArray(arg) {
   return Array.isArray(arg) ? arg : arg.split(',');

@@ -8,34 +8,30 @@
  */
 'use strict';
 
-const fs = require('io');
-const path = require('path');
-const http = require('http');
-const connect = require('connect');
-const ReactPackager = require('react-packager');
-
-const webSocketProxy = require('./util/webSocketProxy.js');
 const attachHMRServer = require('./util/attachHMRServer');
-
-const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
-const getDevToolsMiddleware = require('./middleware/getDevToolsMiddleware');
+const connect = require('connect');
 const cpuProfilerMiddleware = require('./middleware/cpuProfilerMiddleware');
+const getDevToolsMiddleware = require('./middleware/getDevToolsMiddleware');
+const http = require('http');
+const isAbsolutePath = require('absolute-path');
 const loadRawBodyMiddleware = require('./middleware/loadRawBodyMiddleware');
-const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
+const messageSocket = require('./util/messageSocket.js');
 const openStackFrameInEditorMiddleware = require('./middleware/openStackFrameInEditorMiddleware');
+const path = require('path');
+const ReactPackager = require('react-packager');
+const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
+const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
+const webSocketProxy = require('./util/webSocketProxy.js');
 
 function runServer(args, config, readyCallback) {
   var wsProxy = null;
-
-  log.clear();
-  log.pushIndent(2);
-
+  var ms = null;
   const packagerServer = getPackagerServer(args, config);
-
   const app = connect()
     .use(loadRawBodyMiddleware)
     .use(connect.compress())
     .use(getDevToolsMiddleware(args, () => wsProxy && wsProxy.isChromeConnected()))
+    .use(getDevToolsMiddleware(args, () => ms && ms.isChromeConnected()))
     .use(openStackFrameInEditorMiddleware)
     .use(statusPageMiddleware)
     .use(systraceProfileMiddleware)
@@ -58,6 +54,7 @@ function runServer(args, config, readyCallback) {
       });
 
       wsProxy = webSocketProxy.attachToServer(serverInstance, '/debugger-proxy');
+      ms = messageSocket.attachToServer(serverInstance, '/message');
       webSocketProxy.attachToServer(serverInstance, '/devtools');
 
       log.moat(1);

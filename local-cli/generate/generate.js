@@ -17,7 +17,7 @@ const yeoman = require('yeoman-environment');
  * Generates the template for the given platform.
  */
 function generate(argv, config) {
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     _generate(argv, config, resolve, reject);
   });
 }

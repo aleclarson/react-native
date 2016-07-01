@@ -14,13 +14,13 @@ const fs = require('fs');
 const path = require('path');
 const parseCommandLine = require('../util/parseCommandLine');
 const isPackagerRunning = require('../util/isPackagerRunning');
-const Promise = require('Promise');
+const Promise = require('promise');
 
 /**
  * Starts the app on a connected Android emulator or device.
  */
 function runAndroid(argv, config) {
-  return Promise.resolve((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     _runAndroid(argv, config, resolve, reject);
   });
 }
@@ -30,9 +30,19 @@ function _runAndroid(argv, config, resolve, reject) {
     command: 'install-debug',
     type: 'string',
     required: false,
+  }, {
+    command: 'root',
+    type: 'string',
+    description: 'Override the root directory for the android build (which contains the android directory)',
+  }, {
+    command: 'flavor',
+    type: 'string',
+    required: false,
   }], argv);
 
-  if (!checkAndroid()) {
+  args.root = args.root || '';
+
+  if (!checkAndroid(args)) {
     console.log(chalk.red('Android project not found. Maybe run react-native android first?'));
     return;
   }
@@ -52,19 +62,27 @@ function _runAndroid(argv, config, resolve, reject) {
 }
 
 // Verifies this is an Android project
-function checkAndroid() {
-  return fs.existsSync('android/gradlew');
+function checkAndroid(args) {
+  return fs.existsSync(path.join(args.root, 'android/gradlew'));
 }
 
 // Builds the app and runs it on a connected emulator / device.
 function buildAndRun(args, reject) {
-  process.chdir('android');
+  process.chdir(path.join(args.root, 'android'));
   try {
     const cmd = process.platform.startsWith('win')
       ? 'gradlew.bat'
       : './gradlew';
 
-    const gradleArgs = ['installDebug'];
+    const gradleArgs = [];
+    if (args['flavor']) {
+        gradleArgs.push('install' +
+          args['flavor'][0].toUpperCase() + args['flavor'].slice(1)
+        );
+    } else {
+        gradleArgs.push('installDebug');
+    }
+
     if (args['install-debug']) {
       gradleArgs.push(args['install-debug']);
     }
@@ -123,18 +141,24 @@ function buildAndRun(args, reject) {
 }
 
 function startServerInNewWindow() {
+  var yargV = require('yargs').argv;
+
   const launchPackagerScript = path.resolve(
     __dirname, '..', '..', 'packager', 'launchPackager.command'
   );
 
   if (process.platform === 'darwin') {
-    child_process.spawnSync('open', [launchPackagerScript]);
+    if (yargV.open) {
+      return child_process.spawnSync('open', ['-a', yargV.open, launchPackagerScript]);
+    }
+    return child_process.spawnSync('open', [launchPackagerScript]);
+
   } else if (process.platform === 'linux') {
-    child_process.spawn(
-      'xterm',
-      ['-e', 'sh', launchPackagerScript],
-      {detached: true}
-    );
+    if (yargV.open){
+      return child_process.spawn(yargV.open,['-e', 'sh', launchPackagerScript], {detached: true});
+    }
+    return child_process.spawn('xterm',['-e', 'sh', launchPackagerScript],{detached: true});
+
   } else if (/^win/.test(process.platform)) {
     console.log(chalk.yellow('Starting the packager in a new window ' +
       'is not supported on Windows yet.\nPlease start it manually using ' +

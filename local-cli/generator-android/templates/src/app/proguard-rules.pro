@@ -47,8 +47,6 @@
 
 -dontwarn com.facebook.react.**
 
--dontwarn com.facebook.react.**
-
 # okhttp
 
 -keepattributes Signature

@@ -50,7 +50,7 @@ function copyAll(filesToCopy) {
   }
 
   log('Copying ' + queue.length + ' asset files');
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     const copyNext = (error) => {
       if (error) {
         return reject(error);

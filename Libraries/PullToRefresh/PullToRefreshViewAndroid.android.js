@@ -21,6 +21,8 @@ var requireNativeComponent = require('requireNativeComponent');
 var NATIVE_REF = 'native_swiperefreshlayout';
 
 /**
+ * Deprecated. Use `RefreshControl` instead.
+ *
  * React view that supports a single scrollable child view (e.g. `ScrollView`). When this child
  * view is at `scrollY: 0`, swiping down triggers an `onRefresh` event.
  *
@@ -54,6 +56,10 @@ var PullToRefreshViewAndroid = React.createClass({
      * Size of the refresh indicator, see PullToRefreshViewAndroid.SIZE
      */
     size: React.PropTypes.oneOf(RefreshLayoutConsts.SIZE.DEFAULT, RefreshLayoutConsts.SIZE.LARGE),
+  },
+
+  componentDidMount: function() {
+    console.warn('`PullToRefreshViewAndroid` is deprecated. Use `RefreshControl` instead.');
   },
 
   getInnerViewNode: function() {

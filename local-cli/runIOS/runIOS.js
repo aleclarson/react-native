@@ -20,7 +20,7 @@ const Promise = require('Promise');
  * Starts the app on iOS simulator
  */
 function runIOS(argv, config) {
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     _runIOS(argv, config, resolve, reject);
     resolve();
   });
@@ -33,6 +33,11 @@ function _runIOS(argv, config, resolve, reject) {
     type: 'string',
     required: false,
     default: 'iPhone 6',
+  }, {
+    command: 'scheme',
+    description: 'Explicitly set Xcode scheme to use',
+    type: 'string',
+    required: false,
   }], argv);
 
   process.chdir('ios');
@@ -42,6 +47,7 @@ function _runIOS(argv, config, resolve, reject) {
   }
 
   const inferredSchemeName = path.basename(xcodeProject.name, path.extname(xcodeProject.name));
+  const scheme = args.scheme || inferredSchemeName
   console.log(`Found Xcode ${xcodeProject.isWorkspace ? 'workspace' : 'project'} ${xcodeProject.name}`);
 
   const simulators = parseIOSSimulatorsList(
@@ -63,7 +69,7 @@ function _runIOS(argv, config, resolve, reject) {
 
   const xcodebuildArgs = [
     xcodeProject.isWorkspace ? '-workspace' : '-project', xcodeProject.name,
-    '-scheme', inferredSchemeName,
+    '-scheme', scheme,
     '-destination', `id=${selectedSimulator.udid}`,
     '-derivedDataPath', 'build',
   ];
