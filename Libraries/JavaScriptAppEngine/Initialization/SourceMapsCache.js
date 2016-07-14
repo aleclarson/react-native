@@ -32,7 +32,7 @@ const SourceMapsCache = {
 
   fetchMain() {
     if (sourceMapsCache.main) {
-      return sourceMapsCache[hash];
+      return sourceMapsCache.main;
     }
     return sourceMapsCache.main = SourceMapsUtils.fetchMainSourceMap();
   },

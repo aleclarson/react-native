@@ -18,8 +18,8 @@ let ErrorUtils = require('ErrorUtils');
 let JSTimersExecution = require('JSTimersExecution');
 let Platform = require('Platform');
 
-let invariant = require('invariant');
-let keyMirror = require('keyMirror');
+let invariant = require('fbjs/lib/invariant');
+let keyMirror = require('fbjs/lib/keyMirror');
 let stringifySafe = require('stringifySafe');
 
 let MODULE_IDS = 0;
@@ -318,7 +318,7 @@ class MessageQueue {
     let self = this;
     if (type === MethodTypes.remoteAsync) {
       fn = function(...args) {
-        return Promise.resolve((resolve, reject) => {
+        return Promise.defer((resolve, reject) => {
           self.__nativeCall(
             module,
             method,

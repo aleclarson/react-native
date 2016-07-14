@@ -53,7 +53,7 @@ function saveAsAssets(bundle, options, log) {
 }
 
 function createDir(dirName) {
-  return Promise.resolve((resolve, reject) =>
+  return Promise.defer((resolve, reject) =>
     mkdirp(dirName, error => error ? reject(error) : resolve()));
 }
 

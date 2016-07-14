@@ -15,8 +15,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_ASSUME_NONNULL_BEGIN
-
 /**
  * This function takes an source size (typically from an image), a target size
  * and scale that it will be drawn at (typically in a CGContext) and then

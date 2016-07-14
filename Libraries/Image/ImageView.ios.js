@@ -23,10 +23,15 @@ var StyleSheet = require('StyleSheet');
 var StyleSheetPropType = require('StyleSheetPropType');
 
 var flattenStyle = require('flattenStyle');
-var invariant = require('invariant');
+var invariant = require('fbjs/lib/invariant');
 var requireNativeComponent = require('requireNativeComponent');
 var resolveAssetSource = require('resolveAssetSource');
-var warning = require('warning');
+var warning = require('fbjs/lib/warning');
+
+var {
+  ImageViewManager,
+  NetworkImageViewManager,
+} = require('NativeModules');
 
 var {
   ImageViewManager,
@@ -207,7 +212,11 @@ var ImageView = React.createClass({
     // This is a workaround for #8243665. RCTNetworkImageView does not support tintColor
     // TODO: Remove this hack once we have one image implementation #8389274
     if (isNetwork && tintColor) {
-      NativeImageView = RCTImageView;
+      RawImage = RCTImageView;
+    }
+
+    if (this.props.src) {
+      console.warn('The <ImageView> component requires a `source` property rather than `src`.');
     }
 
     if (this.context.isInAParentText) {
@@ -235,9 +244,9 @@ var styles = StyleSheet.create({
   },
 });
 
-var RCTImageView = requireNativeComponent('RCTImageView', Image);
-var RCTNetworkImageView = NetworkImageViewManager ? requireNativeComponent('RCTNetworkImageView', Image) : RCTImageView;
-var RCTVirtualImage = requireNativeComponent('RCTVirtualImage', Image);
+var RCTImageView = requireNativeComponent('RCTImageView', ImageView);
+var RCTNetworkImageView = NetworkImageViewManager ? requireNativeComponent('RCTNetworkImageView', ImageView) : RCTImageView;
+var RCTVirtualImage = requireNativeComponent('RCTVirtualImage', ImageView);
 
 
-module.exports = Image;
+module.exports = ImageView;

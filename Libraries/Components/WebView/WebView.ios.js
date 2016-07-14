@@ -13,17 +13,16 @@
 
 var ActivityIndicatorIOS = require('ActivityIndicatorIOS');
 var EdgeInsetsPropType = require('EdgeInsetsPropType');
-var PointPropType = require('PointPropType');
 var React = require('React');
 var StyleSheet = require('StyleSheet');
 var Text = require('Text');
 var UIManager = require('UIManager');
 var View = require('View');
-var ScrollView = require('ScrollView')
+var ScrollView = require('ScrollView');
 
 var deprecatedPropType = require('deprecatedPropType');
-var invariant = require('invariant');
-var keyMirror = require('keyMirror');
+var invariant = require('fbjs/lib/invariant');
+var keyMirror = require('fbjs/lib/keyMirror');
 var processDecelerationRate = require('processDecelerationRate');
 var requireNativeComponent = require('requireNativeComponent');
 var resolveAssetSource = require('resolveAssetSource');
@@ -215,7 +214,6 @@ var WebView = React.createClass({
 
     /**
      * Sets whether the webpage scales to fit the view and the user can change the scale.
-     * @platform ios
      */
     scalesPageToFit: PropTypes.bool,
 
@@ -287,16 +285,6 @@ var WebView = React.createClass({
       RCTWebViewManager.startLoadWithResult(!!shouldStart, event.nativeEvent.lockIdentifier);
     });
 
-    var {javaScriptEnabled, domStorageEnabled} = this.props;
-    if (this.props.javaScriptEnabledAndroid) {
-      console.warn('javaScriptEnabledAndroid is deprecated. Use javaScriptEnabled instead');
-      javaScriptEnabled = this.props.javaScriptEnabledAndroid;
-    }
-    if (this.props.domStorageEnabledAndroid) {
-      console.warn('domStorageEnabledAndroid is deprecated. Use domStorageEnabled instead');
-      domStorageEnabled = this.props.domStorageEnabledAndroid;
-    }
-
     var decelerationRate = processDecelerationRate(this.props.decelerationRate);
 
     var source = this.props.source || {};
@@ -318,7 +306,6 @@ var WebView = React.createClass({
         userInteractionEnabled={this.props.userInteractionEnabled}
         decelerationRate={decelerationRate}
         contentInset={this.props.contentInset}
-        contentOffset={this.props.contentOffset}
         automaticallyAdjustContentInsets={this.props.automaticallyAdjustContentInsets}
         onLoadingStart={this.onLoadingStart}
         onLoadingFinish={this.onLoadingFinish}

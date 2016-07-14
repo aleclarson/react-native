@@ -29,7 +29,7 @@ var deprecatedPropType = require('deprecatedPropType');
 var dismissKeyboard = require('dismissKeyboard');
 var flattenStyle = require('flattenStyle');
 var insetsDiffer = require('insetsDiffer');
-var invariant = require('invariant');
+var invariant = require('fbjs/lib/invariant');
 var pointsDiffer = require('pointsDiffer');
 var requireNativeComponent = require('requireNativeComponent');
 var processDecelerationRate = require('processDecelerationRate');
@@ -287,7 +287,7 @@ var ScrollView = React.createClass({
     snapToInterval: PropTypes.number,
     /**
      * When `snapToInterval` is set, `snapToAlignment` will define the relationship
-     * of the the snapping to the scroll view.
+     * of the snapping to the scroll view.
      *   - `start` (the default) will align the snap at the left (horizontal) or top (vertical)
      *   - `center` will align the snap in the center
      *   - `end` will align the snap at the right (horizontal) or bottom (vertical)

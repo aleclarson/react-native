@@ -13,7 +13,7 @@
 
 const ErrorUtils = require('ErrorUtils');
 
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 type SimpleTask = {
   name: string;
@@ -133,7 +133,7 @@ class TaskQueue {
         this._queueStack[stackIdx].popable = true;
         this.hasTasksToProcess() && this._onMoreTasks();
       })
-      .fail((ex) => {
+      .catch((ex) => {
         console.warn(
           'TaskQueue: Error resolving Promise in task ' + task.name,
           ex

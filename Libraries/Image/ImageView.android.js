@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule ImageView
+ * @providesModule Image
  * @flow
  */
 'use strict';
@@ -23,24 +23,24 @@ var StyleSheetPropType = require('StyleSheetPropType');
 var View = require('View');
 
 var flattenStyle = require('flattenStyle');
-var invariant = require('invariant');
+var invariant = require('fbjs/lib/invariant');
 var merge = require('merge');
 var requireNativeComponent = require('requireNativeComponent');
 var resolveAssetSource = require('resolveAssetSource');
 
 /**
- * <ImageView> - A react component for displaying different types of images,
+ * <Image> - A react component for displaying different types of images,
  * including network images, static resources, temporary local images, and
  * images from local disk, such as the camera roll.  Example usage:
  *
  *   renderImages: function() {
  *     return (
  *       <View>
- *         <ImageView
+ *         <Image
  *           style={styles.icon}
  *           source={require('./myIcon.png')}
  *         />
- *         <ImageView
+ *         <Image
  *           style={styles.logo}
  *           source={{uri: 'http://facebook.github.io/react/img/logo_og.png'}}
  *         />
@@ -60,7 +60,7 @@ var ImageViewAttributes = merge(ReactNativeViewAttributes.UIView, {
   shouldNotifyLoadEvents: true,
 });
 
-var ImageView = React.createClass({
+var Image = React.createClass({
   propTypes: {
     ...View.propTypes,
     style: StyleSheetPropType(ImageStylePropTypes),
@@ -75,7 +75,7 @@ var ImageView = React.createClass({
       }),
       // Opaque type returned by require('./image.jpg')
       PropTypes.number,
-    ]).isRequired,
+    ]),
     /**
      * similarly to `source`, this property represents the resource used to render
      * the loading indicator for the image, displayed until image is ready to be
@@ -121,14 +121,14 @@ var ImageView = React.createClass({
    */
   viewConfig: {
     uiViewClassName: 'RCTView',
-    validAttributes: ReactNativeViewAttributes.RKView
+    validAttributes: ReactNativeViewAttributes.RCTView,
   },
 
   _updateViewConfig: function(props) {
     if (props.children) {
       this.viewConfig = {
         uiViewClassName: 'RCTView',
-        validAttributes: ReactNativeViewAttributes.RKView,
+        validAttributes: ReactNativeViewAttributes.RCTView,
       };
     } else {
       this.viewConfig = {
@@ -159,6 +159,10 @@ var ImageView = React.createClass({
 
     if (source && source.uri === '') {
       console.warn('source.uri should not be an empty string');
+    }
+
+    if (this.props.src) {
+      console.warn('The <Image> component requires a `source` property rather than `src`.');
     }
 
     if (source && source.uri) {
@@ -223,4 +227,4 @@ var cfg = {
 var RKImage = requireNativeComponent('RCTImageView', Image, cfg);
 var RCTTextInlineImage = requireNativeComponent('RCTTextInlineImage', Image, cfg);
 
-module.exports = ImageView;
+module.exports = Image;

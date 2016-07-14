@@ -25,7 +25,7 @@ const Promise = require('Promise');
  *   If the library contains native Android code, adds it to the build.
  */
 function link(argv, config) {
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     try {
       _link(argv, config);
     } catch (e) {

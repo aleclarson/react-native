@@ -7,11 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <React/RCTBridge.h>
-#import <React/RCTEventDispatcher.h>
-#import <React/RCTUtils.h>
-
 #import "RCTLinkingManager.h"
+
+#import "RCTBridge.h"
+#import "RCTEventDispatcher.h"
+#import "RCTUtils.h"
 
 NSString *const RCTOpenURLNotification = @"RCTOpenURLNotification";
 
@@ -33,7 +33,19 @@ RCT_EXPORT_MODULE()
 
 - (NSDictionary<NSString *, id> *)constantsToExport
 {
-  NSURL *initialURL = _bridge.launchOptions[UIApplicationLaunchOptionsURLKey];
+  NSURL *initialURL;
+
+  if (_bridge.launchOptions[UIApplicationLaunchOptionsURLKey]) {
+    initialURL = _bridge.launchOptions[UIApplicationLaunchOptionsURLKey];
+  } else if (&UIApplicationLaunchOptionsUserActivityDictionaryKey &&
+      _bridge.launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]) {
+    NSDictionary *userActivityDictionary = _bridge.launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
+
+    if ([userActivityDictionary[UIApplicationLaunchOptionsUserActivityTypeKey] isEqual:NSUserActivityTypeBrowsingWeb]) {
+      initialURL = ((NSUserActivity *)userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"]).webpageURL;
+    }
+  }
+
   return @{@"initialURL": RCTNullIfNil(initialURL.absoluteString)};
 }
 
@@ -77,10 +89,8 @@ RCT_EXPORT_METHOD(openURL:(NSURL *)URL
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject)
 {
-  // TODO: we should really report success/failure via the promise here
-  // Doesn't really matter what thread we call this on since it exits the app
-  [RCTSharedApplication() openURL:URL];
-  resolve(@YES);
+  BOOL opened = [RCTSharedApplication() openURL:URL];
+  resolve(@(opened));
 }
 
 RCT_EXPORT_METHOD(canOpenURL:(NSURL *)URL

@@ -23,7 +23,7 @@ RCT_EXTERN NSString *__nullable RCTJSONStringify(id __nullable jsonObject, NSErr
 RCT_EXTERN id __nullable RCTJSONParse(NSString *__nullable jsonString, NSError **error);
 RCT_EXTERN id __nullable RCTJSONParseMutable(NSString *__nullable jsonString, NSError **error);
 
-// Santize a JSON string by stripping invalid objects and/or NaN values
+// Sanitize a JSON object by stripping invalid types and/or NaN values
 RCT_EXTERN id RCTJSONClean(id object);
 
 // Get MD5 hash of a string
@@ -78,10 +78,6 @@ RCT_EXTERN UIWindow *__nullable RCTKeyWindow(void);
 // Does this device support force touch (aka 3D Touch)?
 RCT_EXTERN BOOL RCTForceTouchAvailable(void);
 
-// Returns the current main window, useful if you need to access the root view
-// or view controller, e.g. to present a modal view controller or alert.
-RCT_EXTERN UIWindow *RCTKeyWindow(void);
-
 // Return a UIAlertView initialized with the given values
 // or nil if running in an app extension
 RCT_EXTERN UIAlertView *__nullable RCTAlertView(NSString *title,
@@ -100,9 +96,6 @@ RCT_EXTERN id RCTNullIfNil(id __nullable value);
 // Convert NaN or infinite values to zero, as these aren't JSON-safe
 RCT_EXTERN double RCTZeroIfNaN(double value);
 
-// Convert NaN or infinite values to zero, as these aren't JSON-safe
-RCT_EXTERN double RCTZeroIfNaN(double value);
-
 // Convert data to a Base64-encoded data URL
 RCT_EXTERN NSURL *RCTDataURL(NSString *mimeType, NSData *data);
 
@@ -115,6 +108,9 @@ RCT_EXTERN NSString *__nullable RCTBundlePathForURL(NSURL *__nullable URL);
 
 // Determines if a given image URL actually refers to an XCAsset
 RCT_EXTERN BOOL RCTIsXCAssetURL(NSURL *__nullable imageURL);
+
+// Creates a new, unique temporary file path with the specified extension
+RCT_EXTERN NSString *__nullable RCTTempFilePath(NSString *__nullable extension, NSError **error);
 
 // Converts a CGColor to a hex string
 RCT_EXTERN NSString *RCTColorToHexString(CGColorRef color);

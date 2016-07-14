@@ -53,7 +53,7 @@ const nullByteBuffer = Buffer(1).fill(0);
 
 function writeBuffers(stream, buffers) {
   buffers.forEach(buffer => stream.write(buffer));
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     stream.on('error', reject);
     stream.on('finish', () => resolve());
     stream.end();

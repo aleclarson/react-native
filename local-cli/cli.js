@@ -10,24 +10,23 @@
 
 require('./env');
 
-var link = require('./library/link');
-var Config = require('./util/Config');
 var bundle = require('./bundle/bundle');
-var server = require('./server/server');
-var runIOS = require('./runIOS/runIOS');
-var library = require('./library/library');
-var upgrade = require('./upgrade/upgrade');
-var unbundle = require('./bundle/unbundle');
-var generate = require('./generate/generate');
-var runAndroid = require('./runAndroid/runAndroid');
 var childProcess = require('child_process');
+var Config = require('./util/Config');
+var defaultConfig = require('./default.config');
 var dependencies = require('./dependencies/dependencies');
-
+var generate = require('./generate/generate');
+var library = require('./library/library');
+var link = require('./library/link');
 var path = require('path');
 var Promise = require('Promise');
-
-var yeoman = require('yeoman-environment');
+var runAndroid = require('./runAndroid/runAndroid');
+var runIOS = require('./runIOS/runIOS');
+var server = require('./server/server');
 var TerminalAdapter = require('yeoman-environment/lib/adapter.js');
+var yeoman = require('yeoman-environment');
+var unbundle = require('./bundle/unbundle');
+var upgrade = require('./upgrade/upgrade');
 
 var documentedCommands = {
   'start': [server, 'starts the webserver'],
@@ -74,7 +73,7 @@ function run() {
     return;
   }
 
-  command[0](args);
+  command[0](args, Config.get(__dirname, defaultConfig));
 }
 
 function generateWrapper(args, config) {

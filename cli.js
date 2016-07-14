@@ -8,4 +8,8 @@
  */
 'use strict';
 
+require('./packager/babelRegisterOnly')([
+  /private-cli\/src/
+]);
+
 module.exports = require('./local-cli/cli.js');

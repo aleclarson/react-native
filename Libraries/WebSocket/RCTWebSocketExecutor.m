@@ -51,7 +51,7 @@ RCT_EXPORT_MODULE()
 - (void)setUp
 {
   if (!_url) {
-    _url = [RCTServerUtils serverURLForPath:@"debugger-proxy"];
+    _url = [RCTServerUtils serverURLForPath:@"debugger-proxy?role=client"];
   }
 
   _jsQueue = dispatch_queue_create("com.facebook.React.WebSocketExecutor", DISPATCH_QUEUE_SERIAL);

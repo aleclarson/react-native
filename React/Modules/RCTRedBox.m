@@ -14,7 +14,9 @@
 #import "RCTDefines.h"
 #import "RCTUtils.h"
 
-// #if RCT_DEBUG
+#define RCT_REDBOX_ENABLED 1 // RCT_DEV
+
+#if RCT_REDBOX_ENABLED
 
 #import "RCTServerUtils.h"
 
@@ -338,25 +340,25 @@ RCT_EXPORT_METHOD(dismiss)
 
 @end
 
-// #else // Disabled
-//
-// @implementation RCTRedBox
-//
-// + (NSString *)moduleName { return nil; }
-// - (void)showError:(NSError *)message {}
-// - (void)showErrorMessage:(NSString *)message {}
-// - (void)showErrorMessage:(NSString *)message withDetails:(NSString *)details {}
-// - (void)showErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack {}
-// - (void)updateErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack {}
-// - (void)showErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack showIfHidden:(BOOL)shouldShow {}
-// - (void)dismiss {}
-//
-// @end
-//
-// @implementation RCTBridge (RCTRedBox)
-//
-// - (RCTRedBox *)redBox { return nil; }
-//
-// @end
-//
-// #endif
+#else // Disabled
+
+@implementation RCTRedBox
+
++ (NSString *)moduleName { return nil; }
+- (void)showError:(NSError *)message {}
+- (void)showErrorMessage:(NSString *)message {}
+- (void)showErrorMessage:(NSString *)message withDetails:(NSString *)details {}
+- (void)showErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack {}
+- (void)updateErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack {}
+- (void)showErrorMessage:(NSString *)message withStack:(NSArray<NSDictionary *> *)stack showIfHidden:(BOOL)shouldShow {}
+- (void)dismiss {}
+
+@end
+
+@implementation RCTBridge (RCTRedBox)
+
+- (RCTRedBox *)redBox { return nil; }
+
+@end
+
+#endif

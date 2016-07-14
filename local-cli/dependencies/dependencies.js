@@ -9,18 +9,17 @@
 'use strict';
 
 const fs = require('fs');
+const log = require('../util/log').out('dependencies');
+const parseCommandLine = require('../util/parseCommandLine');
 const path = require('path');
 const Promise = require('Promise');
 const ReactPackager = require('react-packager');
-
-const log = require('../util/log').out('dependencies');
-const parseCommandLine = require('../util/parseCommandLine');
 
 /**
  * Returns the dependencies an entry path has.
  */
 function dependencies(argv, config) {
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
     _dependencies(argv, config, resolve, reject);
   });
 }

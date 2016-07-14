@@ -9,7 +9,7 @@
 'use strict';
 
 const fs = require('fs');
-const chalk = require('chalk');
+const log = require('log');
 const path = require('path');
 const Promise = require('Promise');
 const yeoman = require('yeoman-environment');
@@ -23,13 +23,13 @@ module.exports = function upgrade(args, config) {
 
   if (version) {
     if (version === 'latest' || version === '*') {
-      console.warn(
-        chalk.yellow(
-          'Major releases are most likely to introduce breaking changes.\n' +
-          'Use a proper version number in your \'package.json\' file to avoid breakage.\n' +
-          'e.g. - ^0.18.0'
-        )
+      log.moat(1);
+      log.yellow(
+        'Major releases are most likely to introduce breaking changes.\n' +
+        'Use a proper version number in your \'package.json\' file to avoid breakage.\n' +
+        'e.g. - ^0.18.0'
       );
+      log.moat(1);
     } else {
       const installed = JSON.parse(fs.readFileSync('node_modules/react-native/package.json', 'utf8'));
 
@@ -37,39 +37,54 @@ module.exports = function upgrade(args, config) {
         const v = version.replace(/^(~|\^|=)/, '').replace(/x/i, '0');
 
         if (semver.valid(v)) {
-          console.log(
+          log.moat(1);
+          log.white(
             'Upgrading project to react-native v' + installed.version + '\n' +
             'Be sure to read the release notes and breaking changes:\n' +
-            chalk.blue(
-              'https://github.com/facebook/react-native/releases/tag/v' + semver.major(v) + '.' + semver.minor(v) + '.0'
-            )
           );
+          log.cyan(
+            'https://github.com/facebook/react-native/releases/tag/v' + semver.major(v) + '.' + semver.minor(v) + '.0'
+          );
+          log.moat(1);
+
+          // >= v0.21.0, we require react to be a peer depdendency
+          if (semver.gte(v, '0.21.0') && !pak.dependencies['react']) {
+            log.moat(1);
+            log.yellow(
+              'Your \'package.json\' file doesn\'t seem to have \'react\' as a dependency.\n' +
+              '\'react\' was changed from a dependency to a peer dependency in react-native v0.21.0.\n' +
+              'Therefore, it\'s necessary to include \'react\' in your project\'s dependencies.\n' +
+              'Just run \'npm install --save react\', then re-run \'react-native upgrade\'.'
+            );
+            log.moat(1);
+            return Promise();
+          }
         } else {
-          console.log(
-            chalk.yellow(
-              'A valid version number for \'react-native\' is not specified your \'package.json\' file.'
-            )
+          log.moat(1);
+          log.yellow(
+            'A valid version number for \'react-native\' is not specified your \'package.json\' file.'
           );
+          log.moat(1);
         }
       } else {
-        console.warn(
-          chalk.yellow(
-            'react-native version in \'package.json\' doesn\'t match the installed version in \'node_modules\'.\n' +
-            'Try running \'npm install\' to fix the issue.'
-          )
+        log.moat(1);
+        log.yellow(
+          'react-native version in \'package.json\' doesn\'t match the installed version in \'node_modules\'.\n' +
+          'Try running \'npm install\' to fix the issue.'
         );
+        log.moat(1);
       }
     }
   } else {
-    console.warn(
-      chalk.yellow(
-        'Your \'package.json\' file doesn\'t seem to have \'react-native\' as a dependency.'
-      )
+    log.moat(1);
+    log.yellow(
+      'Your \'package.json\' file doesn\'t seem to have \'react-native\' as a dependency.'
     );
+    log.moat(1);
   }
 
   const generatorPath = path.join(__dirname, '..', 'generator');
   env.register(generatorPath, 'react:app');
   const generatorArgs = ['react:app', pak.name].concat(args);
-  return Promise.resolve((resolve) => env.run(generatorArgs, {upgrade: true}, resolve));
+  return Promise.defer((resolve) => env.run(generatorArgs, {upgrade: true}, resolve));
 };

@@ -8,15 +8,14 @@
  */
 'use strict';
 
-const Promise = require('Promise');
-const ReactPackager = require('react-packager');
-
 const log = require('../util/log').out('bundle');
 const outputBundle = require('./output/bundle');
+const Promise = require('Promise');
+const ReactPackager = require('react-packager');
 const saveAssets = require('./saveAssets');
 
 function buildBundle(args, config, output = outputBundle) {
-  return Promise.resolve((resolve, reject) => {
+  return Promise.defer((resolve, reject) => {
 
     // This is used by a bazillion of npm modules we don't control so we don't
     // have other choice than defining it as an env variable here.

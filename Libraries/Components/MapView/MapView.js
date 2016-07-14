@@ -173,16 +173,6 @@ const MapView = React.createClass({
       onDragStateChange: React.PropTypes.func,
 
       /**
-       * Whether the pin should be draggable or not
-       */
-      draggable: React.PropTypes.bool,
-
-      /**
-       * Event that fires when the annotation drag state changes.
-       */
-      onDragStateChange: React.PropTypes.func,
-
-      /**
        * Event that fires when the annotation gets was tapped by the user
        * and the callout view was displayed.
        */
@@ -228,15 +218,8 @@ const MapView = React.createClass({
        */
       view: React.PropTypes.element,
 
-    })),
-
-    /**
-     * Map overlays
-     * @platform ios
-     */
-    overlays: React.PropTypes.arrayOf(React.PropTypes.shape({
       /**
-       * Polyline coordinates
+       * annotation id
        */
       id: React.PropTypes.string,
 
@@ -376,45 +359,6 @@ const MapView = React.createClass({
           style: [styles.calloutView, detailCalloutView.props.style || {}]
         }));
       }
-      if (__DEV__) {
-        ['hasLeftCallout', 'onLeftCalloutPress'].forEach(key => {
-          if (annotation[key]) {
-            console.warn('`' + key + '` is deprecated. Use leftCalloutView instead.');
-          }
-        });
-        ['hasRightCallout', 'onRightCalloutPress'].forEach(key => {
-          if (annotation[key]) {
-            console.warn('`' + key + '` is deprecated. Use rightCalloutView instead.');
-          }
-        });
-      }
-      let result = {
-        ...annotation,
-        tintColor: tintColor && processColor(tintColor),
-        image,
-        viewIndex,
-        leftCalloutViewIndex,
-        rightCalloutViewIndex,
-        detailCalloutViewIndex,
-        view: undefined,
-        leftCalloutView: undefined,
-        rightCalloutView: undefined,
-        detailCalloutView: undefined,
-      };
-      result.id = id || encodeURIComponent(JSON.stringify(result));
-      result.image = image && resolveAssetSource(image);
-      return result;
-    });
-    overlays = overlays && overlays.map((overlay: Object) => {
-      let {id, fillColor, strokeColor} = overlay;
-      let result = {
-        ...overlay,
-        strokeColor: strokeColor && processColor(strokeColor),
-        fillColor: fillColor && processColor(fillColor),
-      };
-      result.id = id || encodeURIComponent(JSON.stringify(result));
-      return result;
-    });
 
       let result = {
         ...annotation,
