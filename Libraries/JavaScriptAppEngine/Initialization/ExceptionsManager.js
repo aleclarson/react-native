@@ -15,11 +15,6 @@ const SourceMapsCache = require('SourceMapsCache');
 
 let exceptionID = 0;
 
-module.exports = {
-  reportException,
-  createException,
-};
-
 function createException(error, isFatal, stack, onLoad) {
   const resolveSourceMaps = require('resolveSourceMaps');
   const filterErrorStack = require('filterErrorStack');
@@ -62,26 +57,32 @@ function createException(error, isFatal, stack, onLoad) {
 
     .then(sourceMaps => {
       stack.forEach((frame, index) => {
-        var sourceMap = sourceMaps[index];
-        if (!sourceMap) { return; }
-        resolveSourceMaps(sourceMap, frame);
+        const sourceMap = sourceMaps[index];
+        if (sourceMap) {
+          resolveSourceMaps(sourceMap, frame);
+        }
       });
 
       onLoad(exception);
     });
   });
-};
+}
 
 function reportException(error, isFatal, stack) {
 
-  var RCTExceptionsManager = require('NativeModules').ExceptionsManager;
+  const RCTExceptionsManager = require('NativeModules').ExceptionsManager;
   if (!RCTExceptionsManager) {
     return;
   }
 
   createException(error, isFatal, stack, (exception) => {
-    var stack = exception.stack.filter(frame => frame instanceof Object);
-    var key = exception.isFatal ? 'reportFatalException' : 'reportSoftException';
+    const stack = exception.stack.filter(frame => frame instanceof Object);
+    const key = exception.isFatal ? 'reportFatalException' : 'reportSoftException';
     RCTExceptionsManager[key](exception.reason, stack, exception.id);
   });
+}
+
+module.exports = {
+  reportException,
+  createException,
 };
