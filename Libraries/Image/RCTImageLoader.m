@@ -298,6 +298,10 @@ static UIImage *RCTResizeImageIfNeeded(UIImage *image,
                                                     diskPath:@"React/RCTImageDownloader"];
     }
 
+#if RCT_DEV
+    [_URLCache removeAllCachedResponses];
+#endif
+
     RCTImageLoader *strongSelf = weakSelf;
     if (cancelled || !strongSelf) {
       return;
