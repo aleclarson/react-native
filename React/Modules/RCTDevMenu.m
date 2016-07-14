@@ -134,6 +134,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   NSURLSessionDataTask *_updateTask;
   NSURL *_liveReloadURL;
   BOOL _jsLoaded;
+  BOOL _reloading;
   NSArray<RCTDevMenuItem *> *_presentedItems;
   NSMutableArray<RCTDevMenuItem *> *_extraMenuItems;
   NSString *_webSocketExecutorName;
@@ -543,14 +544,18 @@ RCT_EXPORT_METHOD(show)
 
 RCT_EXPORT_METHOD(reload)
 {
-  [self reloadWithCallback:nil];
-}
+  RCTExecuteOnMainThread(^{
+    if (_reloading || !_jsLoaded) {
+      return;
+    }
+    _jsLoaded = NO;
+    _liveReloadURL = nil;
 
-RCT_EXPORT_METHOD(reloadWithCallback:(RCTResponseSenderBlock)callback)
-{
-  _jsLoaded = NO;
-  _liveReloadURL = nil;
-  [_bridge reloadWithCallback:callback];
+    NSLog(@"Reloading bridge...");
+    _reloading = YES;
+    [_bridge reload];
+    _reloading = NO;
+  }, NO);
 }
 
 - (void)setShakeToShow:(BOOL)shakeToShow
@@ -678,7 +683,6 @@ RCT_EXPORT_METHOD(reloadWithCallback:(RCTResponseSenderBlock)callback)
 
 - (void)show {}
 - (void)reload {}
-- (void)reloadWithCallback:(RCTResponseSenderBlock)callback {}
 - (void)addItem:(NSString *)title handler:(dispatch_block_t)handler {}
 - (void)addItem:(RCTDevMenu *)item {}
 

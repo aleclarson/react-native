@@ -180,7 +180,6 @@ RCT_EXTERN BOOL RCTBridgeModuleClassIsRegistered(Class);
  * Reload the bundle and reset executor & modules. Safe to call from any thread.
  */
 - (void)reload;
-- (void)reloadWithCallback:(RCTResponseSenderBlock)callback;
 
 /**
  * Says whether bridge has started recieving calls from javascript.
