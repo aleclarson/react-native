@@ -13,7 +13,7 @@
 
 var BatchedBridge = require('BatchedBridge');
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 var levelsMap = {
   log: 'log',

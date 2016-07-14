@@ -17,7 +17,7 @@
  */
 'use strict';
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 /**
  * EventSubscriptionVendor stores a set of EventSubscriptions that are

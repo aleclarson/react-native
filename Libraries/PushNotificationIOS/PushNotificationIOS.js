@@ -13,7 +13,7 @@
 
 var RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
 var RCTPushNotificationManager = require('NativeModules').PushNotificationManager;
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 var _notifHandlers = new Map();
 var _initialNotification = RCTPushNotificationManager &&

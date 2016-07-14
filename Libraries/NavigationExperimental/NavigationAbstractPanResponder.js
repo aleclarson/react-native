@@ -8,7 +8,7 @@
 
 const PanResponder = require('PanResponder');
 
-const invariant = require('fbjs/lib/invariant');
+const invariant = require('invariant');
 
 const EmptyPanHandlers = {
   onMoveShouldSetPanResponder: null,

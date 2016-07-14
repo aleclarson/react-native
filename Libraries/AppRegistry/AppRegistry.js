@@ -14,7 +14,7 @@
 var BatchedBridge = require('BatchedBridge');
 var ReactNative = require('ReactNative');
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 var renderApplication = require('renderApplication');
 
 // if (__DEV__) {

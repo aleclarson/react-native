@@ -11,7 +11,7 @@
  */
 'use strict';
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 var ensurePositiveDelayProps = function(props: any) {
   invariant(

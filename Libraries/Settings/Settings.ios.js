@@ -14,7 +14,7 @@
 var RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
 var RCTSettingsManager = require('NativeModules').SettingsManager;
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 var subscriptions: Array<{keys: Array<string>; callback: ?Function}> = [];
 

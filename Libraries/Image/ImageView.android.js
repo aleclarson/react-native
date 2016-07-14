@@ -23,7 +23,7 @@ var StyleSheetPropType = require('StyleSheetPropType');
 var View = require('View');
 
 var flattenStyle = require('flattenStyle');
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 var merge = require('merge');
 var requireNativeComponent = require('requireNativeComponent');
 var resolveAssetSource = require('resolveAssetSource');

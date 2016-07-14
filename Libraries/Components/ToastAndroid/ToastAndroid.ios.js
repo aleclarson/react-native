@@ -11,7 +11,7 @@
  */
 'use strict';
 
-var warning = require('fbjs/lib/warning');
+var warning = require('warning');
 
 var ToastAndroid = {
 

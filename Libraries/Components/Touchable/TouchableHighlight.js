@@ -25,7 +25,7 @@ var View = require('View');
 
 var ensureComponentIsNative = require('ensureComponentIsNative');
 var ensurePositiveDelayProps = require('ensurePositiveDelayProps');
-var keyOf = require('fbjs/lib/keyOf');
+var keyOf = require('keyOf');
 var merge = require('merge');
 var onlyChild = require('onlyChild');
 

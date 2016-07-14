@@ -27,9 +27,9 @@ var ReactPropTypes = require('ReactPropTypes');
 var ReactUpdates = require('ReactUpdates');
 
 var findNodeHandle = require('findNodeHandle');
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 var onlyChild = require('onlyChild');
-var warning = require('fbjs/lib/warning');
+var warning = require('warning');
 
 ReactNativeDefaultInjection.inject();
 

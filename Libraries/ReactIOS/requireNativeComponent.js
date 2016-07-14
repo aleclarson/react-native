@@ -24,7 +24,7 @@ var processColor = require('processColor');
 var resolveAssetSource = require('resolveAssetSource');
 var sizesDiffer = require('sizesDiffer');
 var verifyPropTypes = require('verifyPropTypes');
-var warning = require('fbjs/lib/warning');
+var warning = require('warning');
 
 /**
  * Used to create React components that directly wrap native component

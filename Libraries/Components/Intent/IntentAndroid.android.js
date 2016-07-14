@@ -12,7 +12,7 @@
 'use strict';
 
 var Linking = require('Linking');
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 /**
  * NOTE: `IntentAndroid` is being deprecated. Use `Linking` instead.

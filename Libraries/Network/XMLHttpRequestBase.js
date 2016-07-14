@@ -13,7 +13,7 @@
 
 var RCTNetworking = require('RCTNetworking');
 var RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 const UNSENT = 0;
 const OPENED = 1;

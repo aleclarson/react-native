@@ -13,7 +13,7 @@
 
 var ReactPropTypeLocationNames = require('ReactPropTypeLocationNames');
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 var merge = require('merge');
 
 function createStrictShapeTypeChecker(

@@ -37,7 +37,7 @@ const React = require('React');
 const ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 const StyleSheet = require('StyleSheet');
 
-const emptyFunction = require('fbjs/lib/emptyFunction');
+const emptyFunction = require('emptyFunction');
 
 const {PropTypes} = React;
 const {Directions} = NavigationLinearPanResponder;

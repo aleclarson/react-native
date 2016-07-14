@@ -18,7 +18,7 @@ const {
   LinkingManager: LinkingManagerIOS
 } = require('NativeModules');
 const LinkingManager = Platform.OS === 'android' ? IntentAndroid : LinkingManagerIOS;
-const invariant = require('fbjs/lib/invariant');
+const invariant = require('invariant');
 const Map = require('Map');
 
 const _notifHandlers = new Map();

@@ -17,7 +17,7 @@ var RCTCameraRollManager = require('NativeModules').CameraRollManager;
 var createStrictShapeTypeChecker = require('createStrictShapeTypeChecker');
 var deepFreezeAndThrowOnMutationInDev =
   require('deepFreezeAndThrowOnMutationInDev');
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 var GROUP_TYPES_OPTIONS = [
   'Album',

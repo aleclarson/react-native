@@ -27,7 +27,7 @@
  */
 'use strict';
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 
 class NavigationEventPool {
   _list: Array<any>;

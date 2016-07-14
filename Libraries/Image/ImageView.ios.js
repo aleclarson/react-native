@@ -23,10 +23,10 @@ var StyleSheet = require('StyleSheet');
 var StyleSheetPropType = require('StyleSheetPropType');
 
 var flattenStyle = require('flattenStyle');
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 var requireNativeComponent = require('requireNativeComponent');
 var resolveAssetSource = require('resolveAssetSource');
-var warning = require('fbjs/lib/warning');
+var warning = require('warning');
 
 var {
   ImageViewManager,

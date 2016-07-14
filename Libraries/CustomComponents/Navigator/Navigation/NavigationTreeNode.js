@@ -8,7 +8,7 @@
 
 'use strict';
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 var immutable = require('immutable');
 
 var {List} = immutable;

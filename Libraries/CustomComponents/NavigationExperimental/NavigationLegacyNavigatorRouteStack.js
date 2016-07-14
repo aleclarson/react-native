@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const invariant = require('fbjs/lib/invariant');
+const invariant = require('invariant');
 
 import type {
   NavigationState,

@@ -14,8 +14,8 @@
 var EmitterSubscription = require('EmitterSubscription');
 var ErrorUtils = require('ErrorUtils');
 var EventSubscriptionVendor = require('EventSubscriptionVendor');
-var emptyFunction = require('fbjs/lib/emptyFunction');
-var invariant = require('fbjs/lib/invariant');
+var emptyFunction = require('emptyFunction');
+var invariant = require('invariant');
 
 /**
  * @class EventEmitter

@@ -28,9 +28,9 @@
  */
 'use strict';
 
-var invariant = require('fbjs/lib/invariant');
+var invariant = require('invariant');
 var isEmpty = require('isEmpty');
-var warning = require('fbjs/lib/warning');
+var warning = require('warning');
 
 function defaultGetRowData(
   dataBlob: any,
