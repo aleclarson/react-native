@@ -9,7 +9,6 @@
 export type PackagerAsset = {
   __packager_asset: boolean,
   fileSystemLocation: string,
-  httpServerLocation: string,
   width: number,
   height: number,
   scales: Array<number>,

@@ -103,8 +103,8 @@ function getPathOnDevserver(devServerUrl, asset) {
 function getScaledAssetPath(asset) {
   var scale = pickScale(asset.scales, PixelRatio.get());
   var scaleSuffix = scale === 1 ? '' : '@' + scale + 'x';
-  var assetDir = assetPathUtils.getBasePath(asset);
-  return assetDir + '/' + asset.name + scaleSuffix + '.' + asset.type;
+  return 'assets' + asset.fileSystemLocation + '/' +
+    asset.name + scaleSuffix + '.' + asset.type;
 }
 
 /**
