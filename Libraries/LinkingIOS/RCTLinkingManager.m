@@ -9,7 +9,7 @@
 
 #import "RCTLinkingManager.h"
 
-#import "RCTBridge.h"
+#import <React/RCTBridge.h>
 #import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
 
