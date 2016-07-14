@@ -805,6 +805,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
 
   RCTJavaScriptCallback processResponse = ^(id json, NSError *error) {
     if (error) {
+//      NSLog(@"\n[fatal] %@\n\n", error.localizedDescription);
+//      return;
       RCTFatal(error);
     }
 

@@ -227,7 +227,7 @@ RCT_EXPORT_MODULE()
                                    action:^(__unused UIKeyCommand *command) {
                                      weakSelf.executorClass = Nil;
                                    }];
-// #endif
+ #endif
 
   }
   return self;

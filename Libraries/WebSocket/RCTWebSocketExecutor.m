@@ -216,6 +216,9 @@ RCT_EXPORT_MODULE()
 
 - (void)invalidate
 {
+  if(!_socket) {
+    return;
+  }
   _socket.delegate = nil;
   [_socket closeWithCode:1000 reason:@"Invalidated"];
   _socket = nil;

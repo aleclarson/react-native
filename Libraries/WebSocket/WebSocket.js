@@ -35,6 +35,7 @@ class WebSocket extends WebSocketBase {
 
   connectToSocketImpl(url: string, protocols: ?Array<string>, options: ?{origin?: string}): void {
     this._socketId = WebSocketId++;
+    this._url = url;
 
     RCTWebSocketModule.connect(url, protocols, options, this._socketId);
 
