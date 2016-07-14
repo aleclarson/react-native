@@ -38,6 +38,8 @@ typedef void (^RCTWSMessageCallback)(NSError *error, NSDictionary<NSString *, id
 
 RCT_EXPORT_MODULE()
 
+@synthesize bridge = _bridge;
+
 - (instancetype)initWithURL:(NSURL *)URL
 {
   RCTAssertParam(URL);
@@ -61,30 +63,17 @@ RCT_EXPORT_MODULE()
   _injectedObjects = [NSMutableDictionary new];
   [_socket setDelegateDispatchQueue:_jsQueue];
 
-//  NSURL *startDevToolsURL = [NSURL URLWithString:@"/launch-chrome-devtools" relativeToURL:_url];
-//  [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:startDevToolsURL] delegate:nil];
-
-  if (![self connectToProxy]) {
-    RCTLogError(@"Connection to %@ timed out. Are you running node proxy? If "
-                 "you are running on the device, check if you have the right IP "
-                 "address in `RCTWebSocketExecutor.m`.", _url);
-    [self invalidate];
-    NSLog(@"Did not connect to proxy!");
-//    [self.bridge.devMenu reload];
+  BOOL isConnected = [self connectToProxy];
+  if (!isConnected) {
+    NSLog(@"\nFailed to connect: %@\n\n", _url.absoluteString);
+    [self.bridge.devMenu reload];
     return;
   }
 
-  NSInteger retries = 3;
-  BOOL runtimeIsReady = [self prepareJSRuntime];
-  while (!runtimeIsReady && retries > 0) {
-    runtimeIsReady = [self prepareJSRuntime];
-    retries--;
-  }
-  if (!runtimeIsReady) {
-    RCTLogError(@"Runtime is not ready for debugging.\n "
-                 "- Make sure Packager server is running.\n"
-                 "- Make sure Chrome is running and not paused on a breakpoint or exception and try reloading again.");
-    [self invalidate];
+  BOOL isRuntimeReady = [self prepareJSRuntime];
+  if (!isRuntimeReady) {
+    NSLog(@"\nFailed to prepare the JS runtime: %@\n\n", _url.absoluteString);
+    [self.bridge.devMenu reload];
     return;
   }
 }
@@ -134,22 +123,17 @@ RCT_EXPORT_MODULE()
   });
 }
 
-- (void)webSocket:(RCTSRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean
-{
-  [self invalidate];
-  [self.bridge.devMenu reload];
-}
-
 - (void)sendMessage:(NSDictionary<NSString *, id> *)message waitForReply:(RCTWSMessageCallback)callback
 {
   static NSUInteger lastID = 10000;
 
   dispatch_async(_jsQueue, ^{
     if (!self.valid) {
-      NSError *error = [NSError errorWithDomain:@"WS" code:1 userInfo:@{
-        NSLocalizedDescriptionKey: @"Runtime is not ready for debugging. Make sure Packager server is running."
-      }];
-      callback(error, nil);
+//      NSError *error = [NSError errorWithDomain:@"WS" code:1 userInfo:@{
+//        NSLocalizedDescriptionKey: @"Runtime is not ready for debugging. Make sure Packager server is running."
+//      }];
+//      callback(error, nil);
+      [self.bridge.devMenu reload];
       return;
     }
 

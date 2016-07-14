@@ -536,7 +536,10 @@ RCT_EXTERN NSArray<Class> *RCTGetModuleClasses(void);
    postNotificationName:RCTJavaScriptDidFailToLoadNotification
    object:_parentBridge userInfo:@{@"bridge": self, @"error": error}];
 
-  RCTFatal(error);
+  NSLog(@"\nRCTBatchedBridge.stopLoadingWithError: %@\n\n", error.localizedDescription);
+  [self performSelector:@selector(reload)
+        withObject:nil
+        afterDelay:8];
 }
 
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleURL
