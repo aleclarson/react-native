@@ -55,9 +55,10 @@ CGRect RCTTargetRect(CGSize sourceSize, CGSize destSize,
     destSize.height = destSize.width / aspect;
   }
 
-  // Calculate target aspect ratio if needed (don't bother if resizeMode == stretch)
+  // Calculate target aspect ratio if needed
   CGFloat targetAspect = 0.0;
-  if (resizeMode != UIViewContentModeScaleToFill) {
+  if (resizeMode != RCTResizeModeCenter &&
+      resizeMode != RCTResizeModeStretch) {
     targetAspect = destSize.width / destSize.height;
     if (aspect == targetAspect) {
       resizeMode = RCTResizeModeStretch;
@@ -111,6 +112,26 @@ CGRect RCTTargetRect(CGSize sourceSize, CGSize destSize,
           RCTCeilSize(sourceSize, destScale)
         };
       }
+
+    case RCTResizeModeCenter:
+
+      // Make sure the image is not clipped by the target.
+      if (sourceSize.height > destSize.height) {
+        sourceSize.width = destSize.width = destSize.width;
+        sourceSize.height = sourceSize.width / aspect;
+      }
+      if (sourceSize.width > destSize.width) {
+        sourceSize.height = destSize.height = destSize.height;
+        sourceSize.width = sourceSize.height * aspect;
+      }
+
+      return (CGRect){
+        {
+          RCTFloorValue((destSize.width - sourceSize.width) / 2, destScale),
+          RCTFloorValue((destSize.height - sourceSize.height) / 2, destScale),
+        },
+        RCTCeilSize(sourceSize, destScale)
+      };
   }
 }
 
@@ -132,6 +153,10 @@ CGSize RCTTargetSize(CGSize sourceSize, CGFloat sourceScale,
                      BOOL allowUpscaling)
 {
   switch (resizeMode) {
+    case RCTResizeModeCenter:
+
+      return RCTTargetRect(sourceSize, destSize, destScale, resizeMode).size;
+
     case RCTResizeModeStretch:
 
       if (!allowUpscaling) {
@@ -206,6 +231,10 @@ BOOL RCTUpscalingRequired(CGSize sourceSize, CGFloat sourceScale,
 
         return destSize.width > sourceSize.width;
       }
+
+    case RCTResizeModeCenter:
+
+      return NO;
   }
 }
 
