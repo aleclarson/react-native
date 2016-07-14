@@ -9,4 +9,4 @@
  * @providesModule querystring
  */
 
-module.exports = require('../../node_modules/querystring');
+module.exports = require('react-native/node_modules/querystring');

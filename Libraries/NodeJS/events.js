@@ -9,4 +9,4 @@
  * @providesModule events
  */
 
-module.exports = require('../../node_modules/events');
+module.exports = require('react-native/node_modules/events');

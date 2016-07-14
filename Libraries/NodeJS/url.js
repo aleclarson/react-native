@@ -9,4 +9,4 @@
  * @providesModule url
  */
 
-module.exports = require('../../node_modules/url');
+module.exports = require('react-native/node_modules/url');

@@ -9,4 +9,4 @@
  * @providesModule path
  */
 
-module.exports = require('../../node_modules/path-browserify');
+module.exports = require('react-native/node_modules/path-browserify');

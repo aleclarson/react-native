@@ -9,4 +9,4 @@
  * @providesModule punycode
  */
 
-module.exports = require('../../node_modules/punycode');
+module.exports = require('react-native/node_modules/punycode');

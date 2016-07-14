@@ -9,4 +9,4 @@
  * @providesModule process
  */
 
-module.exports = require('../../node_modules/process');
+module.exports = require('react-native/node_modules/process');

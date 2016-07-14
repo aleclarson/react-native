@@ -9,4 +9,4 @@
  * @providesModule os
  */
 
-module.exports = require('../../node_modules/os-browserify/browser');
+module.exports = require('react-native/node_modules/os-browserify/browser');
