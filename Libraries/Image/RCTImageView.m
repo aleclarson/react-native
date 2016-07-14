@@ -216,6 +216,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         if (error) {
           if (strongSelf->_onError) {
             strongSelf->_onError(@{ @"error": error.localizedDescription });
+          } else {
+            RCTLogError(@"%@", error.localizedDescription);
           }
         } else {
           if (strongSelf->_onLoad) {
