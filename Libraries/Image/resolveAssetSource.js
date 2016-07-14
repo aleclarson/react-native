@@ -25,7 +25,7 @@ var AssetRegistry = require('AssetRegistry');
 var PixelRatio = require('PixelRatio');
 var Platform = require('Platform');
 var SourceCode = require('NativeModules').SourceCode;
-var assetPathUtils = require('../../local-cli/bundle/assetPathUtils');
+var assetPathUtils = require('./assetPathUtils');
 
 var _serverURL, _offlinePath;
 
