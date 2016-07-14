@@ -91,6 +91,11 @@ var Image = React.createClass({
     progressiveRenderingEnabled: PropTypes.bool,
     fadeDuration: PropTypes.number,
     /**
+     * Determines how to resize the image when the frame doesn't match the raw
+     * image dimensions.
+     */
+    resizeMode: PropTypes.oneOf(Object.keys(ImageResizeMode)),
+    /**
      * Invoked on load start
      */
     onLoadStart: PropTypes.func,
