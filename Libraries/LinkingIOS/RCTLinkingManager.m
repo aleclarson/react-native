@@ -10,8 +10,8 @@
 #import "RCTLinkingManager.h"
 
 #import <React/RCTBridge.h>
-#import "RCTEventDispatcher.h"
-#import "RCTUtils.h"
+#import <React/RCTEventDispatcher.h>
+#import <React/RCTUtils.h>
 
 NSString *const RCTOpenURLNotification = @"RCTOpenURLNotification";
 
