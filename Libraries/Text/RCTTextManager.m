@@ -98,11 +98,16 @@ RCT_EXPORT_METHOD(computeLines:(NSString *)text
                     scaleMultiplier:1.0];
 
   NSRange textRange = (NSRange){0, attributedString.length};
-  [attributedString addAttribute:NSFontAttributeName value:font range:textRange];
 
-  if (textStyle[@"letterSpacing"]) {
-    [attributedString addAttribute:NSKernAttributeName value:textStyle[@"letterSpacing"] range:textRange];
-  }
+  [attributedString
+    addAttribute:NSFontAttributeName
+           value:font
+           range:textRange];
+
+  [attributedString
+    addAttribute:NSKernAttributeName
+           value:textStyle[@"letterSpacing"] ?: @0
+           range:textRange];
 
   NSLayoutManager *layoutManager = [NSLayoutManager new];
 
@@ -111,7 +116,7 @@ RCT_EXPORT_METHOD(computeLines:(NSString *)text
 
   NSTextContainer *textContainer = [NSTextContainer new];
   textContainer.lineFragmentPadding = 0.0;
-  textContainer.lineBreakMode = (NSLineBreakMode)textStyle[@"lineBreakMode"];
+  textContainer.lineBreakMode = [RCTConvert NSLineBreakMode:textStyle[@"lineBreakMode"]];
   textContainer.size = (CGSize){[textStyle[@"width"] doubleValue], CGFLOAT_MAX};
 
   [layoutManager addTextContainer:textContainer];

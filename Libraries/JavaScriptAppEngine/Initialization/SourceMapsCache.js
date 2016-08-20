@@ -39,7 +39,7 @@ const SourceMapsCache = {
 
   getSourceMaps() {
     this.fetchMain();
-    return Promise.all(getObjectValues(sourceMapsCache));
+    return Promise.map(getObjectValues(sourceMapsCache));
   },
 };
 

@@ -47,7 +47,7 @@
 {
   _socketOpenSemaphore = dispatch_semaphore_create(0);
   [_socket open];
-  dispatch_semaphore_wait(_socketOpenSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 2));
+  dispatch_semaphore_wait(_socketOpenSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 4));
 }
 
 - (void)stop

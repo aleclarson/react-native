@@ -9,7 +9,7 @@
 
 #import "RCTDefines.h"
 
-//#if RCT_DEV // Debug executors are only supported in dev mode
+#if RCT_DEV // Debug executors are only supported in dev mode
 
 #import "RCTWebSocketExecutor.h"
 
@@ -82,7 +82,7 @@ RCT_EXPORT_MODULE()
 {
   _socketOpenSemaphore = dispatch_semaphore_create(0);
   [_socket open];
-  long connected = dispatch_semaphore_wait(_socketOpenSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 6));
+  long connected = dispatch_semaphore_wait(_socketOpenSemaphore, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 10));
   return connected == 0;
 }
 
@@ -94,7 +94,7 @@ RCT_EXPORT_MODULE()
     initError = error;
     dispatch_semaphore_signal(s);
   }];
-  long runtimeIsReady = dispatch_semaphore_wait(s, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 4));
+  long runtimeIsReady = dispatch_semaphore_wait(s, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 10));
   return runtimeIsReady == 0 && initError == nil;
 }
 
@@ -236,4 +236,4 @@ RCT_EXPORT_MODULE()
 
 @end
 
-//#endif
+#endif

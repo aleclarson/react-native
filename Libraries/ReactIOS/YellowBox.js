@@ -42,21 +42,21 @@ const _warningMap = new Map();
  * should be ignored.
  */
 
-if (__DEV__) {
-  const {error, warn} = console;
-  console.error = function() {
-    error.apply(console, arguments);
-    // Show yellow box for the `warning` module.
-    if (typeof arguments[0] === 'string' &&
-        arguments[0].startsWith('Warning: ')) {
-      updateWarningMap.apply(null, arguments);
-    }
-  };
-  console.warn = function() {
-    warn.apply(console, arguments);
-    updateWarningMap.apply(null, arguments);
-  };
-}
+// if (__DEV__) {
+//   const {error, warn} = console;
+//   console.error = function() {
+//     error.apply(console, arguments);
+//     // Show yellow box for the `warning` module.
+//     if (typeof arguments[0] === 'string' &&
+//         arguments[0].startsWith('Warning: ')) {
+//       updateWarningMap.apply(null, arguments);
+//     }
+//   };
+//   console.warn = function() {
+//     warn.apply(console, arguments);
+//     updateWarningMap.apply(null, arguments);
+//   };
+// }
 
 /**
  * Simple function for formatting strings.

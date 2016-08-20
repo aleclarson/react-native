@@ -536,10 +536,12 @@ RCT_EXTERN NSArray<Class> *RCTGetModuleClasses(void);
    postNotificationName:RCTJavaScriptDidFailToLoadNotification
    object:_parentBridge userInfo:@{@"bridge": self, @"error": error}];
 
-  NSLog(@"\nRCTBatchedBridge.stopLoadingWithError: %@\n\n", error.localizedDescription);
-  [self performSelector:@selector(reload)
-        withObject:nil
-        afterDelay:8];
+  RCTLogError(@"RCTBatchedBridge failed to load JavaScript bundle!\n%@", error.localizedDescription);
+
+//  NSLog(@"\nRCTBatchedBridge.stopLoadingWithError: %@\n\n", error.localizedDescription);
+//  [self performSelector:@selector(reload)
+//        withObject:nil
+//        afterDelay:8];
 }
 
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleURL

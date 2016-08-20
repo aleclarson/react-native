@@ -21,7 +21,7 @@
 #import "RCTUtils.h"
 #import "RCTWebSocketProxy.h"
 
-#define RCT_DEVMENU_ENABLED 1 // RCT_DEV
+#define RCT_DEVMENU_ENABLED RCT_DEV
 
 #if RCT_DEVMENU_ENABLED
 

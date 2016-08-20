@@ -48,6 +48,7 @@ RCT_EXPORT_METHOD(reportFatalException:(NSString *)message
                   stack:(NSArray<NSDictionary *> *)stack
                   exceptionId:(nonnull NSNumber *)exceptionId)
 {
+  NSLog(@"Fatal Exception:\n%@", message);
   [_bridge.redBox showErrorMessage:message withStack:stack];
 
   if (_delegate) {

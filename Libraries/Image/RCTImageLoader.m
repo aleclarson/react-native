@@ -404,6 +404,10 @@ static UIImage *RCTResizeImageIfNeeded(UIImage *image,
       });
 
     }];
+    if (!task) {
+      NSLog(@"WARN: 'task' equals nil!");
+      return;
+    }
     task.downloadProgressBlock = progressHandler;
 
     if (!_pendingTasks) {

@@ -24,7 +24,13 @@
 
 require('regenerator-runtime/runtime');
 
-require('isReactNative').set(true);
+var _isReactNative = require('isReactNative');
+if (_isReactNative) {
+  _isReactNative.set(true);
+} else {
+  console.warn('Failed to import module: "isReactNative"');
+  debugger;
+}
 
 if (typeof GLOBAL === 'undefined') {
   global.GLOBAL = this;
@@ -86,6 +92,7 @@ function setUpErrorHandler() {
 
   function handleError(e, isFatal) {
     try {
+      global.nativeLoggingHook(e.stack, 1);
       require('ExceptionsManager').reportException(e, isFatal);
     } catch (ee) {
       console.log('Failed to print error: ', ee.message);
@@ -125,13 +132,12 @@ function setUpAlert() {
   }
 }
 
+// Try to enforce one Promise implementation.
 function setUpPromise() {
-  GLOBAL.Promise = require('Promise');
-  Promise.onUnhandledRejection(function(error, promise) {
-    var failure = Failure(error);
-    failure.stacks.push(promise._tracers.init());
-    failure.throw();
-  })
+  Object.defineProperty(GLOBAL, 'Promise', {
+    value: require('Promise'),
+    enumerable: true,
+  });
 }
 
 function setUpXHR() {
