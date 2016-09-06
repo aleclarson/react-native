@@ -65,15 +65,15 @@ RCT_EXPORT_MODULE()
 
   BOOL isConnected = [self connectToProxy];
   if (!isConnected) {
-    NSLog(@"\nFailed to connect: %@\n\n", _url.absoluteString);
-    [self.bridge.devMenu reload];
+    NSLog(@"Failed to connect: %@", _url.absoluteString);
+    [self invalidate];
     return;
   }
 
   BOOL isRuntimeReady = [self prepareJSRuntime];
   if (!isRuntimeReady) {
-    NSLog(@"\nFailed to prepare the JS runtime: %@\n\n", _url.absoluteString);
-    [self.bridge.devMenu reload];
+    NSLog(@"Failed to prepare the JS runtime: %@", _url.absoluteString);
+    [self invalidate];
     return;
   }
 }
@@ -129,11 +129,10 @@ RCT_EXPORT_MODULE()
 
   dispatch_async(_jsQueue, ^{
     if (!self.valid) {
-//      NSError *error = [NSError errorWithDomain:@"WS" code:1 userInfo:@{
-//        NSLocalizedDescriptionKey: @"Runtime is not ready for debugging. Make sure Packager server is running."
-//      }];
-//      callback(error, nil);
-      [self.bridge.devMenu reload];
+      NSError *error = [NSError errorWithDomain:@"WS" code:1 userInfo:@{
+        NSLocalizedDescriptionKey: @"Runtime is not ready for debugging. Make sure Packager server is running."
+      }];
+      callback(error, nil);
       return;
     }
 

@@ -81,7 +81,7 @@
   dispatch_semaphore_signal(_socketOpenSemaphore);
   dispatch_async(dispatch_get_main_queue(), ^{
     // Give the setUp method an opportunity to report an error first
-    RCTLogError(@"WebSocket connection failed with error %@", error);
+    NSLog(@"WebSocket connection failed with error %@", error);
   });
 }
 
