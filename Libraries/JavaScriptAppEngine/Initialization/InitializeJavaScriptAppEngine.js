@@ -24,13 +24,7 @@
 
 require('regenerator-runtime/runtime');
 
-var _isReactNative = require('isReactNative');
-if (_isReactNative) {
-  _isReactNative.set(true);
-} else {
-  console.warn('Failed to import module: "isReactNative"');
-  debugger;
-}
+require('isReactNative').set(true);
 
 if (typeof GLOBAL === 'undefined') {
   global.GLOBAL = this;
@@ -153,17 +147,6 @@ function setUpXHR() {
   polyfillGlobal('Response', fetchPolyfill.Response);
 }
 
-function setUpProperty() {
-  var inject = require('Property/inject');
-  inject('ReactiveVar', require('ReactiveVar'));
-  inject('LazyVar', require('LazyVar'));
-}
-
-function setUpBuilder() {
-  var inject = require('Builder/inject');
-  inject('EventMap', require('Event').Map);
-}
-
 function setUpAnimated() {
   var inject = require('Animated/inject');
   inject('InteractionManager', require('InteractionManager'));
@@ -229,8 +212,6 @@ setUpAlert();
 setUpPromise();
 setUpErrorHandler();
 setUpXHR();
-setUpProperty();
-setUpBuilder();
 setUpAnimated();
 setUpGeolocation();
 setUpMapAndSet();
