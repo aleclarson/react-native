@@ -36,35 +36,6 @@ var PRESS_RETENTION_OFFSET = {top: 20, left: 20, right: 20, bottom: 30};
 var TouchableBounce = React.createClass({
   mixins: [Touchable.Mixin, NativeMethodsMixin],
 
-  propTypes: {
-    onPress: React.PropTypes.func,
-    onPressIn: React.PropTypes.func,
-    onPressOut: React.PropTypes.func,
-    // The function passed takes a callback to start the animation which should
-    // be run after this onPress handler is done. You can use this (for example)
-    // to update UI before starting the animation.
-    onPressWithCompletion: React.PropTypes.func,
-    // the function passed is called after the animation is complete
-    onPressAnimationComplete: React.PropTypes.func,
-    /**
-     * When the scroll view is disabled, this defines how far your touch may
-     * move off of the button, before deactivating the button. Once deactivated,
-     * try moving it back and you'll see that the button is once again
-     * reactivated! Move it back and forth several times while the scroll view
-     * is disabled. Ensure you pass in a constant to reduce memory allocations.
-     */
-    pressRetentionOffset: EdgeInsetsPropType,
-    /**
-     * This defines how far your touch can start away from the button. This is
-     * added to `pressRetentionOffset` when moving off of the button.
-     * ** NOTE **
-     * The touch area never extends past the parent view bounds and the Z-index
-     * of sibling views always takes precedence if a touch hits two overlapping
-     * views.
-     */
-    hitSlop: EdgeInsetsPropType,
-  },
-
   getInitialState: function(): State {
     return {
       ...this.touchableGetInitialState(),

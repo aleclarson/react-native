@@ -23,7 +23,6 @@ var matricesDiffer = require('matricesDiffer');
 var processColor = require('processColor');
 var resolveAssetSource = require('resolveAssetSource');
 var sizesDiffer = require('sizesDiffer');
-var verifyPropTypes = require('verifyPropTypes');
 var warning = require('warning');
 
 /**
@@ -41,11 +40,10 @@ var warning = require('warning');
  * Common types are lined up with the appropriate prop differs with
  * `TypeToDifferMap`.  Non-scalar types not in the map default to `deepDiffer`.
  */
-import type { ComponentInterface } from 'verifyPropTypes';
 
 function requireNativeComponent(
   viewName: string,
-  componentInterface?: ?ComponentInterface,
+  componentInterface?: ?any,
   extraConfig?: ?{nativeOnly?: Object},
 ): Function {
   var viewConfig = UIManager[viewName];
@@ -86,13 +84,13 @@ function requireNativeComponent(
   // native side.
   viewConfig.validAttributes.style = ReactNativeStyleAttributes;
 
-  if (__DEV__) {
-    componentInterface && verifyPropTypes(
-      componentInterface,
-      viewConfig,
-      extraConfig && extraConfig.nativeOnly
-    );
-  }
+  // if (__DEV__) {
+  //   componentInterface && verifyPropTypes(
+  //     componentInterface,
+  //     viewConfig,
+  //     extraConfig && extraConfig.nativeOnly
+  //   );
+  // }
   return createReactNativeComponentClass(viewConfig);
 }
 

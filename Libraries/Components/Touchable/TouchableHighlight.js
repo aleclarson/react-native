@@ -66,29 +66,6 @@ var PRESS_RETENTION_OFFSET = {top: 20, left: 20, right: 20, bottom: 30};
  */
 
 var TouchableHighlight = React.createClass({
-  propTypes: {
-    ...TouchableWithoutFeedback.propTypes,
-    /**
-     * Determines what the opacity of the wrapped view should be when touch is
-     * active.
-     */
-    activeOpacity: React.PropTypes.number,
-    /**
-     * The color of the underlay that will show through when the touch is
-     * active.
-     */
-    underlayColor: ColorPropType,
-    style: View.propTypes.style,
-    /**
-     * Called immediately after the underlay is shown
-     */
-    onShowUnderlay: React.PropTypes.func,
-    /**
-     * Called immediately after the underlay is hidden
-     */
-    onHideUnderlay: React.PropTypes.func,
-  },
-
   mixins: [NativeMethodsMixin, TimerMixin, Touchable.Mixin],
 
   getDefaultProps: () => DEFAULT_PROPS,

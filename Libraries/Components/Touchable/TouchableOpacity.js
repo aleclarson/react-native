@@ -51,15 +51,6 @@ var PRESS_RETENTION_OFFSET = {top: 20, left: 20, right: 20, bottom: 30};
 var TouchableOpacity = React.createClass({
   mixins: [TimerMixin, Touchable.Mixin, NativeMethodsMixin],
 
-  propTypes: {
-    ...TouchableWithoutFeedback.propTypes,
-    /**
-     * Determines what the opacity of the wrapped view should be when touch is
-     * active.
-     */
-    activeOpacity: React.PropTypes.number,
-  },
-
   getDefaultProps: function() {
     return {
       activeOpacity: 0.2,
