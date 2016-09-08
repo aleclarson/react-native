@@ -134,6 +134,7 @@
     "react": "~15.3.1"
   },
   "dependencies": {
+    "Promise": "aleclarson/Promise#2.0.0",
     "absolute-path": "^0.0.0",
     "art": "^0.10.0",
     "async": "^2.0.1",
@@ -184,7 +185,6 @@
     "optimist": "^0.6.1",
     "plist": "^1.2.0",
     "progress": "^1.1.8",
-    "promise": "^7.1.1",
     "react-clone-referenced-element": "^1.0.1",
     "react-timer-mixin": "^0.13.2",
     "react-transform-hmr": "^1.0.4",
