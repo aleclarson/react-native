@@ -56,6 +56,7 @@ class Cache {
     if (!resetCache) {
       this._data = this._loadCacheSync(this._cacheFilePath);
     } else {
+      console.info(`Resetting the cache:\n${this._cacheFilePath}`);
       this._data = Object.create(null);
     }
 
