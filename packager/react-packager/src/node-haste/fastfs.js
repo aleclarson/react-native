@@ -21,17 +21,7 @@ class Fastfs extends EventEmitter {
     this._name = name;
     this._fileWatcher = fileWatcher;
     this._ignore = ignore;
-    this._roots = roots.map(root => {
-      // If the path ends in a separator ("/"), remove it to make string
-      // operations on paths safer.
-      if (root.endsWith(path.sep)) {
-        root = root.substr(0, root.length - 1);
-      }
-
-      root = path.resolve(root);
-
-      return new File(root, true);
-    });
+    this._roots = roots.map(root => this._createRoot(root));
     this._fastPaths = Object.create(null);
     this._activity = activity;
 
@@ -145,6 +135,25 @@ class Fastfs extends EventEmitter {
     return Object.keys(dirFile.children)
       .filter(name => name.match(pattern))
       .map(name => path.join(dirFile.path, name));
+  }
+
+  _addRoot(root) {
+    if (!this._getRoot(root)) {
+      this._roots.push(
+        this._createRoot(root)
+      );
+    }
+  }
+
+  _createRoot(root) {
+    // If the path ends in a separator ("/"), remove it to make string
+    // operations on paths safer.
+    if (root.endsWith(path.sep)) {
+      root = root.substr(0, root.length - 1);
+    }
+
+    root = path.resolve(root);
+    return new File(root, true);
   }
 
   _getRoot(filePath) {
