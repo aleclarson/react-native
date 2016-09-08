@@ -38,6 +38,14 @@ function watchmanRecReadDir(roots, {ignore, fileWatcher, exts}) {
             }
           }
 
+          if (dirExpr.length == 1) {
+            console.warn(
+              `Unrecognized root: ${watchedRoot}\n` +
+              `Make sure you're not importing a package with incorrect capitalization!`
+            );
+            return;
+          }
+
           const cmd = denodeify(watcher.client.command.bind(watcher.client));
           return cmd(['query', watchedRoot, {
             suffix: exts,
