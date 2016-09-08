@@ -55,6 +55,36 @@ class FileWatcher extends EventEmitter {
     });
   }
 
+  addWatcher(rootConfig) {
+    return this._loading = this._loading.then((watchers) => {
+      if (this._watcherByRoot[rootConfig.dir]) {
+        return watchers;
+      }
+      return this._createWatcher(rootConfig).then(watcher => {
+        watchers.push(watcher);
+        this._watcherByRoot[rootConfig.dir] = watcher;
+        watcher.on(
+          'all',
+          // args = (type, filePath, root, stat)
+          (...args) => this.emit('all', ...args)
+        );
+        return watchers;
+      });
+    });
+  }
+
+  removeWatcher(root) {
+    return this._loading = this._loading.then((watchers) => {
+      const watcher = this._watcherByRoot[root];
+      if (watcher) {
+        watcher.close();
+        watchers.splice(watchers.indexOf(watcher), 1);
+        delete this._watcherByRoot[root];
+      }
+      return watchers;
+    });
+  }
+
   getWatchers() {
     return this._loading;
   }
