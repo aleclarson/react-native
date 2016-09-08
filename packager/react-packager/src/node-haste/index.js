@@ -16,11 +16,13 @@ const ModuleCache = require('./ModuleCache');
 const Polyfill = require('./Polyfill');
 const crawl = require('./crawlers');
 const extractRequires = require('./lib/extractRequires');
+const fs = require('fs');
 const getAssetDataFromName = require('./lib/getAssetDataFromName');
 const getInverseDependencies = require('./lib/getInverseDependencies');
 const getPlatformExtension = require('./lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
 const replacePatterns = require('./lib/replacePatterns');
+const resolveSymlinks = require('./lib/resolveSymlinks');
 const path = require('./fastpath');
 const util = require('util');
 const DependencyGraphHelpers = require('./DependencyGraph/DependencyGraphHelpers');
@@ -98,8 +100,27 @@ class DependencyGraph {
       ignore: this._opts.ignoreFilePath,
       exts: this._opts.extensions.concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
+    }).then((files) => {
+      activity.endEvent(crawlActivity);
+      const symlinkActivity = activity.startEvent('Resolving Symlink Dependencies');
+      const symlinks = this._resolveSymlinks(this._opts.roots, this._opts.extensions);
+
+      // Since symlinks could point to a package
+      // that exists outside of any project roots,
+      // we must let Fastfs know everything's cool.
+      symlinks.forEach((symlink) =>
+        this._fastfs._addRoot(symlink));
+
+      return crawl(symlinks, {
+        ignore: this._opts.ignoreFilePath,
+        exts: this._opts.extensions,
+        fileWatcher: this._opts.fileWatcher,
+      })
+      .then((symlinks) => {
+        activity.endEvent(symlinkActivity);
+        return files.concat(symlinks);
+      });
     });
-    this._crawling.then((files) => activity.endEvent(crawlActivity));
 
     this._fastfs = new Fastfs(
       'JavaScript',
@@ -299,6 +320,30 @@ class DependencyGraph {
       return this._loading;
     };
     this._loading = this._loading.then(resolve, resolve);
+  }
+
+  _resolveSymlinks(roots, exts) {
+    const {fileWatcher} = this._opts;
+    const globs = exts.map((ext) => '**/*.' + ext);
+
+    const symlinks = new Set();
+    const gatherSymlinks = (root) => {
+      const rootDeps = path.join(root, 'node_modules');
+      if (!fs.existsSync(rootDeps)) {
+        return;
+      }
+      resolveSymlinks(rootDeps).forEach((dir) => {
+        if (symlinks.has(dir)) {
+          return;
+        }
+        symlinks.add(dir);
+        fileWatcher.addWatcher({dir, globs});
+        gatherSymlinks(dir);
+      });
+    };
+
+    roots.forEach(gatherSymlinks);
+    return Array.from(symlinks);
   }
 
   createPolyfill(options) {
