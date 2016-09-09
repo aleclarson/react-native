@@ -14,8 +14,6 @@ const FileWatcher = require('../node-haste').FileWatcher;
 const getPlatformExtension = require('../node-haste').getPlatformExtension;
 const Bundler = require('../Bundler');
 const MultipartResponse = require('./MultipartResponse');
-const ProgressBar = require('progress');
-const Promise = require('promise');
 const SourceMapConsumer = require('source-map').SourceMapConsumer;
 
 const declareOpts = require('../lib/declareOpts');

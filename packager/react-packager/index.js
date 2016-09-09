@@ -10,6 +10,8 @@
 
 require('../babelRegisterOnly')([/react-packager\/src/]);
 
+global.Promise = require('promise');
+
 var debug = require('debug');
 var Activity = require('./src/Activity');
 
