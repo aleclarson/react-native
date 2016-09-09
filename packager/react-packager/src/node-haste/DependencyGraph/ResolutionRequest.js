@@ -84,10 +84,9 @@ class ResolutionRequest {
         throw error;
       }
 
-      debug(
-        'Unable to resolve module %s from %s',
-        toModuleName,
-        fromModule.path
+      console.log(
+        `Failed to resolve module:\n` +
+        `  '${toModuleName}' from '${fromModule.path}'`
       );
       return null;
     };
