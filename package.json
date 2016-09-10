@@ -128,9 +128,6 @@
   "bin": {
     "react-native": "local-cli/wrong-react-native.js"
   },
-  "peerDependencies": {
-    "react": "~15.3.1"
-  },
   "dependencies": {
     "Promise": "aleclarson/Promise#2.0.0",
     "absolute-path": "^0.0.0",
