@@ -148,7 +148,7 @@ function getCliConfig() {
     cwd = process.cwd();
     configPath = cliArgs.config;
   } else {
-    cwd = __dirname;
+    cwd = /node_modules/.test(__dirname) ? __dirname : process.cwd();
     configPath = Config.findConfigPath(cwd);
   }
 
