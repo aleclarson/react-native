@@ -204,7 +204,10 @@ class ResolutionRequest {
         collectionsInProgress.start(module);
         const result = resolveDependencies(module)
           .then(result => addMockDependencies(module, result))
-          .then(result => crawlDependencies(module, result));
+          .then(result => crawlDependencies(module, result))
+          .timeout(5000, function() {
+            console.warn('\nTimed out while collecting dependencies of:\n  ' + module.path);
+          });
         const end = () => collectionsInProgress.end(module);
         result.then(end, end);
         return result;
