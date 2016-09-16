@@ -51,5 +51,8 @@ node_modules
 # OS X
 .DS_Store
 
+# Babel
+/packager/react-packager/js/
+
 # Test generated files
 /ReactAndroid/src/androidTest/assets/AndroidTestBundle.js

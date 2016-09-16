@@ -16,7 +16,7 @@ const transformer = require('../packager/transformer.js');
 
 const nodeFiles = RegExp([
   '/local-cli/',
-  '/packager/(?!react-packager/src/Resolver/polyfills/)',
+  '/packager/(?!react-packager/js/Resolver/polyfills/)',
 ].join('|'));
 const nodeOptions = babelRegisterOnly.config([nodeFiles]);
 

@@ -9,7 +9,7 @@
 
 const log = require('../util/log').out('bundle');
 const Promise = require('promise');
-const Server = require('../../packager/react-packager/src/Server');
+const Server = require('../../packager/react-packager/js/Server');
 
 const outputBundle = require('./output/bundle');
 const path = require('path');
