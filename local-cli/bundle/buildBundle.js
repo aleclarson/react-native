@@ -12,7 +12,7 @@ const outputBundle = require('./output/bundle');
 const path = require('path');
 const Promise = require('promise');
 const saveAssets = require('./saveAssets');
-const Server = require('../../packager/react-packager/src/Server');
+const Server = require('../../packager/react-packager/js/Server');
 const defaultAssetExts = require('../../packager/defaultAssetExts');
 
 function saveBundle(output, bundle, args) {

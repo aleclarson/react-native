@@ -8,15 +8,13 @@
  */
 'use strict';
 
-require('../babelRegisterOnly')([/react-packager\/src/]);
-
-require('./src/node-haste/fastpath').replace();
+require('./js/node-haste/fastpath').replace();
 useGracefulFs();
 
 global.Promise = require('promise');
 
 var debug = require('debug');
-var Activity = require('./src/Activity');
+var Activity = require('./js/Activity');
 
 exports.createServer = createServer;
 exports.middleware = function(options) {
@@ -102,7 +100,7 @@ function createServer(options) {
     enableDebug();
   }
 
-  var Server = require('./src/Server');
+  var Server = require('./js/Server');
   return new Server(omit(options, ['verbose']));
 }
 
