@@ -1,6 +1,6 @@
 {
   "version": "0.4.0",
-  "name": "react-native-packager",
+  "name": "react-packager",
   "description": "Build native apps with React!",
   "repository": {
     "type": "git",
@@ -9,6 +9,10 @@
   "engines": {
     "node": ">=4"
   },
+  "dest": "js",
+  "plugins": [
+    "lotus-babel"
+  ],
   "jest": {
     "setupEnvScriptFile": "jestSupport/env.js",
     "testPathIgnorePatterns": [
@@ -27,6 +31,11 @@
     "start": "./packager.sh"
   },
   "dependencies": {
+    "babel-plugin-external-helpers": "^6.8.0",
+    "babel-plugin-syntax-trailing-function-commas": "^6.5.0",
+    "babel-plugin-transform-flow-strip-types": "^6.6.5",
+    "babel-plugin-transform-object-rest-spread": "^6.6.5",
+    "babel-preset-es2015-node": "^6.1.0",
     "wordwrap": "^1.0.0"
   },
   "devDependencies": {
