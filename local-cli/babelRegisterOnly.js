@@ -15,7 +15,10 @@ Object.values || require('core-js/fn/object/values');
 var _only = [];
 
 function registerOnly(onlyList) {
+  var timeStart = Date.now();
   require('babel-register')(config(onlyList));
+  var timeEnd = Date.now();
+  console.log('Loaded babel in ' + (timeEnd - timeStart) + 'ms!');
 }
 
 function config(onlyList) {
