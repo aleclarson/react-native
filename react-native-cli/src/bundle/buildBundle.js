@@ -9,12 +9,12 @@
 
 const log = require('../util/log').out('bundle');
 const Promise = require('promise');
-const Server = require('../../packager/react-packager/js/Server');
+const Server = require('../../../packager/react-packager/js/Server');
 
 const outputBundle = require('./output/bundle');
 const path = require('path');
 const saveAssets = require('./saveAssets');
-const defaultAssetExts = require('../../packager/defaults').assetExts;
+const defaultAssetExts = require('../../../packager/defaults').assetExts;
 
 function saveBundle(output, bundle, args) {
   return Promise.resolve(

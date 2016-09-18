@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const ReactPackager = require('../../packager/react-packager');
+const ReactPackager = require('../../../packager/react-packager');
 
 const attachHMRServer = require('./util/attachHMRServer');
 const connect = require('connect');
@@ -26,7 +26,7 @@ const path = require('path');
 const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
 const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
 const webSocketProxy = require('./util/webSocketProxy.js');
-const defaultAssetExts = require('../../packager/defaults').assetExts;
+const defaultAssetExts = require('../../../packager/defaults').assetExts;
 
 function runServer(args, config, readyCallback) {
   var wsProxy = null;

@@ -8,7 +8,7 @@
  */
  'use strict';
 
-var blacklist = require('../packager/blacklist');
+var blacklist = require('../../packager/blacklist');
 var path = require('path');
 var rnpmConfig = require('./core/config');
 
@@ -58,7 +58,7 @@ var config = {
    * with the --transformer commandline argument.
    */
   getTransformModulePath() {
-    return require.resolve('../packager/transformer');
+    return require.resolve('../../packager/transformer');
   },
 };
 

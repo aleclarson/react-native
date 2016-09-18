@@ -10,7 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const Promise = require('promise');
-const ReactPackager = require('../../packager/react-packager');
+const ReactPackager = require('../../../packager/react-packager');
 
 function dependencies(argv, config, args, packagerInstance) {
   const rootModuleAbsolutePath = args.entryFile;
