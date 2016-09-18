@@ -1,3 +1,5 @@
+
+const fs = require('fs');
 const path = require('path');
 const union = require('lodash').union;
 const uniq = require('lodash').uniq;
@@ -12,11 +14,9 @@ const isRNPMPlugin = (dependency) => dependency.indexOf('rnpm-plugin-') === 0;
 const isReactNativePlugin = (dependency) => dependency.indexOf('react-native-') === 0;
 
 const readPackage = (folder) => {
-  try {
-    return require(path.join(folder, 'package.json'));
-  } catch (e) {
-    return null;
-  }
+  const jsonPath = path.join(folder, 'package.json');
+  const json = fs.readFileSync(jsonPath, 'utf8');
+  return JSON.parse(json);
 };
 
 const findPluginsInReactNativePackage = (pjson) => {
