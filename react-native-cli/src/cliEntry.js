@@ -154,7 +154,7 @@ function run() {
     ? 'setup_env.bat'
     : 'setup_env.sh';
 
-  childProcess.execFileSync(path.join(__dirname, setupEnvScript));
+  childProcess.execFileSync(path.resolve(__dirname, '..', setupEnvScript));
 
   const config = getCliConfig();
   commands.forEach(cmd => addCommand(cmd, config));
