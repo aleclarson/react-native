@@ -4,6 +4,22 @@
   "license": "BSD-3-Clause",
   "description": "The React Native CLI tools",
   "main": "index.js",
+  "dest": "js",
+  "plugins": [
+    "lotus-babel"
+  ],
+  "babel": {
+    "retainLines": true,
+    "sourceMaps": "inline",
+    "presets": [
+      "es2015-node"
+    ],
+    "plugins": [
+      "transform-flow-strip-types",
+      "syntax-trailing-function-commas",
+      "transform-object-rest-spread"
+    ]
+  },
   "engines": {
     "node": ">=4"
   },

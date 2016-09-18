@@ -13,6 +13,18 @@
   "plugins": [
     "lotus-babel"
   ],
+  "babel": {
+    "retainLines": true,
+    "sourceMaps": "inline",
+    "presets": [
+      "es2015-node"
+    ],
+    "plugins": [
+      "transform-flow-strip-types",
+      "syntax-trailing-function-commas",
+      "transform-object-rest-spread"
+    ]
+  },
   "jest": {
     "setupEnvScriptFile": "jestSupport/env.js",
     "testPathIgnorePatterns": [
