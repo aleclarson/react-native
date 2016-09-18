@@ -8,4 +8,4 @@
 # of patent rights can be found in the PATENTS file in the same directory.
 
 THIS_DIR=$(dirname "$0")
-node "$THIS_DIR/../local-cli/cli.js" start "$@"
+node "$THIS_DIR/../cli.js" start "$@"
