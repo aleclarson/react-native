@@ -19,13 +19,13 @@ const messageSocket = require('./util/messageSocket.js');
 const openStackFrameInEditorMiddleware = require('./middleware/openStackFrameInEditorMiddleware');
 const copyToClipBoardMiddleware = require('./middleware/copyToClipBoardMiddleware');
 const path = require('path');
-const ReactPackager = require('../../packager/react-packager');
+const ReactPackager = require('../../../packager/react-packager');
 const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
 const indexPageMiddleware = require('./middleware/indexPage');
 const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
 const heapCaptureMiddleware = require('./middleware/heapCaptureMiddleware.js');
 const webSocketProxy = require('./util/webSocketProxy.js');
-const defaultAssetExts = require('../../packager/defaultAssetExts');
+const defaultAssetExts = require('../../../packager/defaultAssetExts');
 
 function runServer(args, config, readyCallback) {
   var wsProxy = null;

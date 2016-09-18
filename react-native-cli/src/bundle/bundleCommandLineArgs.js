@@ -19,7 +19,7 @@ module.exports = [
   }, {
     command: '--transformer [string]',
     description: 'Specify a custom transformer to be used (absolute path)',
-    default: require.resolve('../../packager/transformer'),
+    default: require.resolve('../../../packager/transformer'),
   }, {
     command: '--dev [boolean]',
     description: 'If false, warnings are disabled and the bundle is minified',
