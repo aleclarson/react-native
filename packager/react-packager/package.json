@@ -2,13 +2,6 @@
   "version": "0.4.0",
   "name": "react-packager",
   "description": "Build native apps with React!",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:facebook/react-native.git"
-  },
-  "engines": {
-    "node": ">=4"
-  },
   "dest": "js",
   "plugins": [
     "lotus-babel"
@@ -37,6 +30,9 @@
       "source-map"
     ]
   },
+  "engines": {
+    "node": ">=4"
+  },
   "scripts": {
     "test": "jest",
     "lint": "node linter.js Examples/",
@@ -53,5 +49,9 @@
   "devDependencies": {
     "jest-cli": "git://github.com/facebook/jest#0.5.x",
     "eslint": "0.9.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:facebook/react-native.git"
   }
 }
