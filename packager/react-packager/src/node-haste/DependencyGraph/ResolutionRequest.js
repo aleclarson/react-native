@@ -506,7 +506,7 @@ function UnableToResolveError(fromModule, toModule, message) {
   Error.call(this);
   Error.captureStackTrace(this, this.constructor);
   this.message = util.format(
-    'Unable to resolve module %s from %s: %s',
+    `Unable to resolve module '%s' from '%s': %s`,
     toModule,
     fromModule.path,
     message,
