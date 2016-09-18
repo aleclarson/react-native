@@ -9,16 +9,17 @@
 'use strict';
 
 const babel = require('babel-core');
-const babelRegisterOnly = require('../packager/babelRegisterOnly');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 const path = require('path');
 const transformer = require('../packager/transformer.js');
 
-const nodeFiles = RegExp([
-  '/local-cli/',
-  '/packager/(?!react-packager/src/Resolver/polyfills/)',
-].join('|'));
-const nodeOptions = babelRegisterOnly.config([nodeFiles]);
+const nodeOptions = require('../react-native-cli/package.json').babel;
+nodeOptions.only = [
+  '/react-native-cli/',
+  '/packager/(?!react-packager/src/Resolver/polyfills/)'
+];
+
+const nodeFiles = RegExp(nodeOptions.only.join('|'));
 
 module.exports = {
   process(src, file) {
