@@ -110,7 +110,6 @@
     "lib",
     "packager",
     "cli.js",
-    "local-cli",
     "init.sh",
     "LICENSE",
     "PATENTS",

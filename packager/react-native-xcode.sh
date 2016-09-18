@@ -82,7 +82,7 @@ fi
 
 BUNDLE_FILE="$DEST/main.jsbundle"
 
-$NODE_BINARY "$REACT_NATIVE_DIR/local-cli/cli.js" bundle \
+$NODE_BINARY "$REACT_NATIVE_DIR/cli.js" bundle \
   --entry-file "$ENTRY_FILE" \
   --platform ios \
   --dev $DEV \

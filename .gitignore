@@ -51,6 +51,7 @@ node_modules
 .DS_Store
 
 # Babel
+/react-native-cli/js/
 /packager/react-packager/js/
 
 # Test generated files

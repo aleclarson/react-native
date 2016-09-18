@@ -8,4 +8,4 @@
  */
 'use strict';
 
-module.exports = require('./local-cli/cli.js');
+module.exports = require('./react-native-cli/js/cli.js');

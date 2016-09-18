@@ -7,6 +7,6 @@
 
 @echo off
 title React Packager
-node "%~dp0..\local-cli\cli.js" start
+node "%~dp0..\cli.js" start
 pause
 exit

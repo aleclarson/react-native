@@ -12,7 +12,7 @@ jest
   .unmock('AssetRegistry')
   .unmock('AssetSourceResolver')
   .unmock('../resolveAssetSource')
-  .unmock('../../../local-cli/bundle/assetPathUtils');
+  .unmock('../../../react-native-cli/js/bundle/assetPathUtils');
 
 var AssetRegistry = require('AssetRegistry');
 var Platform = require('Platform');
