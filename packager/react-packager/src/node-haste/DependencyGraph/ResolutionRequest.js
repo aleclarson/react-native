@@ -124,9 +124,17 @@ class ResolutionRequest {
       const resolveDependencies = module =>
         module.getDependencies(transformOptions)
           .then(dependencyNames =>
-            Promise.all(
-              dependencyNames.map(name => this.resolveDependency(module, name))
-            ).then(dependencies => [dependencyNames, dependencies])
+            Promise.all(dependencyNames, (name) => {
+              const resolving = this.resolveDependency(module, name);
+              resolving.timeout(10000, () => {
+                console.warn(
+                  `Module resolution took longer than 10 seconds:\n` +
+                  `  name = ${name}\n` +
+                  `  module.path = ${module.path}\n`
+                );
+              });
+              return resolving;
+            }).then(dependencies => [dependencyNames, dependencies])
           );
 
       const addMockDependencies = !allMocks
@@ -203,10 +211,7 @@ class ResolutionRequest {
         collectionsInProgress.start(module);
         const result = resolveDependencies(module)
           .then(result => addMockDependencies(module, result))
-          .then(result => crawlDependencies(module, result))
-          .timeout(5000, function() {
-            console.warn('\nTimed out while collecting dependencies of:\n  ' + module.path);
-          });
+          .then(result => crawlDependencies(module, result));
         const end = () => collectionsInProgress.end(module);
         result.then(end, end);
         return result;
