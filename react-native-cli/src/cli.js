@@ -15,11 +15,6 @@ require('graceful-fs').gracefulify(require('fs'));
 // it is not supported. This is why the rest of the cli code is in `cliEntry.js`.
 require('./server/checkNodeVersion')();
 
-require('./babelRegisterOnly')([
-  /private-cli\/src/,
-  /local-cli/,
-]);
-
 var cliEntry = require('./cliEntry');
 
 if (require.main === module) {
