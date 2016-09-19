@@ -60,7 +60,7 @@ function launchDevTools(options, isChromeConnected) {
 module.exports = function(options, isChromeConnected) {
   return function(req, res, next) {
     if (req.url === '/debugger-ui') {
-      var debuggerPath = path.join(__dirname, '..', 'util', 'debugger.html');
+      var debuggerPath = path.join(__dirname, '..', '..', '..', 'debugger.html');
       res.writeHead(200, {'Content-Type': 'text/html'});
       fs.createReadStream(debuggerPath).pipe(res);
     } else if (req.url === '/debuggerWorker.js') {
