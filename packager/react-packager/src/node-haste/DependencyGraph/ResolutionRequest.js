@@ -75,17 +75,14 @@ class ResolutionRequest {
     };
 
     const forgive = (error) => {
-      console.warn(
-        `Failed to resolve module:\n` +
-        `  '${toModuleName}' from '${fromModule.path}'`
-      );
-      if (
-        error.type !== 'UnableToResolveError' ||
-        this._shouldThrowOnUnresolvedErrors(this._entryPath, this._platform)
-      ) {
-        throw error;
+      if (error.type === 'UnableToResolveError') {
+        console.warn(error.stack);
+        if (this._shouldThrowOnUnresolvedErrors(this._entryPath, this._platform)) {
+          throw error;
+        }
+        return null;
       }
-      return null;
+      throw error;
     };
 
     if (!this._helpers.isNodeModulesDir(fromModule.path)
