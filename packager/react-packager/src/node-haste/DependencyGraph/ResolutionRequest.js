@@ -537,7 +537,7 @@ function resolveKeyWithPromise([key, promise]) {
 }
 
 function isRelativeImport(path) {
-  return /^[.][.]?[/]/.test(path);
+  return /^[.][.]?(?:[/]|$)/.test(path);
 }
 
 module.exports = ResolutionRequest;
