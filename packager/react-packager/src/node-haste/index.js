@@ -33,6 +33,8 @@ const util = require('util');
 
 const ERROR_BUILDING_DEP_GRAPH = 'DependencyGraphError';
 
+const noop = () => {};
+
 const defaultActivity = {
   startEvent: () => {},
   endEvent: () => {},
@@ -92,7 +94,8 @@ class DependencyGraph {
     this._cache = cache;
     this._assetDependencies = assetDependencies;
     this._helpers = new DependencyGraphHelpers(this._opts);
-    this.load();
+
+    this.load().catch(noop);
   }
 
   load() {
