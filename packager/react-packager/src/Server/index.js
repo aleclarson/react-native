@@ -20,6 +20,7 @@ const defaultAssetExts = require('../../../defaultAssetExts');
 const mime = require('mime-types');
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
 
 const debug = require('debug')('ReactNativePackager:Server');
 
@@ -185,14 +186,24 @@ class Server {
   constructor(options) {
     const opts = validateOpts(options);
 
-    this._projectRoots = opts.projectRoots;
+    this._projectRoots = opts.projectRoots.map(potentialRoot => {
+      let root = potentialRoot;
+      if (fs.existsSync(root)) {
+        root = fs.realpathSync(root);
+        if (fs.statSync(root).isDirectory()) {
+          return root;
+        }
+      }
+      throw Error(`Root must be an existing directory:\n  '${potentialRoot}'`);
+    });
+
     this._bundles = Object.create(null);
     this._changeWatchers = [];
     this._fileChangeListeners = [];
 
     const assetGlobs = opts.assetExts.map(ext => '**/*.' + ext);
 
-    let watchRootConfigs = opts.projectRoots.map(dir => {
+    let watchRootConfigs = this._projectRoots.map(dir => {
       return {
         dir: dir,
         globs: [
@@ -218,11 +229,12 @@ class Server {
       : new FileWatcher(watchRootConfigs, {useWatchman: true});
 
     this._assetServer = new AssetServer({
-      projectRoots: opts.projectRoots,
+      projectRoots: this._projectRoots,
       assetExts: opts.assetExts,
     });
 
     const bundlerOpts = Object.create(opts);
+    bundlerOpts.projectRoots = this._projectRoots;
     bundlerOpts.fileWatcher = this._fileWatcher;
     bundlerOpts.assetServer = this._assetServer;
     bundlerOpts.allowBundleUpdates = !options.nonPersistent;
