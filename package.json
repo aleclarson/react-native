@@ -190,6 +190,7 @@
     "react-transform-hmr": "^1.0.4",
     "rebound": "^0.0.13",
     "regenerator-runtime": "^0.9.5",
+    "resolve-symlink": "aleclarson/resolve-symlink#1.0.0",
     "sane": "~1.4.1",
     "semver": "^5.0.3",
     "source-map": "^0.4.4",
