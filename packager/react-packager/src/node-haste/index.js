@@ -116,28 +116,18 @@ class DependencyGraph {
       exts: this._opts.extensions.concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
     }).then((files) => {
-      activity.endEvent(crawlActivity);
-      const linkActivity = activity.startEvent(
-        'Resolving Symlink Dependencies',
-        null,
-        {
-          telemetric: true,
-        },
-      );
-      const linkedRoots = this._resolveSymlinks(this._opts.roots, this._opts.extensions);
-
-      // In case a linked root exists outside our project roots...
-      linkedRoots.forEach(root => this._fastfs._addRoot(root));
-
-      return crawl(linkedRoots, {
-        ignore: this._opts.ignoreFilePath,
-        exts: this._opts.extensions,
-        fileWatcher: this._opts.fileWatcher,
-      })
-      .then(linkedFiles => {
-        activity.endEvent(linkActivity);
-        return files.concat(linkedFiles);
+      const globs = this._opts.extensions.map(ext => '**/*.' + ext);
+      const linkedRoots = this._resolveSymlinks(this._opts.roots).filter(root => {
+        if (fs.statSync(root).isDirectory() && !this._opts.ignoreFilePath(root)) {
+          this._opts.fileWatcher.addWatcher({dir: root, globs});
+          return this._fastfs.addRoot(root);
+        }
+        return false;
       });
+      console.log(`Watching ${linkedRoots.length} linked dependencies...`);
+
+      activity.endEvent(crawlActivity);
+      return files;
     });
 
     this._fastfs = new Fastfs(
@@ -346,32 +336,25 @@ class DependencyGraph {
     this._loading = this._loading.then(resolve, resolve);
   }
 
-  _resolveSymlinks(roots, exts) {
-    const {fileWatcher} = this._opts;
-    const globs = exts.map(ext => '**/*.' + ext);
-
-    const linkedPaths = new Set();
-    const gatherLinks = (root) => {
+  _resolveSymlinks(roots) {
+    const resolvedPaths = new Set();
+    roots.forEach(function gatherLinks(root) {
       const rootDeps = path.join(root, 'node_modules');
       if (!fs.existsSync(rootDeps)) {
         return;
       }
       fs.readdirSync(rootDeps).forEach(child => {
         const linkPath = path.join(rootDeps, child);
-        if (!fs.lstatSync(linkPath).isSymbolicLink()) {
-          return;
-        }
-        const linkedPath = resolveSymlink(linkPath);
-        if (fs.statSync(linkedPath).isDirectory() && !linkedPaths.has(linkedPath)) {
-          linkedPaths.add(linkedPath);
-          fileWatcher.addWatcher({dir: linkedPath, globs});
-          gatherLinks(linkedPath);
+        if (fs.lstatSync(linkPath).isSymbolicLink()) {
+          const resolvedPath = resolveSymlink(linkPath);
+          if (!resolvedPaths.has(resolvedPath)) {
+            resolvedPaths.add(resolvedPath);
+            gatherLinks(resolvedPath);
+          }
         }
       });
-    };
-
-    roots.forEach(gatherLinks);
-    return Array.from(linkedPaths);
+    });
+    return Array.from(resolvedPaths);
   }
 
   createPolyfill(options) {
