@@ -199,9 +199,15 @@ class Fastfs extends EventEmitter {
   _getFile(filePath) {
     filePath = path.resolve(filePath);
     if (!this._fastPaths[filePath]) {
-      const file = this._getAndAssertRoot(filePath).getFileFromPath(filePath);
+      const root = this._getAndAssertRoot(filePath);
+      const file = root.getFileFromPath(filePath);
       if (file) {
         this._fastPaths[filePath] = file;
+      } else if (fs.existsSync(filePath)) {
+        root.addChild(
+          new File(filePath, fs.statSync(filePath).isDirectory()),
+          this._fastPaths
+        );
       }
     }
 
