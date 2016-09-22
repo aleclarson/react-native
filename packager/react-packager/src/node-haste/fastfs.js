@@ -25,10 +25,12 @@ class Fastfs extends EventEmitter {
     this._name = name;
     this._fileWatcher = fileWatcher;
     this._ignore = ignore;
-    this._roots = roots.map(root => this._createRoot(root));
     this._fastPaths = Object.create(null);
     this._crawling = crawling;
     this._activity = activity;
+
+    this._roots = [];
+    roots.forEach(root => this.addRoot(root));
   }
 
   build() {
@@ -155,23 +157,24 @@ class Fastfs extends EventEmitter {
       .map(name => path.join(dirFile.path, name));
   }
 
-  _addRoot(root) {
-    if (!this._getRoot(root)) {
-      this._roots.push(
-        this._createRoot(root)
-      );
-    }
-  }
-
-  _createRoot(root) {
+  addRoot(dir) {
     // If the path ends in a separator ("/"), remove it to make string
     // operations on paths safer.
-    if (root.endsWith(path.sep)) {
-      root = root.substr(0, root.length - 1);
+    if (dir.endsWith(path.sep)) {
+      dir = dir.substr(0, dir.length - 1);
     }
 
-    root = path.resolve(root);
-    return new File(root, true);
+    dir = path.resolve(dir);
+    let root = this._getRoot(dir);
+    if (root) {
+      return root;
+    }
+
+    // Create a new root.
+    root = new File(dir, true);
+    this._roots.push(root);
+    this._fastPaths[dir] = root;
+    return root;
   }
 
   _getRoot(filePath) {
