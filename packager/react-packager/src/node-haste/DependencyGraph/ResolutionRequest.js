@@ -11,10 +11,12 @@
 const AsyncTaskGroup = require('../lib/AsyncTaskGroup');
 const MapWithDefaults = require('../lib/MapWithDefaults');
 const debug = require('debug')('ReactNativePackager:DependencyGraph');
+const fs = require('fs');
 const util = require('util');
 const path = require('../fastpath');
 const realPath = require('path');
 const isAbsolutePath = require('absolute-path');
+const resolveSymlink = require('resolve-symlink');
 const getAssetDataFromName = require('../lib/getAssetDataFromName');
 
 const emptyModule = require.resolve('./assets/empty-module.js');
@@ -357,6 +359,9 @@ class ResolutionRequest {
             return this._resolveFileOrDir(fromModule, absPath);
           }
 
+          const packageName = realModuleName.split(path.sep).shift();
+          const packageBits = realModuleName.slice(packageName.length);
+
           const searchQueue = [];
           for (let currDir = path.dirname(fromModule.path);
                currDir !== realPath.parse(fromModule.path).root;
@@ -367,18 +372,23 @@ class ResolutionRequest {
             }
           }
 
-          if (this._extraNodeModules) {
-            const bits = toModuleName.split('/');
-            const packageName = bits[0];
-            if (this._extraNodeModules[packageName]) {
-              bits[0] = this._extraNodeModules[packageName];
-              searchQueue.push(path.join.apply(path, bits));
-            }
+          if (this._extraNodeModules &&
+              this._extraNodeModules[packageName]) {
+            searchQueue.push(
+              path.join(this._extraNodeModules[packageName], packageBits)
+            );
           }
 
           let p = Promise.reject(new UnableToResolveError(fromModule, toModuleName));
           searchQueue.forEach(searchPath => {
-            const potentialModulePath = path.join(searchPath, realModuleName);
+            const packagePath = path.join(searchPath, packageName);
+            if (!fs.existsSync(packagePath)) {
+              return;
+            }
+            const potentialModulePath = path.join(
+              resolveSymlink(packagePath),
+              packageBits
+            );
             p = this._tryResolve(
               () => this._tryResolve(
                 () => p,
