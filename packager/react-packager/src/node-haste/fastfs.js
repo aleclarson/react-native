@@ -52,7 +52,6 @@ class Fastfs extends EventEmitter {
           const newFile = new File(filePath, false);
           const dirname = filePath.substr(0, filePath.lastIndexOf(path.sep));
           const parent = this._fastPaths[dirname];
-          this._fastPaths[filePath] = newFile;
           if (parent) {
             parent.addChild(newFile, this._fastPaths);
           } else {
@@ -275,6 +274,7 @@ class File {
     if (parts.length === 1) {
       this.children[parts[0]] = file;
       file.parent = this;
+      fileMap[file.path] = file;
     } else if (this.children[parts[0]]) {
       this.children[parts[0]].addChild(file, fileMap);
     } else {
