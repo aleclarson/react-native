@@ -16,10 +16,12 @@ const ModuleCache = require('./ModuleCache');
 const Polyfill = require('./Polyfill');
 const crawl = require('./crawlers');
 const extractRequires = require('./lib/extractRequires');
+const fs = require('fs');
 const getAssetDataFromName = require('./lib/getAssetDataFromName');
 const getInverseDependencies = require('./lib/getInverseDependencies');
 const getPlatformExtension = require('./lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
+const resolveSymlink = require('resolve-symlink');
 const replacePatterns = require('./lib/replacePatterns');
 const path = require('./fastpath');
 const util = require('util');
@@ -113,8 +115,30 @@ class DependencyGraph {
       ignore: this._opts.ignoreFilePath,
       exts: this._opts.extensions.concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
+    }).then((files) => {
+      activity.endEvent(crawlActivity);
+      const linkActivity = activity.startEvent(
+        'Resolving Symlink Dependencies',
+        null,
+        {
+          telemetric: true,
+        },
+      );
+      const linkedRoots = this._resolveSymlinks(this._opts.roots, this._opts.extensions);
+
+      // In case a linked root exists outside our project roots...
+      linkedRoots.forEach(root => this._fastfs._addRoot(root));
+
+      return crawl(linkedRoots, {
+        ignore: this._opts.ignoreFilePath,
+        exts: this._opts.extensions,
+        fileWatcher: this._opts.fileWatcher,
+      })
+      .then(linkedFiles => {
+        activity.endEvent(linkActivity);
+        return files.concat(linkedFiles);
+      });
     });
-    this._crawling.then((files) => activity.endEvent(crawlActivity));
 
     this._fastfs = new Fastfs(
       'JavaScript',
@@ -320,6 +344,34 @@ class DependencyGraph {
       return this._loading;
     };
     this._loading = this._loading.then(resolve, resolve);
+  }
+
+  _resolveSymlinks(roots, exts) {
+    const {fileWatcher} = this._opts;
+    const globs = exts.map(ext => '**/*.' + ext);
+
+    const linkedPaths = new Set();
+    const gatherLinks = (root) => {
+      const rootDeps = path.join(root, 'node_modules');
+      if (!fs.existsSync(rootDeps)) {
+        return;
+      }
+      fs.readdirSync(rootDeps).forEach(child => {
+        const linkPath = path.join(rootDeps, child);
+        if (!fs.lstatSync(linkPath).isSymbolicLink()) {
+          return;
+        }
+        const linkedPath = resolveSymlink(linkPath);
+        if (fs.statSync(linkedPath).isDirectory() && !linkedPaths.has(linkedPath)) {
+          linkedPaths.add(linkedPath);
+          fileWatcher.addWatcher({dir: linkedPath, globs});
+          gatherLinks(linkedPath);
+        }
+      });
+    };
+
+    roots.forEach(gatherLinks);
+    return Array.from(linkedPaths);
   }
 
   createPolyfill(options) {
