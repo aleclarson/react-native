@@ -8,9 +8,6 @@
  */
 'use strict';
 
-const Promise = require('promise');
-
-const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const Cache = require('../node-haste').Cache;
@@ -101,8 +98,6 @@ class Bundler {
 
   constructor(options) {
     const opts = this._opts = validateOpts(options);
-
-    opts.projectRoots.forEach(verifyRootExists);
 
     let mtime;
     try {
@@ -741,11 +736,6 @@ function getPathRelativeToRoot(roots, absPath) {
   throw new Error(
     'Expected root module to be relative to one of the project roots'
   );
-}
-
-function verifyRootExists(root) {
-  // Verify that the root exists.
-  assert(fs.statSync(root).isDirectory(), 'Root has to be a valid directory');
 }
 
 function createModuleIdFactory() {
