@@ -22,10 +22,12 @@ const ResolutionRequest = require('./DependencyGraph/ResolutionRequest');
 const ResolutionResponse = require('./DependencyGraph/ResolutionResponse');
 
 const extractRequires = require('./lib/extractRequires');
+const fs = require('fs');
 const getAssetDataFromName = require('./lib/getAssetDataFromName');
 const getInverseDependencies = require('./lib/getInverseDependencies');
 const getPlatformExtension = require('./lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
+const resolveSymlink = require('resolve-symlink');
 const os = require('os');
 const path = require('path');
 const replacePatterns = require('./lib/replacePatterns');
@@ -103,9 +105,12 @@ class DependencyGraph {
       return this._loading;
     }
 
+    const roots = this._opts.roots;
+    const extensions = this._opts.extensions.concat(this._opts.assetExts);
+
     const mw = this._opts.maxWorkers;
-    const haste = new JestHasteMap({
-      extensions: this._opts.extensions.concat(this._opts.assetExts),
+    const hasteOpts = {
+      extensions,
       ignorePattern: {test: this._opts.ignoreFilePath},
       maxWorkers: typeof mw === 'number' && mw >= 1 ? mw : getMaxWorkers(),
       mocksPattern: '',
@@ -114,11 +119,40 @@ class DependencyGraph {
       providesModuleNodeModules: this._opts.providesModuleNodeModules,
       resetCache: this._opts.resetCache,
       retainAllFiles: true,
-      roots: this._opts.roots.concat(this._opts.assetRoots_DEPRECATED),
+      roots: roots.concat(this._opts.assetRoots_DEPRECATED),
       useWatchman: this._opts.useWatchman,
-    });
+    };
 
+    const haste = new JestHasteMap(hasteOpts);
     this._loading = haste.build().then(hasteMap => {
+      const {activity} = this._opts;
+      const linkActivity = activity.startEvent(
+        'Resolving Symlink Dependencies',
+        null,
+        {
+          telemetric: true,
+        },
+      );
+
+      const globs = this._opts.extensions.map(ext => '**/*.' + ext);
+      const linkedRoots = this._resolveSymlinks(roots, extensions);
+      return Promise.chain(linkedRoots, (linkedRoot) => {
+        if (this._opts.ignoreFilePath(linkedRoot)) return;
+        roots.push(linkedRoot);
+        hasteOpts.roots = [linkedRoot];
+        const haste = new JestHasteMap(hasteOpts);
+        return haste.build().then(linkedMap => {
+          hasteMap.hasteFS.merge(linkedMap.hasteFS);
+          hasteMap.moduleMap.merge(linkedMap.moduleMap);
+          this._opts.fileWatcher.addWatcher({dir: linkedRoot, globs});
+        });
+      })
+      .then(() => {
+        activity.endEvent(linkActivity);
+        return hasteMap;
+      });
+    })
+    .then(hasteMap => {
       const {activity} = this._opts;
       const depGraphActivity = activity.startEvent(
         'Initializing Packager',
@@ -128,13 +162,11 @@ class DependencyGraph {
         },
       );
 
-      const hasteFSFiles = hasteMap.hasteFS.getAllFiles();
-
       this._fastfs = new Fastfs(
         'JavaScript',
-        this._opts.roots,
+        roots,
         this._opts.fileWatcher,
-        hasteFSFiles,
+        hasteMap.hasteFS.getAllFiles(),
         {
           ignore: this._opts.ignoreFilePath,
           activity: activity,
@@ -337,6 +369,27 @@ class DependencyGraph {
       return this._loading;
     };
     this._loading = this._loading.then(resolve, resolve);
+  }
+
+  _resolveSymlinks(roots) {
+    const resolvedPaths = new Set();
+    roots.forEach(function gatherLinks(root) {
+      const rootDeps = path.join(root, 'node_modules');
+      if (!fs.existsSync(rootDeps)) {
+        return;
+      }
+      fs.readdirSync(rootDeps).forEach(child => {
+        const linkPath = path.join(rootDeps, child);
+        if (fs.lstatSync(linkPath).isSymbolicLink()) {
+          const resolvedPath = resolveSymlink(linkPath);
+          if (!resolvedPaths.has(resolvedPath)) {
+            resolvedPaths.add(resolvedPath);
+            gatherLinks(resolvedPath);
+          }
+        }
+      });
+    });
+    return Array.from(resolvedPaths);
   }
 
   createPolyfill(options) {
