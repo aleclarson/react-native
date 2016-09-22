@@ -18,8 +18,7 @@ var sharedBlacklist = [
   /react\/src\/.*/,
   /react\/packages\/.*/,
   /react\/build\/modules\/.*/,
-  /react-native\/src\/.*/,
-  /react-packager\/src\/.*/,
+  /react-native\/(?!Libraries|lib|node_modules).*/,
 
   'downstream/core/invariant.js',
 
