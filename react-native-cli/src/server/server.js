@@ -18,6 +18,7 @@ const runServer = require('./runServer');
  */
 function server(argv, config, args) {
   args.projectRoots = args.projectRoots.concat(args.root);
+  args.hasteRoots = args.hasteRoots.concat(config.getHasteRoots());
 
   console.log(formatBanner(
     'Running packager on port ' + args.port + '.\n\n' +
@@ -86,6 +87,11 @@ module.exports = {
     description: 'override the root(s) to be used by the packager',
     parse: (val) => val.split(','),
     default: (config) => config.getProjectRoots(),
+  }, {
+    command: '--hasteRoots [list]',
+    description: 'specify roots that provide haste modules',
+    parse: (val) => val.split(','),
+    default: [],
   }, {
     command: '--assetRoots [list]',
     description: 'specify the root directories of app assets',

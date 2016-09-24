@@ -19,6 +19,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  hasteRoots: {
+    type: 'array',
+    default: [],
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
@@ -85,6 +89,7 @@ class Resolver {
     this._depGraph = new DependencyGraph({
       activity: Activity,
       roots: opts.projectRoots,
+      hasteRoots: opts.hasteRoots,
       assetRoots_DEPRECATED: opts.assetRoots,
       assetExts: opts.assetExts,
       ignoreFilePath: function(filepath) {
