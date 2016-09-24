@@ -422,12 +422,22 @@ class Bundler {
           return {module, transformed};
         });
 
-      return Promise.all(response.dependencies.map(toModuleTransport))
-        .then(transformedModules =>
-          Promise.resolve(
-            finalizeBundle({bundle, transformedModules, response, modulesByName})
-          ).then(() => bundle)
-        );
+      const transformEventId = Activity.startEvent(
+        'Transforming modules',
+        null,
+        {
+          telemetric: true,
+        },
+      );
+
+      return Promise.all(
+        response.dependencies.map(toModuleTransport)
+      ).then(transformedModules => {
+        Activity.endEvent(transformEventId);
+        return Promise.resolve(
+          finalizeBundle({bundle, transformedModules, response, modulesByName})
+        ).then(() => bundle)
+      });
     });
   }
 
