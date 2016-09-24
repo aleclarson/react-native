@@ -32,6 +32,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  hasteRoots: {
+    type: 'array',
+    default: [],
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
@@ -140,6 +144,7 @@ class Bundler {
 
     this._resolver = new Resolver({
       projectRoots: opts.projectRoots,
+      hasteRoots: opts.hasteRoots,
       blacklistRE: opts.blacklistRE,
       polyfillModuleNames: opts.polyfillModuleNames,
       moduleFormat: opts.moduleFormat,

@@ -16,6 +16,14 @@ var config = {
     return getRoots();
   },
 
+  getHasteRoots() {
+    return [
+      path.resolve('node_modules/react/lib'),
+      path.resolve('node_modules/react-native/lib'),
+      path.resolve('node_modules/react-native/Libraries'),
+    ];
+  },
+
   getProjectConfig: rnpmConfig.getProjectConfig,
   getDependencyConfig: rnpmConfig.getDependencyConfig,
 

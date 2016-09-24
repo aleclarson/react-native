@@ -82,6 +82,7 @@ function getPackagerServer(args, config) {
   return ReactPackager.createServer({
     nonPersistent: args.nonPersistent,
     projectRoots: args.projectRoots,
+    hasteRoots: args.hasteRoots,
     blacklistRE: config.getBlacklistRE(),
     cacheVersion: '3',
     getTransformOptionsModulePath: config.getTransformOptionsModulePath,
