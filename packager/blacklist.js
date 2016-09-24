@@ -15,11 +15,6 @@ var path = require('path');
 var sharedBlacklist = [
   /node_modules[/\\]react[/\\]dist[/\\].*/,
 
-  /react\/src\/.*/,
-  /react\/packages\/.*/,
-  /react\/build\/modules\/.*/,
-  /react-native\/(?!Libraries|lib|node_modules).*/,
-
   'downstream/core/invariant.js',
 
   /website\/node_modules\/.*/,
