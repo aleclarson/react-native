@@ -78,7 +78,7 @@ class Module {
         return p.getName()
           .then(name => {
             if (!name) {
-              return this.path;
+              return path.relative(path.dirname(p.root), this.path).replace(/\\/g, '/');
             }
 
             return path.join(name, path.relative(p.root, this.path)).replace(/\\/g, '/');
