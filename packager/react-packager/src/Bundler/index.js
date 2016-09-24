@@ -377,7 +377,6 @@ class Bundler {
         dev,
         platform,
         hot,
-        onProgress,
         minify,
         isolateModuleIDs,
         generateSourceMaps: unbundle || generateSourceMaps,

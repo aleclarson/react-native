@@ -674,20 +674,8 @@ class Server {
       },
     );
 
-    let consoleProgress = () => {};
-    if (process.stdout.isTTY && !this._opts.silent) {
-      const bar = new ProgressBar('transformed :current/:total (:percent)', {
-        complete: '=',
-        incomplete: ' ',
-        width: 40,
-        total: 1,
-      });
-      consoleProgress = debouncedTick(bar);
-    }
-
     const mres = MultipartResponse.wrap(req, res);
     options.onProgress = (done, total) => {
-      consoleProgress(done, total);
       mres.writeChunk({'Content-Type': 'application/json'}, JSON.stringify({done, total}));
     };
 
@@ -910,25 +898,6 @@ class Server {
 
 function contentsEqual(array, set) {
   return array.length === set.size && array.every(set.has, set);
-}
-
-function debouncedTick(progressBar) {
-  let n = 0;
-  let start, total;
-
-  return (_, t) => {
-    total = t;
-    n += 1;
-    if (start) {
-      if (progressBar.curr + n >= total || Date.now() - start > 200) {
-        progressBar.total = total;
-        progressBar.tick(n);
-        start = n = 0;
-      }
-    } else {
-      start = Date.now();
-    }
-  };
 }
 
 module.exports = Server;
