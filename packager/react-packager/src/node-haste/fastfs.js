@@ -164,16 +164,108 @@ class Fastfs extends EventEmitter {
     }
 
     dir = path.resolve(dir);
-    let root = this._getRoot(dir);
-    if (root) {
-      return root;
+    if (this._getRoot(dir)) {
+      return false;
     }
 
-    // Create a new root.
-    root = new File(dir, true);
+    const root = new File(dir, true);
     this._roots.push(root);
     this._fastPaths[dir] = root;
-    return root;
+
+    const rootPackage = path.join(dir, 'package.json');
+    if (fs.existsSync(rootPackage) && !this._fastPaths[rootPackage]) {
+      root.addChild(
+        new File(rootPackage, false),
+        this._fastPaths
+      );
+    }
+
+    const rootDeps = path.join(dir, 'node_modules');
+    if (fs.existsSync(rootDeps) && !this._fastPaths[rootDeps]) {
+      root.addChild(
+        new File(rootDeps, true),
+        this._fastPaths
+      );
+    }
+
+    return true;
+  }
+
+  resolveFile(filePath, exts) {
+
+    const root = this._getRoot(filePath);
+    if (!root) {
+      return null;
+    }
+
+    const resolve = (filePath) => {
+
+      let file = this._fastPaths[filePath];
+      if (file) {
+        return file;
+      }
+
+      if (file = root.getFileFromPath(filePath)) {
+        this._fastPaths[filePath] = file;
+        return file;
+      }
+
+      try { // This will throw when 'filePath' does not exist.
+        file = new File(filePath, fs.statSync(filePath).isDirectory());
+        root.addChild(file, this._fastPaths);
+      } catch (error) {}
+      return file;
+    };
+
+    let file;
+    if (exts) {
+      for (let i = 0; i < exts.length; i++) {
+        if (file = resolve(filePath + exts[i])) {
+          break;
+        }
+      }
+    } else {
+      file = resolve(filePath);
+    }
+
+    // Never return a directory.
+    if (file && !file.isDir) {
+      return file;
+    }
+    return null;
+  }
+
+  resolveDir(dir) {
+
+    let file = this._fastPaths[dir];
+    if (file && file.isDir) {
+      return file;
+    }
+
+    const root = this._getRoot(dir);
+    if (!root) {
+      return null;
+    }
+
+    file = root.getFileFromPath(dir);
+    if (file && file.isDir) {
+      return file;
+    }
+
+    // Lazy-load missing directories.
+    if (dir.indexOf('node_modules') >= 0) {
+      try { // This will throw when 'dir' does not exist.
+        if (fs.statSync(dir).isDirectory()) {
+          file = new File(dir, true);
+          root.addChild(file, this._fastPaths);
+        }
+      } catch (error) {}
+      if (file) {
+        return file;
+      }
+    }
+
+    return null;
   }
 
   _getRoot(filePath) {
@@ -203,11 +295,6 @@ class Fastfs extends EventEmitter {
       const file = root.getFileFromPath(filePath);
       if (file) {
         this._fastPaths[filePath] = file;
-      } else if (fs.existsSync(filePath)) {
-        root.addChild(
-          new File(filePath, fs.statSync(filePath).isDirectory()),
-          this._fastPaths
-        );
       }
     }
 

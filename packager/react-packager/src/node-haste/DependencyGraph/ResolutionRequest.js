@@ -369,7 +369,7 @@ class ResolutionRequest {
                currDir !== realPath.parse(fromModule.path).root;
                currDir = path.dirname(currDir)) {
             let searchPath = path.join(currDir, 'node_modules');
-            if (this._fastfs.dirExists(searchPath)) {
+            if (this._fastfs.resolveDir(searchPath)) {
               searchQueue.push(searchPath);
             }
           }
@@ -447,34 +447,32 @@ class ResolutionRequest {
         }
       }
 
-      let file;
-      if (this._fastfs.fileExists(potentialModulePath)) {
-        file = potentialModulePath;
-      } else if (this._platform != null &&
-                 this._fastfs.fileExists(potentialModulePath + '.' + this._platform + '.js')) {
-        file = potentialModulePath + '.' + this._platform + '.js';
-      } else if (this._preferNativePlatform &&
-                 this._fastfs.fileExists(potentialModulePath + '.native.js')) {
-        file = potentialModulePath + '.native.js';
-      } else if (this._fastfs.fileExists(potentialModulePath + '.js')) {
-        file = potentialModulePath + '.js';
-      } else if (this._fastfs.fileExists(potentialModulePath + '.json')) {
-        file = potentialModulePath + '.json';
-      } else {
-        throw new UnableToResolveError(
-          fromModule,
-          toModule,
-          `File ${potentialModulePath} doesnt exist`,
-        );
+      // Always try without an extension first.
+      const exts = [''];
+      if (this._platform != null) {
+        exts.push('.' + this._platform + '.js');
+      }
+      if (this._preferNativePlatform) {
+        exts.push('.native.js');
+      }
+      exts.push('.js', '.json');
+
+      const file = this._fastfs.resolveFile(potentialModulePath, exts);
+      if (file) {
+        return this._moduleCache.getModule(file.path);
       }
 
-      return this._moduleCache.getModule(file);
+      throw new UnableToResolveError(
+        fromModule,
+        toModule,
+        `File ${potentialModulePath} doesnt exist`,
+      );
     });
   }
 
   _loadAsDir(potentialDirPath, fromModule, toModule) {
     return Promise.resolve().then(() => {
-      if (!this._fastfs.dirExists(potentialDirPath)) {
+      if (!this._fastfs.resolveDir(potentialDirPath)) {
         throw new UnableToResolveError(
           fromModule,
           toModule,
@@ -483,7 +481,7 @@ class ResolutionRequest {
       }
 
       const packageJsonPath = path.join(potentialDirPath, 'package.json');
-      if (this._fastfs.fileExists(packageJsonPath)) {
+      if (this._fastfs.resolveFile(packageJsonPath)) {
         return this._moduleCache.getPackage(packageJsonPath)
           .getMain().then(
             (main) => this._tryResolve(
