@@ -362,23 +362,11 @@ class Bundler {
     const modulesByName = Object.create(null);
 
     if (!resolutionResponse) {
-      let onProgress = noop;
-      if (process.stdout.isTTY && !this._opts.silent) {
-        const bar = new ProgressBar('transformed :current/:total (:percent)', {
-          complete: '=',
-          incomplete: ' ',
-          width: 40,
-          total: 1,
-        });
-        onProgress = debouncedTick(bar);
-      }
-
       resolutionResponse = this.getDependencies({
         entryFile,
         dev,
         platform,
         hot,
-        onProgress,
         minify,
         isolateModuleIDs,
         generateSourceMaps: unbundle,

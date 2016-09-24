@@ -178,7 +178,6 @@
     "path-browserify": "0.0.0",
     "plist": "^1.2.0",
     "process-browserify": "aleclarson/process-browserify#0.0.1",
-    "progress": "^1.1.8",
     "punycode": "^1.4.1",
     "querystring": "^0.2.0",
     "react": "aleclarson/react#15.3.1",
