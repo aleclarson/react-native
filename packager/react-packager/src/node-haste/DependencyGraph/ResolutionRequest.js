@@ -13,6 +13,7 @@ const MapWithDefaults = require('../lib/MapWithDefaults');
 const debug = require('debug')('ReactNativePackager:DependencyGraph');
 const util = require('util');
 const path = require('path');
+const chalk = require('chalk');
 const realPath = require('path');
 const isAbsolutePath = require('absolute-path');
 const getAssetDataFromName = require('../lib/getAssetDataFromName');
@@ -78,12 +79,13 @@ class ResolutionRequest {
 
     const forgive = (error) => {
       if (error.type === 'UnableToResolveError') {
-        console.warn(error.stack);
+        console.warn(chalk.yellow('WARN: ') + error.message + '\n');
         if (this._shouldThrowOnUnresolvedErrors(this._entryPath, this._platform)) {
           throw error;
         }
         return null;
       }
+      console.error(chalk.red('ERROR: ') + error.stack + '\n');
       throw error;
     };
 
