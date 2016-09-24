@@ -44,6 +44,7 @@ class DependencyGraph {
   constructor({
     activity,
     roots,
+    hasteRoots,
     ignoreFilePath,
     fileWatcher,
     assetRoots_DEPRECATED,
@@ -65,6 +66,7 @@ class DependencyGraph {
     this._opts = {
       activity: activity || defaultActivity,
       roots,
+      hasteRoots: hasteRoots || [],
       ignoreFilePath: ignoreFilePath || (() => {}),
       fileWatcher,
       assetRoots_DEPRECATED: assetRoots_DEPRECATED || [],
@@ -110,7 +112,10 @@ class DependencyGraph {
         telemetric: true,
       },
     );
-    const allRoots = this._opts.roots.concat(this._opts.assetRoots_DEPRECATED);
+
+    const jsRoots = this._opts.roots.concat(this._opts.hasteRoots);
+    const allRoots = jsRoots.concat(this._opts.assetRoots_DEPRECATED);
+
     this._crawling = crawl(allRoots, {
       ignore: this._opts.ignoreFilePath,
       exts: this._opts.extensions.concat(this._opts.assetExts),
@@ -287,8 +292,9 @@ class DependencyGraph {
       return path.resolve(filePath);
     }
 
-    for (let i = 0; i < this._opts.roots.length; i++) {
-      const root = this._opts.roots[i];
+    const roots = this._fastfs._roots;
+    for (let i = 0; i < roots.length; i++) {
+      const root = roots[i].path;
       const potentialAbsPath = path.join(root, filePath);
       if (this._fastfs.fileExists(potentialAbsPath)) {
         return path.resolve(potentialAbsPath);
@@ -298,7 +304,7 @@ class DependencyGraph {
     throw new NotFoundError(
       'Cannot find entry file %s in any of the roots: %j',
       filePath,
-      this._opts.roots
+      roots
     );
   }
 
