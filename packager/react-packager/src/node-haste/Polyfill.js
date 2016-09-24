@@ -32,6 +32,11 @@ class Polyfill extends Module {
   isPolyfill() {
     return true;
   }
+
+  read(transformOptions) {
+    this._fastfs.resolveFile(this.path);
+    return super.read(transformOptions);
+  }
 }
 
 module.exports = Polyfill;
