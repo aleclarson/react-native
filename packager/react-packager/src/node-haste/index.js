@@ -120,20 +120,8 @@ class DependencyGraph {
       ignore: this._opts.ignoreFilePath,
       exts: this._opts.extensions.concat(this._opts.assetExts),
       fileWatcher: this._opts.fileWatcher,
-    }).then((files) => {
-      const globs = this._opts.extensions.map(ext => '**/*.' + ext);
-      const linkedRoots = this._resolveSymlinks(this._opts.roots).filter(root => {
-        if (fs.statSync(root).isDirectory() && !this._opts.ignoreFilePath(root)) {
-          this._opts.fileWatcher.addWatcher({dir: root, globs});
-          return this._fastfs.addRoot(root);
-        }
-        return false;
-      });
-      console.log(`Watching ${linkedRoots.length} linked dependencies...`);
-
-      activity.endEvent(crawlActivity);
-      return files;
     });
+    this._crawling.then((files) => activity.endEvent(crawlActivity));
 
     this._fastfs = new Fastfs(
       'JavaScript',
@@ -177,6 +165,11 @@ class DependencyGraph {
       activity: this._opts.activity,
       enabled: this._opts.enableAssetMap,
       platforms: this._opts.platforms,
+    });
+
+    this._watchLinkedRoots(this._opts.roots, {
+      exts: this._opts.extensions,
+      ignore: this._opts.ignoreFilePath,
     });
 
     this._loading = Promise.all([
@@ -278,6 +271,36 @@ class DependencyGraph {
     return this.load().then(() => this._fastfs.matchFilesByPattern(pattern));
   }
 
+  _watchLinkedRoots(roots, {exts, ignore}) {
+    const globs = exts.map(ext => '**/*.' + ext);
+    const linkedRoots = new Set();
+    const resolveLinkDeps = (root) => {
+      const rootDeps = path.join(root, 'node_modules');
+      if (!fs.existsSync(rootDeps)) {
+        return;
+      }
+      fs.readdirSync(rootDeps).forEach(child => {
+        const linkPath = path.join(rootDeps, child);
+        if (!fs.lstatSync(linkPath).isSymbolicLink()) {
+          return;
+        }
+        const root = resolveSymlink(linkPath);
+        if (linkedRoots.has(root) || ignore(root) || !fs.statSync(root).isDirectory()) {
+          return;
+        }
+        linkedRoots.add(root);
+        if (this._fastfs.addRoot(root)) {
+          this._opts.fileWatcher.addWatcher({dir: root, globs});
+        }
+        resolveLinkDeps(root);
+      });
+    };
+
+    roots.forEach(resolveLinkDeps);
+    console.log(`Watching ${linkedRoots.size} linked dependencies...`);
+    return linkedRoots;
+  }
+
   _getRequestPlatform(entryPath, platform) {
     if (platform == null) {
       platform = getPlatformExtension(entryPath, this._opts.platforms);
@@ -340,27 +363,6 @@ class DependencyGraph {
       return this._loading;
     };
     this._loading = this._loading.then(resolve, resolve);
-  }
-
-  _resolveSymlinks(roots) {
-    const resolvedPaths = new Set();
-    roots.forEach(function gatherLinks(root) {
-      const rootDeps = path.join(root, 'node_modules');
-      if (!fs.existsSync(rootDeps)) {
-        return;
-      }
-      fs.readdirSync(rootDeps).forEach(child => {
-        const linkPath = path.join(rootDeps, child);
-        if (fs.lstatSync(linkPath).isSymbolicLink()) {
-          const resolvedPath = resolveSymlink(linkPath);
-          if (!resolvedPaths.has(resolvedPath)) {
-            resolvedPaths.add(resolvedPath);
-            gatherLinks(resolvedPath);
-          }
-        }
-      });
-    });
-    return Array.from(resolvedPaths);
   }
 
   createPolyfill(options) {
