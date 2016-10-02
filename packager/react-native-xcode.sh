@@ -76,8 +76,8 @@ if [[ "$CONFIGURATION" = "Debug" && "$PLATFORM_NAME" != "iphonesimulator" ]]; th
   PLIST=$TARGET_BUILD_DIR/$INFOPLIST_PATH
   IP=$(ipconfig getifaddr en0)
   $PLISTBUDDY -c "Add NSAppTransportSecurity:NSExceptionDomains:localhost:NSTemporaryExceptionAllowsInsecureHTTPLoads bool true" "$PLIST"
-  $PLISTBUDDY -c "Add NSAppTransportSecurity:NSExceptionDomains:$IP.xip.io:NSTemporaryExceptionAllowsInsecureHTTPLoads bool true" "$PLIST"
-  echo "$IP.xip.io" > "$DEST/ip.txt"
+  $PLISTBUDDY -c "Add NSAppTransportSecurity:NSExceptionDomains:$IP.nip.io:NSTemporaryExceptionAllowsInsecureHTTPLoads bool true" "$PLIST"
+  echo "$IP.nip.io" > "$DEST/ip.txt"
 fi
 
 BUNDLE_FILE="$DEST/main.jsbundle"
