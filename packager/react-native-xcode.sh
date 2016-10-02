@@ -79,8 +79,8 @@ if [[ "$CONFIGURATION" = "Debug" && ! "$PLATFORM_NAME" == *simulator ]]; then
     IP=$(ifconfig | grep 'inet ' | grep -v 127.0.0.1 | cut -d\   -f2  | awk 'NR==1{print $1}')
   fi
   $PLISTBUDDY -c "Add NSAppTransportSecurity:NSExceptionDomains:localhost:NSTemporaryExceptionAllowsInsecureHTTPLoads bool true" "$PLIST"
-  $PLISTBUDDY -c "Add NSAppTransportSecurity:NSExceptionDomains:$IP.xip.io:NSTemporaryExceptionAllowsInsecureHTTPLoads bool true" "$PLIST"
-  echo "$IP.xip.io" > "$DEST/ip.txt"
+  $PLISTBUDDY -c "Add NSAppTransportSecurity:NSExceptionDomains:$IP.nip.io:NSTemporaryExceptionAllowsInsecureHTTPLoads bool true" "$PLIST"
+  echo "$IP.nip.io" > "$DEST/ip.txt"
 fi
 
 BUNDLE_FILE="$DEST/main.jsbundle"
