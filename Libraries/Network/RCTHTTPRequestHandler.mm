@@ -144,4 +144,11 @@ didReceiveResponse:(NSURLResponse *)response
   [delegate URLRequest:task didCompleteWithError:error];
 }
 
+#if RCT_DEV
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
+{
+  completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+}
+#endif
+
 @end
