@@ -124,9 +124,6 @@
     "lint": "eslint Examples/ Libraries/",
     "start": "/usr/bin/env bash -c './packager/packager.sh \"$@\" || true' --"
   },
-  "bin": {
-    "react-native": "local-cli/wrong-react-native.js"
-  },
   "dependencies": {
     "Promise": "aleclarson/Promise#2.0.0",
     "absolute-path": "^0.0.0",
