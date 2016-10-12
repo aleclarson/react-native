@@ -59,9 +59,9 @@ function handleException(e: Error, isFatal: boolean) {
   }
 
   if (typeof console._errorOriginal === 'function') {
-    console._errorOriginal(e.message);
+    console._errorOriginal(e.stack || e.message);
   } else {
-    console.error(e.message);
+    console.error(e.stack || e.message);
   }
   reportException(e, isFatal);
 }
