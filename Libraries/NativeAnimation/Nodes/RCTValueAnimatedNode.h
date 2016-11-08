@@ -24,6 +24,7 @@
 - (void)flattenOffset;
 
 @property (nonatomic, assign) CGFloat value;
+@property (nonatomic, copy) NSNumber *animationId;
 @property (nonatomic, weak) id<RCTValueAnimatedNodeObserver> valueObserver;
 
 @end

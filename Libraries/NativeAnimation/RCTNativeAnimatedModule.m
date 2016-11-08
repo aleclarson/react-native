@@ -262,7 +262,7 @@ RCT_EXPORT_METHOD(stopListeningToAnimatedNodeValue:(nonnull NSNumber *)tag)
 - (void)animatedNode:(RCTValueAnimatedNode *)node didUpdateValue:(CGFloat)value
 {
   [self sendEventWithName:@"onAnimatedValueUpdate"
-                     body:@{@"tag": node.nodeTag, @"value": @(value)}];
+                     body:@{@"tag": node.nodeTag, @"value": @(value), @"animation":node.animationId}];
 }
 
 
