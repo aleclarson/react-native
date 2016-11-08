@@ -53,6 +53,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (void)startAnimation
 {
+  _valueNode.animationId = _animationId;
   _animationStartTime = CACurrentMediaTime();
   _animationCurrentTime = _animationStartTime;
   _animationHasBegun = YES;
@@ -66,6 +67,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (void)removeAnimation
 {
   [self stopAnimation];
+  _valueNode.animationId = nil;
   _valueNode = nil;
   if (_callback) {
     _callback(@[@{
