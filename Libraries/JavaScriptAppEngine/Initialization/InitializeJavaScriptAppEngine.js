@@ -169,6 +169,11 @@ function setUpPromise(): void {
   defineLazyProperty(global, 'Promise', () => require('Promise'));
 }
 
+function setUpAnimated(): void {
+  const inject = require('Animated/inject');
+  inject('InteractionManager', require('InteractionManager'));
+}
+
 function setUpXHR(): void {
   // The native XMLHttpRequest in Chrome dev tools is CORS aware and won't
   // let you fetch anything from the internet
