@@ -168,6 +168,9 @@ defineProperty(global, 'Request', () => require('fetch').Request);
 defineProperty(global, 'Response', () => require('fetch').Response);
 defineProperty(global, 'WebSocket', () => require('WebSocket'));
 
+// Set up animations
+require('Animated/inject')('InteractionManager', require('InteractionManager'));
+
 // Set up Geolocation
 let navigator = global.navigator;
 if (navigator === undefined) {

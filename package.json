@@ -130,6 +130,7 @@
     "react-native": "local-cli/wrong-react-native.js"
   },
   "dependencies": {
+    "Animated": "aleclarson/Animated#2.0.2",
     "Promise": "aleclarson/Promise#2.0.0",
     "absolute-path": "^0.0.0",
     "art": "^0.10.0",
