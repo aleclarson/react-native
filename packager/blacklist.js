@@ -15,9 +15,12 @@ var path = require('path');
 var sharedBlacklist = [
   /node_modules[/\\]react[/\\]dist[/\\].*/,
 
-  /react-packager\/src\/.*/,
-
-  /react-native\/src\/.*/,
+  /react\/(src|dist|packages|build\/modules).*/,
+  /react-native\/(react-native-cli|ReactAndroid|scripts).*/,
+  /react-native\/node_modules\/yeoman.*/,
+  /react-native\/packager\/react-packager\/(?!js).*/,
+  /react-native\/packager\/react-packager\/js\/(?!Resolver).*/,
+  /react-native\/packager\/react-packager\/js\/Resolver\/(?!polyfills).*/,
 
   'downstream/core/invariant.js',
 
