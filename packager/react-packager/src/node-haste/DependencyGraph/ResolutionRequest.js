@@ -14,7 +14,6 @@ const debug = require('debug')('ReactNativePackager:DependencyGraph');
 const util = require('util');
 const path = require('path');
 const chalk = require('chalk');
-const realPath = require('path');
 const isAbsolutePath = require('absolute-path');
 const getAssetDataFromName = require('../lib/getAssetDataFromName');
 
@@ -353,7 +352,7 @@ class ResolutionRequest {
 
           const searchQueue = [];
           for (let currDir = path.dirname(fromModule.path);
-               currDir !== '.' && currDir !== realPath.parse(fromModule.path).root;
+               currDir !== '.' && currDir !== path.parse(fromModule.path).root;
                currDir = path.dirname(currDir)) {
             const searchPath = path.join(currDir, 'node_modules');
             if (this._fastfs.dirExists(searchPath)) {
