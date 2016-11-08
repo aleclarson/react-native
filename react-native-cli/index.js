@@ -21,7 +21,7 @@
 // The only job of react-native-cli is to init the repository and then
 // forward all the commands to the local version of react-native.
 //
-// If you need to add a new command, please add it to local-cli/.
+// If you need to add a new command, please add it to react-native-cli/.
 //
 // The only reason to modify this file is to add more warnings and
 // troubleshooting information for the `react-native init` command.
@@ -221,7 +221,7 @@ function createProject(name, verbose, rnPackage, forceNpmClient) {
     version: '0.0.1',
     private: true,
     scripts: {
-      start: 'node node_modules/react-native/local-cli/cli.js start'
+      start: 'node node_modules/react-native/cli.js start'
     }
   };
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(packageJson));
