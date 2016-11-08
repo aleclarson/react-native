@@ -1175,6 +1175,7 @@ RCT_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)reactTag
       }
       @catch (NSException *exception) {
         RCTLogError(@"Exception thrown while executing UI block: %@", exception);
+        NSLog(@"%@", exception.callStackSymbols);
       }
     });
   }
