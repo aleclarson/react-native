@@ -24,6 +24,15 @@ var config = {
     return getRoots();
   },
 
+  getHasteRoots() {
+    return [
+      path.resolve('node_modules/react/lib'),
+      path.resolve('node_modules/react-native/lib'),
+      path.resolve('node_modules/react-native/Libraries'),
+      path.resolve('node_modules/react-native/packager/react-packager/js/Resolver/polyfills'),
+    ];
+  },
+
   getProjectConfig: rnpmConfig.getProjectConfig,
   getDependencyConfig: rnpmConfig.getDependencyConfig,
 

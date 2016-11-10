@@ -31,6 +31,9 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  hasteRoots: {
+    type: 'array',
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
@@ -140,6 +143,7 @@ class Bundler {
       cache: this._cache,
       extraNodeModules: opts.extraNodeModules,
       fileWatcher: opts.fileWatcher,
+      hasteRoots: opts.hasteRoots,
       minifyCode: this._transformer.minify,
       moduleFormat: opts.moduleFormat,
       polyfillModuleNames: opts.polyfillModuleNames,

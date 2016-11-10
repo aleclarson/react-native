@@ -21,7 +21,6 @@ const PACKAGE_JSON = path.sep + 'package.json';
 class HasteMap extends EventEmitter {
   constructor({
     extensions,
-    fastfs,
     moduleCache,
     preferNativePlatform,
     helpers,
@@ -29,7 +28,6 @@ class HasteMap extends EventEmitter {
   }) {
     super();
     this._extensions = extensions;
-    this._fastfs = fastfs;
     this._moduleCache = moduleCache;
     this._preferNativePlatform = preferNativePlatform;
     this._helpers = helpers;
@@ -39,10 +37,10 @@ class HasteMap extends EventEmitter {
     this._processHasteModule = throat(1, this._processHasteModule.bind(this));
   }
 
-  build() {
+  build(files) {
     this._map = Object.create(null);
     const promises = [];
-    this._fastfs.getAllFiles().forEach(filePath => {
+    files.forEach(filePath => {
       if (!this._helpers.isNodeModulesDir(filePath)) {
         if (this._extensions.indexOf(path.extname(filePath).substr(1)) !== -1) {
           promises.push(this._processHasteModule(filePath));

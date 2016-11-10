@@ -43,6 +43,9 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  hasteRoots: {
+    type: 'array',
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
@@ -195,16 +198,10 @@ class Server {
   constructor(options) {
     const opts = this._opts = validateOpts(options);
 
-    this._projectRoots = opts.projectRoots.map(potentialRoot => {
-      let root = potentialRoot;
-      if (fs.existsSync(root)) {
-        root = fs.realpathSync(root);
-        if (fs.statSync(root).isDirectory()) {
-          return root;
-        }
-      }
-      throw Error(`Root must be an existing directory:\n  '${potentialRoot}'`);
-    });
+    this._projectRoots = opts.projectRoots.map(resolveRoot);
+    if (opts.hasteRoots) {
+      this._hasteRoots = opts.hasteRoots.map(resolveRoot);
+    }
 
     this._bundles = Object.create(null);
     this._changeWatchers = [];
@@ -245,6 +242,7 @@ class Server {
 
     const bundlerOpts = Object.create(opts);
     bundlerOpts.projectRoots = this._projectRoots;
+    bundlerOpts.hasteRoots = this._hasteRoots;
     bundlerOpts.fileWatcher = this._fileWatcher;
     bundlerOpts.assetServer = this._assetServer;
     bundlerOpts.allowBundleUpdates = !options.nonPersistent;
@@ -898,6 +896,17 @@ class Server {
 
 function contentsEqual(array, set) {
   return array.length === set.size && array.every(set.has, set);
+}
+
+function resolveRoot(potentialRoot) {
+  let root = path.resolve(potentialRoot);
+  if (fs.existsSync(root)) {
+    root = fs.realpathSync(root);
+    if (fs.statSync(root).isDirectory()) {
+      return root;
+    }
+  }
+  throw Error(`Root must be an existing directory:\n  '${root}'`);
 }
 
 module.exports = Server;

@@ -46,6 +46,7 @@ class DependencyGraph {
   constructor({
     activity,
     roots,
+    hasteRoots,
     ignoreFilePath,
     fileWatcher,
     assetRoots_DEPRECATED,
@@ -71,6 +72,7 @@ class DependencyGraph {
     this._opts = {
       activity: activity || defaultActivity,
       roots,
+      hasteRoots,
       ignoreFilePath: ignoreFilePath || (() => {}),
       fileWatcher,
       assetRoots_DEPRECATED: assetRoots_DEPRECATED || [],
@@ -175,7 +177,6 @@ class DependencyGraph {
       }, this._opts.platforms);
 
       this._hasteMap = new HasteMap({
-        fastfs: this._fastfs,
         extensions: this._opts.extensions,
         moduleCache: this._moduleCache,
         preferNativePlatform: this._opts.preferNativePlatform,
@@ -212,21 +213,18 @@ class DependencyGraph {
           telemetric: true,
         },
       );
-      return this._hasteMap.build().then(
-        map => {
-          activity.endEvent(hasteActivity);
-          activity.endEvent(depGraphActivity);
-          return map;
-        },
-        err => {
-          const error = new Error(
-            `Failed to build DependencyGraph: ${err.message}`
-          );
-          error.type = ERROR_BUILDING_DEP_GRAPH;
-          error.stack = err.stack;
-          throw error;
-        }
-      );
+      return this._buildHasteMap().then(map => {
+        activity.endEvent(hasteActivity);
+        activity.endEvent(depGraphActivity);
+        return map;
+      }).catch(err => {
+        const error = new Error(
+          `Failed to build DependencyGraph: ${err.message}`
+        );
+        error.type = ERROR_BUILDING_DEP_GRAPH;
+        error.stack = err.stack;
+        throw error;
+      });
     });
 
     return this._loading;
@@ -350,7 +348,7 @@ class DependencyGraph {
         this._hasteMapError = null;
 
         // Rebuild the entire map if last change resulted in an error.
-        this._loading = this._hasteMap.build();
+        this._loading = this._buildHasteMap();
       } else {
         this._loading = this._hasteMap.processFileChange(type, absPath);
         this._loading.catch((e) => {this._hasteMapError = e;});
@@ -406,6 +404,31 @@ class DependencyGraph {
       retainAllFiles: true,
       useWatchman: this._opts.useWatchman,
     });
+  }
+
+  _buildHasteMap() {
+    const fastfs = this._fastfs;
+    const files = fastfs.getAllFiles();
+
+    if (!this._opts.hasteRoots) {
+      return this._hasteMap.build(files);
+    }
+
+    const hasteMap = this._createHasteMap({
+      roots: this._opts.hasteRoots,
+      extensions: this._opts.extensions,
+    });
+
+    return hasteMap.build().then(hasteMap => {
+      const hasteFiles = hasteMap.hasteFS.getAllFiles();
+      hasteFiles.forEach(filePath => {
+        if (fastfs._fastPaths[filePath] == null) {
+          fastfs.addFile(filePath);
+        }
+      });
+      return this._hasteMap.build(files.concat(hasteFiles));
+    });
+  }
 }
 
 Object.assign(DependencyGraph, {
