@@ -90,7 +90,7 @@ class DependencyGraph {
       extraNodeModules,
       // additional arguments for jest-haste-map & defaults
       useWatchman: useWatchman !== false,
-      maxWorkers,
+      maxWorkers: getMaxWorkers(maxWorkers),
       resetCache,
     };
     this._cache = cache;
@@ -108,22 +108,11 @@ class DependencyGraph {
     const roots = this._opts.roots;
     const extensions = this._opts.extensions.concat(this._opts.assetExts);
 
-    const mw = this._opts.maxWorkers;
-    const hasteOpts = {
-      extensions,
-      ignorePattern: {test: this._opts.ignoreFilePath},
-      maxWorkers: typeof mw === 'number' && mw >= 1 ? mw : getMaxWorkers(),
-      mocksPattern: '',
-      name: 'react-native-packager',
-      platforms: Array.from(this._opts.platforms),
-      providesModuleNodeModules: this._opts.providesModuleNodeModules,
-      resetCache: this._opts.resetCache,
-      retainAllFiles: true,
-      roots: roots.concat(this._opts.assetRoots_DEPRECATED),
-      useWatchman: this._opts.useWatchman,
-    };
+    const haste = this._createHasteMap({
+      roots: this._opts.roots.concat(this._opts.assetRoots_DEPRECATED),
+      extensions: this._opts.extensions.concat(this._opts.assetExts),
+    });
 
-    const haste = new JestHasteMap(hasteOpts);
     this._loading = haste.build().then(hasteMap => {
       const {activity} = this._opts;
       const linkActivity = activity.startEvent(
@@ -399,6 +388,24 @@ class DependencyGraph {
   getHasteMap() {
     return this._hasteMap;
   }
+
+  _createHasteMap({
+    roots,
+    extensions,
+  }) {
+    return new JestHasteMap({
+      roots,
+      extensions,
+      ignorePattern: {test: this._opts.ignoreFilePath},
+      maxWorkers: this._opts.maxWorkers,
+      mocksPattern: '',
+      name: 'react-native-packager',
+      platforms: Array.from(this._opts.platforms),
+      providesModuleNodeModules: this._opts.providesModuleNodeModules,
+      resetCache: this._opts.resetCache,
+      retainAllFiles: true,
+      useWatchman: this._opts.useWatchman,
+    });
 }
 
 Object.assign(DependencyGraph, {
@@ -424,7 +431,11 @@ function NotFoundError() {
 }
 util.inherits(NotFoundError, Error);
 
-function getMaxWorkers() {
+function getMaxWorkers(defaultValue) {
+  if (typeof defaultValue === 'number' && defaultValue >= 1) {
+    return defaultValue;
+  }
+
   const cores = os.cpus().length;
 
   if (cores <= 1) {
