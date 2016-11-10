@@ -37,20 +37,7 @@ class Fastfs extends EventEmitter {
         },
       );
     }
-    files.forEach(filePath => {
-      const root = this._getRoot(filePath);
-      if (root) {
-        const newFile = new File(filePath, false);
-        const dirname = filePath.substr(0, filePath.lastIndexOf(path.sep));
-        const parent = this._fastPaths[dirname];
-        this._fastPaths[filePath] = newFile;
-        if (parent) {
-          parent.addChild(newFile, this._fastPaths);
-        } else {
-          root.addChild(newFile, this._fastPaths);
-        }
-      }
-    });
+    files.forEach(filePath => this.addFile(filePath));
     if (activity) {
       activity.endEvent(fastfsActivity);
     }
@@ -137,6 +124,41 @@ class Fastfs extends EventEmitter {
     return Object.keys(dirFile.children)
       .filter(name => name.match(pattern))
       .map(name => path.join(dirFile.path, name));
+  }
+
+  addFile(filePath, isDir = false) {
+    const root = this._getRoot(filePath);
+    if (root) {
+      const newFile = new File(filePath, isDir);
+      const dirname = filePath.substr(0, filePath.lastIndexOf(path.sep));
+      const parent = this._fastPaths[dirname];
+      this._fastPaths[filePath] = newFile;
+      if (parent) {
+        parent.addChild(newFile, this._fastPaths);
+      } else {
+        root.addChild(newFile, this._fastPaths);
+      }
+    }
+  }
+
+  getFile(filePath) {
+    return this._fastPaths[filePath];
+  }
+
+  setFile(filePath, file) {
+    if (file == null) {
+      delete this._fastPaths[filePath];
+      return;
+    }
+    const root = this._getAndAssertRoot(filePath);
+    const dirname = filePath.substr(0, filePath.lastIndexOf(path.sep));
+    const parent = this._fastPaths[dirname];
+    this._fastPaths[filePath] = file;
+    if (parent) {
+      parent.addChild(file, this._fastPaths);
+    } else {
+      root.addChild(file, this._fastPaths);
+    }
   }
 
   addRoot(dir) {

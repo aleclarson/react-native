@@ -29,6 +29,7 @@ class ResolutionRequest {
     deprecatedAssetMap,
     helpers,
     moduleCache,
+    symlinkMap,
     fastfs,
     shouldThrowOnUnresolvedErrors,
     extraNodeModules,
@@ -41,6 +42,7 @@ class ResolutionRequest {
     this._deprecatedAssetMap = deprecatedAssetMap;
     this._helpers = helpers;
     this._moduleCache = moduleCache;
+    this._symlinkMap = symlinkMap;
     this._fastfs = fastfs;
     this._shouldThrowOnUnresolvedErrors = shouldThrowOnUnresolvedErrors;
     this._extraNodeModules = extraNodeModules;
@@ -371,14 +373,21 @@ class ResolutionRequest {
 
           let p = Promise.reject(new UnableToResolveError(fromModule, toModuleName));
           searchQueue.forEach(searchPath => {
-            const potentialModulePath = path.join(searchPath, realModuleName);
-            p = this._tryResolve(
-              () => this._tryResolve(
-                () => p,
-                () => this._loadAsFile(potentialModulePath, fromModule, toModuleName),
-              ),
-              () => this._loadAsDir(potentialModulePath, fromModule, toModuleName)
-            );
+            p = p.catch(error => {
+              if (error.type !== 'UnableToResolveError') {
+                throw error;
+              }
+              const bits = realModuleName.split(path.sep);
+              return this._symlinkMap.resolve(
+                path.join(searchPath, bits.shift())
+              ).then(searchPath => {
+                const potentialModulePath = path.join(searchPath, bits.join(path.sep));
+                return this._tryResolve(
+                  () => this._loadAsFile(potentialModulePath, fromModule, toModuleName),
+                  () => this._loadAsDir(potentialModulePath, fromModule, toModuleName)
+                );
+              });
+            });
           });
 
           return p.catch(error => {

@@ -20,6 +20,7 @@ const ModuleCache = require('./ModuleCache');
 const Polyfill = require('./Polyfill');
 const ResolutionRequest = require('./DependencyGraph/ResolutionRequest');
 const ResolutionResponse = require('./DependencyGraph/ResolutionResponse');
+const SymlinkMap = require('./SymlinkMap');
 
 const extractRequires = require('./lib/extractRequires');
 const fs = require('fs');
@@ -27,7 +28,6 @@ const getAssetDataFromName = require('./lib/getAssetDataFromName');
 const getInverseDependencies = require('./lib/getInverseDependencies');
 const getPlatformExtension = require('./lib/getPlatformExtension');
 const isAbsolutePath = require('absolute-path');
-const resolveSymlink = require('resolve-symlink');
 const os = require('os');
 const path = require('path');
 const replacePatterns = require('./lib/replacePatterns');
@@ -107,43 +107,12 @@ class DependencyGraph {
       return this._loading;
     }
 
-    const roots = this._opts.roots;
-    const extensions = this._opts.extensions.concat(this._opts.assetExts);
-
     const haste = this._createHasteMap({
       roots: this._opts.roots.concat(this._opts.assetRoots_DEPRECATED),
       extensions: this._opts.extensions.concat(this._opts.assetExts),
     });
 
     this._loading = haste.build().then(hasteMap => {
-      const {activity} = this._opts;
-      const linkActivity = activity.startEvent(
-        'Resolving Symlink Dependencies',
-        null,
-        {
-          telemetric: true,
-        },
-      );
-
-      const globs = this._opts.extensions.map(ext => '**/*.' + ext);
-      const linkedRoots = this._resolveSymlinks(roots, extensions);
-      return Promise.chain(linkedRoots, (linkedRoot) => {
-        if (this._opts.ignoreFilePath(linkedRoot)) return;
-        roots.push(linkedRoot);
-        hasteOpts.roots = [linkedRoot];
-        const haste = new JestHasteMap(hasteOpts);
-        return haste.build().then(linkedMap => {
-          hasteMap.hasteFS.merge(linkedMap.hasteFS);
-          hasteMap.moduleMap.merge(linkedMap.moduleMap);
-          this._opts.fileWatcher.addWatcher({dir: linkedRoot, globs});
-        });
-      })
-      .then(() => {
-        activity.endEvent(linkActivity);
-        return hasteMap;
-      });
-    })
-    .then(hasteMap => {
       const {activity} = this._opts;
       const depGraphActivity = activity.startEvent(
         'Initializing Packager',
@@ -155,7 +124,7 @@ class DependencyGraph {
 
       this._fastfs = new Fastfs(
         'JavaScript',
-        roots,
+        this._opts.roots,
         this._opts.fileWatcher,
         hasteMap.hasteFS.getAllFiles(),
         {
@@ -205,6 +174,23 @@ class DependencyGraph {
           this._deprecatedAssetMap.processFileChange(type, filePath, root, fstat);
         }
       });
+
+      const linkActivity = activity.startEvent(
+        'Resolving Symlink Dependencies',
+        null,
+        {
+          telemetric: true,
+        },
+      );
+      this._symlinkMap = new SymlinkMap({
+        roots: this._opts.roots,
+        extensions: this._opts.extensions,
+        fastfs: this._fastfs,
+        fileWatcher: this._opts.fileWatcher,
+        ignoreFilePath: this._opts.ignoreFilePath,
+        createHasteMap: (opts) => this._createHasteMap(opts),
+      });
+      activity.endEvent(linkActivity);
 
       const hasteActivity = activity.startEvent(
         'Building Haste Map',
@@ -274,6 +260,7 @@ class DependencyGraph {
         hasteMap: this._hasteMap,
         helpers: this._helpers,
         moduleCache: this._moduleCache,
+        symlinkMap: this._symlinkMap,
         fastfs: this._fastfs,
         shouldThrowOnUnresolvedErrors: this._opts.shouldThrowOnUnresolvedErrors,
         extraNodeModules: this._opts.extraNodeModules,
@@ -356,27 +343,6 @@ class DependencyGraph {
       return this._loading;
     };
     this._loading = this._loading.then(resolve, resolve);
-  }
-
-  _resolveSymlinks(roots) {
-    const resolvedPaths = new Set();
-    roots.forEach(function gatherLinks(root) {
-      const rootDeps = path.join(root, 'node_modules');
-      if (!fs.existsSync(rootDeps)) {
-        return;
-      }
-      fs.readdirSync(rootDeps).forEach(child => {
-        const linkPath = path.join(rootDeps, child);
-        if (fs.lstatSync(linkPath).isSymbolicLink()) {
-          const resolvedPath = resolveSymlink(linkPath);
-          if (!resolvedPaths.has(resolvedPath)) {
-            resolvedPaths.add(resolvedPath);
-            gatherLinks(resolvedPath);
-          }
-        }
-      });
-    });
-    return Array.from(resolvedPaths);
   }
 
   createPolyfill(options) {
