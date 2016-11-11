@@ -9,7 +9,7 @@
 'use strict';
 
 const path = require('path');
-const assetPathUtils = require('./assetPathUtils');
+const assetPathUtils = require('../../../lib/assetPathUtils');
 
 function getAssetDestPathAndroid(asset, scale) {
   const androidFolder = assetPathUtils.getAndroidDrawableFolderName(asset, scale);

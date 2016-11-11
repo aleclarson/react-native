@@ -10,7 +10,7 @@
 
 jest
   .dontMock('../getAssetDestPathAndroid')
-  .dontMock('../assetPathUtils');
+  .dontMock('../../../../lib/assetPathUtils');
 
 const getAssetDestPathAndroid = require('../getAssetDestPathAndroid');
 
