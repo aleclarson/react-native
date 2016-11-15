@@ -39,7 +39,7 @@
   _propertyMapper = [[RCTViewPropertyMapper alloc] initWithViewTag:viewTag animationModule:animationModule];
 }
 
-- (void)disconnectFromView:(NSNumber *)viewTag
+- (void)disconnectFromView
 {
   _propertyMapper = nil;
 }

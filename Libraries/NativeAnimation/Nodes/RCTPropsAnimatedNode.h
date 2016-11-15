@@ -17,7 +17,7 @@
 @property (nonatomic, readonly) RCTViewPropertyMapper *propertyMapper;
 
 - (void)connectToView:(NSNumber *)viewTag animatedModule:(RCTNativeAnimatedModule *)animationModule;
-- (void)disconnectFromView:(NSNumber *)viewTag;
+- (void)disconnectFromView;
 
 - (void)performViewUpdatesIfNecessary;
 

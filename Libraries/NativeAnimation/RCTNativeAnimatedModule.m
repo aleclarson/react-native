@@ -224,12 +224,11 @@ RCT_EXPORT_METHOD(connectAnimatedNodeToView:(nonnull NSNumber *)nodeTag
   }
 }
 
-RCT_EXPORT_METHOD(disconnectAnimatedNodeFromView:(nonnull NSNumber *)nodeTag
-                  viewTag:(nonnull NSNumber *)viewTag)
+RCT_EXPORT_METHOD(disconnectAnimatedNodeFromView:(nonnull NSNumber *)nodeTag)
 {
   RCTAnimatedNode *node = _animationNodes[nodeTag];
-  if (viewTag && node && [node isKindOfClass:[RCTPropsAnimatedNode class]]) {
-    [(RCTPropsAnimatedNode *)node disconnectFromView:viewTag];
+  if (node && [node isKindOfClass:[RCTPropsAnimatedNode class]]) {
+    [(RCTPropsAnimatedNode *)node disconnectFromView];
   }
 }
 
