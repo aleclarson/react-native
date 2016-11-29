@@ -1454,17 +1454,24 @@ RCT_EXPORT_METHOD(setJSResponder:(nonnull NSNumber *)reactTag
                   blockNativeResponder:(__unused BOOL)blockNativeResponder)
 {
   [self addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    _jsResponder = viewRegistry[reactTag];
-    if (!_jsResponder) {
-      RCTLogError(@"Invalid view set to be the JS responder - tag %zd", reactTag);
+    UIView *view = viewRegistry[reactTag];
+    if (view) {
+      [_jsResponders addObject:view];
+    } else {
+      RCTLogError(@"View does not exist with tag: %zd", reactTag);
     }
   }];
 }
 
-RCT_EXPORT_METHOD(clearJSResponder)
+RCT_EXPORT_METHOD(clearJSResponder:(nonnull NSNumber *)reactTag)
 {
   [self addUIBlock:^(__unused RCTUIManager *uiManager, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    _jsResponder = nil;
+    UIView *view = viewRegistry[reactTag];
+    if (view) {
+      [_jsResponders removeObject:view];
+    } else {
+      RCTLogError(@"View does not exist with tag: %zd", reactTag);
+    }
   }];
 }
 
@@ -1614,11 +1621,11 @@ RCT_EXPORT_METHOD(configureNextLayoutAnimation:(NSDictionary *)config
   return rootTag;
 }
 
-static UIView *_jsResponder;
+static NSMutableArray *_jsResponders;
 
 + (UIView *)JSResponder
 {
-  return _jsResponder;
+  return _jsResponders.lastObject;
 }
 
 @end
