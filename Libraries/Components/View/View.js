@@ -465,6 +465,16 @@ const View = React.createClass({
     shouldRasterizeIOS: PropTypes.bool,
 
     /**
+     * Whether this `View` allows edge antialiasing.
+     *
+     * On iOS, this is useful for views styled with rotation or skewing.
+     * When set to `true`, the layer's edges are smoothed out.
+     *
+     * @platform ios
+     */
+    allowsEdgeAntialiasing: PropTypes.bool,
+
+    /**
      * Views that are only used to layout their children or otherwise don't draw
      * anything may be automatically removed from the native hierarchy as an
      * optimization. Set this property to `false` to disable this optimization and

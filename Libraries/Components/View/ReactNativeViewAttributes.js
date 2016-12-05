@@ -26,6 +26,7 @@ ReactNativeViewAttributes.UIView = {
   testID: true,
   renderToHardwareTextureAndroid: true,
   shouldRasterizeIOS: true,
+  allowsEdgeAntialiasing: true,
   onLayout: true,
   onAccessibilityTap: true,
   onMagicTap: true,

@@ -52,7 +52,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
   NSObject *transform = updates[@"transform"];
   if ([transform isKindOfClass:[NSValue class]]) {
-    view.layer.allowsEdgeAntialiasing = YES;
     view.layer.transform = ((NSValue *)transform).CATransform3DValue;
   }
 }
