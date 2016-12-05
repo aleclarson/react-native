@@ -203,6 +203,7 @@ class ResolutionRequest {
       const collectionsInProgress = new AsyncTaskGroup();
       function collect(module) {
         collectionsInProgress.start(module);
+
         const result = resolveDependencies(module)
           .then(result => addMockDependencies(module, result))
           .then(result => crawlDependencies(module, result));
@@ -283,18 +284,22 @@ class ResolutionRequest {
       }
 
       if (dep && dep.type === 'Package') {
-        const potentialModulePath = path.join(
-          dep.root,
-          path.relative(packageName, realModuleName)
-        );
-        return this._tryResolve(
-          () => this._loadAsFile(
-            potentialModulePath,
-            fromModule,
-            toModuleName,
-          ),
-          () => this._loadAsDir(potentialModulePath, fromModule, toModuleName),
-        );
+        return this._symlinkMap.resolve(dep.root).then(root => {
+          let searchPath = path.relative(packageName, realModuleName);
+          if (searchPath.length) {
+            searchPath = path.join(root, searchPath);
+            return this._tryResolve(
+              () => this._loadAsFile(searchPath, fromModule, toModuleName),
+              () => this._loadAsDir(searchPath, fromModule, toModuleName),
+            );
+          }
+          return dep.getMain().then(main => {
+            return this._tryResolve(
+              () => this._loadAsFile(main, fromModule, toModuleName),
+              () => this._loadAsDir(main, fromModule, toModuleName),
+            );
+          });
+        });
       }
 
       throw new UnableToResolveError(

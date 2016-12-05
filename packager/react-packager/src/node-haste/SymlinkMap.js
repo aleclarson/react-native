@@ -25,7 +25,9 @@ class SymlinkMap {
   }) {
     this._map = Object.create(null);       // keys are symlink paths, values are resolved paths
     this._links = Object.create(null);     // keys are resolved paths, values are arrays of symlink paths
-    this._crawling = Object.create(null);  // keys are root paths, values are HasteMap build promises
+    this._crawlers = Object.create(null);  // keys are root paths, values are HasteMap build promises
+    this._crawlerQueue = [];
+    this._crawling = null;
 
     this._roots = roots;
     this._extensions = extensions;
@@ -41,11 +43,39 @@ class SymlinkMap {
   // 2. Crawl the root of `filePath`, if necessary.
   // 3. Return the resolved path.
   resolve(filePath) {
+
+    // Try resolving `filePath` as a symlink.
     const file = this._map[filePath];
-    if (file) filePath = file.path;
+    if (file) {
+      filePath = file.path;
+    }
 
     const root = this._fastfs._getRoot(filePath);
-    return this._crawl(root.path).then(() => filePath);
+    if (this._links[root.path]) {
+      return this.crawl(root.path)
+        .then(() => filePath);
+    }
+
+    // Do nothing if not a linked root.
+    return Promise.resolve(filePath);
+  }
+
+  crawl(rootPath) {
+    let crawler = this._crawlers[rootPath];
+    if (crawler) {
+      return crawler.promise;
+    }
+
+    crawler = Promise.defer();
+    this._crawlers[rootPath] = crawler;
+
+    if (this._crawling) {
+      this._crawlerQueue.push(rootPath);
+    } else {
+      this._crawl(rootPath);
+    }
+
+    return crawler.promise;
   }
 
   _build() {
@@ -59,7 +89,7 @@ class SymlinkMap {
 
     // 2. Register each initial root with FastFS.
     this._roots.forEach(rootPath => {
-      this._crawling[rootPath] = Promise.resolve();
+      this._crawlers[rootPath] = Promise.resolve();
       addPackage(rootPath, fastfs);
     });
 
@@ -85,18 +115,14 @@ class SymlinkMap {
   }
 
   _crawl(rootPath) {
-    let crawling = this._crawling[rootPath];
-    if (crawling) {
-      return crawling;
-    }
-
-    const hasteMap = this._createHasteMap({
+    const startTime = Date.now();
+    this._crawling = rootPath;
+    return this._createHasteMap({
       roots: [rootPath],
       extensions: this._extensions,
-    });
-
-    const globs = this._extensions.map(ext => '**/*.' + ext);
-    crawling = hasteMap.build().then(hasteMap => {
+    })
+    .build()
+    .then(hasteMap => {
 
       const fastfs = this._fastfs;
       hasteMap.hasteFS.getAllFiles().forEach(filePath => {
@@ -107,12 +133,18 @@ class SymlinkMap {
 
       this._fileWatcher.addWatcher({
         dir: rootPath,
-        globs,
+        globs: this._extensions.map(ext => '**/*.' + ext),
       });
-    });
 
-    this._crawling[rootPath] = crawling;
-    return crawling;
+      console.log('Crawled: ' + rootPath + ' (' + (Date.now() - startTime) + ' ms)');
+      this._crawlers[rootPath].resolve();
+
+      if (this._crawlerQueue.length) {
+        this._crawl(this._crawlerQueue.shift());
+      } else {
+        this._crawling = null;
+      }
+    });
   }
 
   // TODO: Handle addition + deletion of symlinks (and their resolved paths).
