@@ -292,6 +292,11 @@ const TextInput = React.createClass({
      */
     maxLength: PropTypes.number,
     /**
+     * Limits the maximum number of lines that can be entered. Use this
+     * instead of implementing the logic in JS to avoid flicker.
+     */
+    maxLineCount: PropTypes.number,
+    /**
      * Sets the number of lines for a `TextInput`. Use it with multiline set to
      * `true` to be able to fill the lines.
      * @platform android

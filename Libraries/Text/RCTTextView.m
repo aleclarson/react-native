@@ -402,6 +402,23 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
     }
   }
 
+  CGFloat maxWidth = CGRectGetWidth(UIEdgeInsetsInsetRect(textView.frame, textView.textContainerInset));
+  maxWidth -= 2.0 * textView.textContainer.lineFragmentPadding;
+
+  NSString *newText = [self.text stringByReplacingCharactersInRange:range withString:text];
+  CGRect newBounds =
+    [newText boundingRectWithSize:CGSizeMake(maxWidth, DBL_MAX)
+                          options:NSStringDrawingUsesLineFragmentOrigin
+                       attributes:@{NSFontAttributeName: textView.font}
+                          context:nil];
+
+  NSUInteger lineCount =
+    round(CGRectGetHeight(newBounds) / textView.font.lineHeight);
+
+  if (_maxLineCount && lineCount > _maxLineCount.integerValue) {
+    return NO;
+  }
+
   _nativeUpdatesInFlight = YES;
 
   if (range.location + range.length > _predictedText.length) {
