@@ -37,10 +37,6 @@ class RCTDeviceEventEmitter extends EventEmitter {
         console.warn('`%s` event should be registered via the StatusBarIOS module', eventType);
         return require('StatusBarIOS');
       }
-      if (eventType.lastIndexOf('keyboard', 0) === 0) {
-        console.warn('`%s` event should be registered via the Keyboard module', eventType);
-        return require('Keyboard');
-      }
       if (eventType === 'appStateDidChange' || eventType === 'memoryWarning') {
         console.warn('`%s` event should be registered via the AppState module', eventType);
         return require('AppState');

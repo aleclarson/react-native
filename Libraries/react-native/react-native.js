@@ -86,7 +86,6 @@ const ReactNative = {
   get I18nManager() { return require('I18nManager'); },
   get ImagePickerIOS() { return require('ImagePickerIOS'); },
   get InteractionManager() { return require('InteractionManager'); },
-  get Keyboard() { return require('Keyboard'); },
   get LayoutAnimation() { return require('LayoutAnimation'); },
   get Linking() { return require('Linking'); },
   get NativeEventEmitter() { return require('NativeEventEmitter'); },
