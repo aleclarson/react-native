@@ -436,6 +436,8 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
 
   if (_onTextInput) {
     _onTextInput(@{
+      @"lineCount": @(lineCount),
+      @"width": @(CGRectGetWidth(newBounds)),
       @"text": text,
       @"previousText": previousText ?: @"",
       @"range": @{
