@@ -14,6 +14,7 @@
 #import "RCTShadowText.h"
 #import "RCTText.h"
 #import "RCTUtils.h"
+#import "RCTTextLines.h"
 #import "RCTTextSelection.h"
 #import "UIView+React.h"
 
@@ -71,9 +72,11 @@
   UIScrollView *_scrollView;
 
   UITextRange *_previousSelectionRange;
-  NSUInteger _previousTextLength;
-  CGFloat _previousContentHeight;
   NSString *_predictedText;
+
+  RCTTextLines *_lines;
+  NSUInteger _previousLineCount;
+  NSUInteger _previousLineIndex;
 
   BOOL _blockTextShouldChange;
   BOOL _nativeUpdatesInFlight;
@@ -92,6 +95,10 @@
     _eventDispatcher = eventDispatcher;
     _placeholderTextColor = [self defaultPlaceholderTextColor];
     _blurOnSubmit = NO;
+
+    _lines = [RCTTextLines new];
+    _previousLineCount = 1;
+    _previousLineIndex = 0;
 
     _textView = [[RCTUITextView alloc] initWithFrame:CGRectZero];
     _textView.backgroundColor = [UIColor clearColor];
@@ -402,22 +409,43 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
     }
   }
 
+  // Get old lines affected by the change, before new lines are measured.
+  NSRange oldLineRange = [_lines lineRangeFromCharacterRange:range];
+
+  // TODO: Update `_lines.maxWidth` on layout.
   CGFloat maxWidth = CGRectGetWidth(UIEdgeInsetsInsetRect(textView.frame, textView.textContainerInset));
-  maxWidth -= 2.0 * textView.textContainer.lineFragmentPadding;
+  _lines.maxWidth = maxWidth - 2.0 * textView.textContainer.lineFragmentPadding;
 
-  NSString *newText = [self.text stringByReplacingCharactersInRange:range withString:text];
-  CGRect newBounds =
-    [newText boundingRectWithSize:CGSizeMake(maxWidth, DBL_MAX)
-                          options:NSStringDrawingUsesLineFragmentOrigin
-                       attributes:@{NSFontAttributeName: textView.font}
-                          context:nil];
+  NSString *newText = [textView.text stringByReplacingCharactersInRange:range withString:text];
+  NSNumber *letterSpacing = textView.typingAttributes[NSKernAttributeName] ?: @0;
+  [_lines setText:newText withFont:textView.font letterSpacing:letterSpacing];
 
-  NSUInteger lineCount =
-    round(CGRectGetHeight(newBounds) / textView.font.lineHeight);
-
+  NSUInteger lineCount = _lines.count;
   if (_maxLineCount && lineCount > _maxLineCount.integerValue) {
     return NO;
   }
+
+  NSRange newCharRange = NSMakeRange(range.location, text.length);
+  NSRange newLineRange = [_lines lineRangeFromCharacterRange:newCharRange];
+  RCTAssert(newLineRange.location != NSNotFound, @"Failed to find lines containing character range: %@", NSStringFromRange(newCharRange));
+
+  // Detect line wrapping.
+  if (newLineRange.location > oldLineRange.location) {
+    newLineRange = NSMakeRange(newLineRange.location - 1, newLineRange.length + 1);
+    NSLog(@"LINE WRAPPED");
+  }
+  else if (newLineRange.location < oldLineRange.location && lineCount == _previousLineCount) {
+    newLineRange = NSMakeRange(newLineRange.location, newLineRange.length + 1);
+    NSLog(@"LINE UNWRAPPED");
+  }
+
+  NSLog(@"oldCharRange: %@", NSStringFromRange(range));
+  NSLog(@"oldLineRange: %@", NSStringFromRange(oldLineRange));
+  NSLog(@"oldLineCount: %lu", (long unsigned)_previousLineCount);
+
+  NSLog(@"newCharRange: %@", NSStringFromRange(newCharRange));
+  NSLog(@"newLineRange: %@", NSStringFromRange(newLineRange));
+  NSLog(@"newLineCount: %lu", (long unsigned)lineCount);
 
   _nativeUpdatesInFlight = YES;
 
@@ -427,7 +455,6 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
     _predictedText = textView.text;
   }
 
-  NSString *previousText = [_predictedText substringWithRange:range];
   if (_predictedText) {
     _predictedText = [_predictedText stringByReplacingCharactersInRange:range withString:text];
   } else {
@@ -435,18 +462,30 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   }
 
   if (_onTextInput) {
+    NSArray *changedLines;
+    if (newLineRange.length > 0) {
+      changedLines = [_lines.array subarrayWithRange:newLineRange];
+    } else {
+      changedLines = @[];
+    }
+    NSLog(@"changedLines: %lu", (long unsigned)changedLines.count);
+
     _onTextInput(@{
-      @"lineCount": @(lineCount),
-      @"width": @(CGRectGetWidth(newBounds)),
-      @"text": text,
-      @"previousText": previousText ?: @"",
-      @"range": @{
-        @"start": @(range.location),
-        @"end": @(range.location + range.length)
-      },
+      @"length": @(newText.length),
+      @"changedLines": changedLines,
+      @"lineWidth": @(RCTRoundPixelValue(_lines.width)),
+      @"lineIndex": @(newLineRange.location),
+      @"lineCount": @(_lines.count),
       @"eventCount": @(_nativeEventCount),
     });
   }
+
+  if (newLineRange.location != _previousLineIndex) {
+    NSLog(@"LINE INDEX CHANGED");
+  }
+
+  _previousLineIndex = newLineRange.location;
+  _previousLineCount = lineCount;
 
   return YES;
 }
@@ -621,26 +660,8 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     return;
   }
 
-  // When the context size increases, iOS updates the contentSize twice; once
-  // with a lower height, then again with the correct height. To prevent a
-  // spurious event from being sent, we track the previous, and only send the
-  // update event if it matches our expectation that greater text length
-  // should result in increased height. This assumption is, of course, not
-  // necessarily true because shorter text might include more linebreaks, but
-  // in practice this works well enough.
-  NSUInteger textLength = textView.text.length;
-  CGFloat contentHeight = textView.contentSize.height;
-  if (textLength >= _previousTextLength) {
-    contentHeight = MAX(contentHeight, _previousContentHeight);
-  }
-  _previousTextLength = textLength;
-  _previousContentHeight = contentHeight;
   _onChange(@{
     @"text": self.text,
-    @"contentSize": @{
-      @"height": @(contentHeight),
-      @"width": @(textView.contentSize.width)
-    },
     @"target": self.reactTag,
     @"eventCount": @(_nativeEventCount),
   });
