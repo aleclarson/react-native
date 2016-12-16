@@ -64,6 +64,7 @@
 {
   RCTEventDispatcher *_eventDispatcher;
 
+  RCTTextLines *_lines;
   NSString *_placeholder;
   UITextView *_placeholderView;
   UITextView *_textView;
@@ -73,10 +74,6 @@
 
   UITextRange *_previousSelectionRange;
   NSString *_predictedText;
-
-  RCTTextLines *_lines;
-  NSUInteger _previousLineCount;
-  NSUInteger _previousLineIndex;
 
   BOOL _blockTextShouldChange;
   BOOL _nativeUpdatesInFlight;
@@ -91,14 +88,11 @@
   RCTAssertParam(eventDispatcher);
 
   if ((self = [super initWithFrame:CGRectZero])) {
+    _lines = [RCTTextLines new];
     _contentInset = UIEdgeInsetsZero;
     _eventDispatcher = eventDispatcher;
     _placeholderTextColor = [self defaultPlaceholderTextColor];
     _blurOnSubmit = NO;
-
-    _lines = [RCTTextLines new];
-    _previousLineCount = 1;
-    _previousLineIndex = 0;
 
     _textView = [[RCTUITextView alloc] initWithFrame:CGRectZero];
     _textView.backgroundColor = [UIColor clearColor];
@@ -409,9 +403,6 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
     }
   }
 
-  // Get old lines affected by the change, before new lines are measured.
-  NSRange oldLineRange = [_lines lineRangeFromCharacterRange:range];
-
   // TODO: Update `_lines.maxWidth` on layout.
   CGFloat maxWidth = CGRectGetWidth(UIEdgeInsetsInsetRect(textView.frame, textView.textContainerInset));
   _lines.maxWidth = maxWidth - 2.0 * textView.textContainer.lineFragmentPadding;
@@ -424,28 +415,6 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   if (_maxLineCount && lineCount > _maxLineCount.integerValue) {
     return NO;
   }
-
-  NSRange newCharRange = NSMakeRange(range.location, text.length);
-  NSRange newLineRange = [_lines lineRangeFromCharacterRange:newCharRange];
-  RCTAssert(newLineRange.location != NSNotFound, @"Failed to find lines containing character range: %@", NSStringFromRange(newCharRange));
-
-  // Detect line wrapping.
-  if (newLineRange.location > oldLineRange.location) {
-    newLineRange = NSMakeRange(newLineRange.location - 1, newLineRange.length + 1);
-    NSLog(@"LINE WRAPPED");
-  }
-  else if (newLineRange.location < oldLineRange.location && lineCount == _previousLineCount) {
-    newLineRange = NSMakeRange(newLineRange.location, newLineRange.length + 1);
-    NSLog(@"LINE UNWRAPPED");
-  }
-
-  NSLog(@"oldCharRange: %@", NSStringFromRange(range));
-  NSLog(@"oldLineRange: %@", NSStringFromRange(oldLineRange));
-  NSLog(@"oldLineCount: %lu", (long unsigned)_previousLineCount);
-
-  NSLog(@"newCharRange: %@", NSStringFromRange(newCharRange));
-  NSLog(@"newLineRange: %@", NSStringFromRange(newLineRange));
-  NSLog(@"newLineCount: %lu", (long unsigned)lineCount);
 
   _nativeUpdatesInFlight = YES;
 
@@ -462,30 +431,14 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   }
 
   if (_onTextInput) {
-    NSArray *changedLines;
-    if (newLineRange.length > 0) {
-      changedLines = [_lines.array subarrayWithRange:newLineRange];
-    } else {
-      changedLines = @[];
-    }
-    NSLog(@"changedLines: %lu", (long unsigned)changedLines.count);
-
     _onTextInput(@{
       @"length": @(newText.length),
-      @"changedLines": changedLines,
+      @"lines": _lines.array,
       @"lineWidth": @(RCTRoundPixelValue(_lines.width)),
-      @"lineIndex": @(newLineRange.location),
-      @"lineCount": @(_lines.count),
+      @"lineCount": @(lineCount),
       @"eventCount": @(_nativeEventCount),
     });
   }
-
-  if (newLineRange.location != _previousLineIndex) {
-    NSLog(@"LINE INDEX CHANGED");
-  }
-
-  _previousLineIndex = newLineRange.location;
-  _previousLineCount = lineCount;
 
   return YES;
 }
