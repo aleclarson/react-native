@@ -20,6 +20,7 @@
 #import "RCTShadowRawText.h"
 #import "RCTText.h"
 #import "RCTTextView.h"
+#import "RCTTextAttributes.h"
 
 NSString *const RCTShadowViewAttributeName = @"RCTShadowViewAttributeName";
 NSString *const RCTIsHighlightedAttributeName = @"IsHighlightedAttributeName";
@@ -278,13 +279,14 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
 
   _effectiveLetterSpacing = letterSpacing.doubleValue;
 
+  CGFloat fontSizeMultiplier = _allowFontScaling ? _fontSizeMultiplier : 1.0;
   UIFont *font = [RCTFont updateFont:nil
                           withFamily:fontFamily
                                 size:fontSize
                               weight:fontWeight
                                style:fontStyle
                              variant:_fontVariant
-                     scaleMultiplier:_allowFontScaling ? _fontSizeMultiplier : 1.0];
+                     scaleMultiplier:fontSizeMultiplier];
 
   CGFloat heightOfTallestSubview = 0.0;
   NSMutableAttributedString *attributedString = [NSMutableAttributedString new];
@@ -316,7 +318,7 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
       attachment.bounds = (CGRect){CGPointZero, {width, height}};
       NSMutableAttributedString *attachmentString = [NSMutableAttributedString new];
       [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
-      [attachmentString addAttribute:RCTShadowViewAttributeName value:child range:(NSRange){0, attachmentString.length}];
+      RCTAddAttribute(child, RCTShadowViewAttributeName, attachmentString);
       [attributedString appendAttributedString:attachmentString];
       if (height > heightOfTallestSubview) {
         heightOfTallestSubview = height;
@@ -326,25 +328,47 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
     }
   }
 
-  [self _addAttribute:NSForegroundColorAttributeName
-            withValue:[foregroundColor colorWithAlphaComponent:CGColorGetAlpha(foregroundColor.CGColor) * opacity]
-   toAttributedString:attributedString];
+  NSMutableDictionary<NSString *, id> *attributes = [NSMutableDictionary dictionary];
+
+  attributes[RCTReactTagAttributeName] = self.reactTag;
+
+  attributes[NSForegroundColorAttributeName] =
+    [foregroundColor colorWithAlphaComponent:CGColorGetAlpha(foregroundColor.CGColor) * opacity];
 
   if (_isHighlighted) {
-    [self _addAttribute:RCTIsHighlightedAttributeName withValue:@YES toAttributedString:attributedString];
+    attributes[RCTIsHighlightedAttributeName] = @YES;
   }
   if (useBackgroundColor && backgroundColor) {
-    [self _addAttribute:NSBackgroundColorAttributeName
-              withValue:[backgroundColor colorWithAlphaComponent:CGColorGetAlpha(backgroundColor.CGColor) * opacity]
-     toAttributedString:attributedString];
+    attributes[NSBackgroundColorAttributeName] =
+      [backgroundColor colorWithAlphaComponent:CGColorGetAlpha(backgroundColor.CGColor) * opacity];
   }
 
-  [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
-  [self _addAttribute:NSKernAttributeName withValue:letterSpacing toAttributedString:attributedString];
-  [self _addAttribute:RCTReactTagAttributeName withValue:self.reactTag toAttributedString:attributedString];
-  [self _setParagraphStyleOnAttributedString:attributedString
-                              fontLineHeight:font.lineHeight
-                      heightOfTallestSubview:heightOfTallestSubview];
+  CGFloat lineHeight = [self _findMaximumLineHeight:attributedString];
+  if (lineHeight != _lineHeight) {
+    self.lineHeight = lineHeight;
+  }
+
+  lineHeight = round(_lineHeight * fontSizeMultiplier);
+  if (heightOfTallestSubview > lineHeight) {
+    lineHeight = ceilf(heightOfTallestSubview);
+  }
+
+  [self _updateTextAlignment:attributedString];
+  [self _addTextDecoration:attributedString];
+
+  RCTSetFontAttribute(font, lineHeight, letterSpacing, _textAlign, _writingDirection, attributes);
+
+  // Text shadow
+  if (!CGSizeEqualToSize(_textShadowOffset, CGSizeZero)) {
+    NSShadow *shadow = [NSShadow new];
+    shadow.shadowOffset = _textShadowOffset;
+    shadow.shadowBlurRadius = _textShadowRadius;
+    shadow.shadowColor = _textShadowColor;
+    attributes[NSShadowAttributeName] = shadow;
+  }
+
+  [attributedString addAttributes:attributes
+                            range:(NSRange){0, attributedString.length}];
 
   // create a non-mutable attributedString for use by the Text system which avoids copies down the line
   _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
@@ -353,49 +377,44 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
   return _cachedAttributedString;
 }
 
-- (void)_addAttribute:(NSString *)attribute withValue:(id)attributeValue toAttributedString:(NSMutableAttributedString *)attributedString
+- (CGFloat)_findMaximumLineHeight:(NSAttributedString *)attributedString
 {
-  [attributedString enumerateAttribute:attribute inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
-    if (!value && attributeValue) {
-      [attributedString addAttribute:attribute value:attributeValue range:range];
-    }
-  }];
-}
-
-/*
- * LineHeight works the same way line-height works in the web: if children and self have
- * varying lineHeights, we simply take the max.
- */
-- (void)_setParagraphStyleOnAttributedString:(NSMutableAttributedString *)attributedString
-                                    fontLineHeight:(CGFloat)fontLineHeight
-                      heightOfTallestSubview:(CGFloat)heightOfTallestSubview
-{
-  // check if we have lineHeight set on self
-  __block BOOL hasParagraphStyle = NO;
-  if (_lineHeight || _textAlign) {
-    hasParagraphStyle = YES;
-  }
-
-  __block float newLineHeight = _lineHeight ?: 0.0;
-
   CGFloat fontSizeMultiplier = _allowFontScaling ? _fontSizeMultiplier : 1.0;
+
+  __block CGFloat maximumLineHeight = _lineHeight;
 
   // check for lineHeight on each of our children, update the max as we go (in self.lineHeight)
   [attributedString enumerateAttribute:NSParagraphStyleAttributeName inRange:(NSRange){0, attributedString.length} options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
     if (value) {
       NSParagraphStyle *paragraphStyle = (NSParagraphStyle *)value;
-      CGFloat maximumLineHeight = round(paragraphStyle.maximumLineHeight / fontSizeMultiplier);
-      if (maximumLineHeight > newLineHeight) {
-        newLineHeight = maximumLineHeight;
+      CGFloat lineHeight = round(paragraphStyle.maximumLineHeight / fontSizeMultiplier);
+      if (lineHeight > maximumLineHeight) {
+        maximumLineHeight = lineHeight;
       }
-      hasParagraphStyle = YES;
     }
   }];
 
-  if (self.lineHeight != newLineHeight) {
-    self.lineHeight = newLineHeight;
-  }
+  return maximumLineHeight;
+}
 
+- (void)_addTextDecoration:(NSMutableAttributedString *)attributedString
+{
+  if (_textDecorationLine == RCTTextDecorationLineTypeUnderline ||
+      _textDecorationLine == RCTTextDecorationLineTypeUnderlineStrikethrough) {
+    RCTAddAttribute(@(_textDecorationStyle), NSUnderlineStyleAttributeName, attributedString);
+  }
+  if (_textDecorationLine == RCTTextDecorationLineTypeStrikethrough ||
+      _textDecorationLine == RCTTextDecorationLineTypeUnderlineStrikethrough) {
+    RCTAddAttribute(@(_textDecorationStyle), NSStrikethroughStyleAttributeName, attributedString);
+  }
+  if (_textDecorationColor) {
+    RCTAddAttribute(_textDecorationColor, NSStrikethroughColorAttributeName, attributedString);
+    RCTAddAttribute(_textDecorationColor, NSUnderlineColorAttributeName, attributedString);
+  }
+}
+
+- (void)_updateTextAlignment:(NSMutableAttributedString *)attributedString
+{
   NSTextAlignment newTextAlign = _textAlign ?: NSTextAlignmentNatural;
 
   // The part below is to address textAlign for RTL language before setting paragraph style
@@ -418,58 +437,10 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
   if (self.textAlign != newTextAlign) {
     self.textAlign = newTextAlign;
   }
+
   NSWritingDirection newWritingDirection = _writingDirection ?: NSWritingDirectionNatural;
   if (self.writingDirection != newWritingDirection) {
     self.writingDirection = newWritingDirection;
-  }
-
-  // if we found anything, set it :D
-  if (hasParagraphStyle) {
-    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
-    paragraphStyle.alignment = _textAlign;
-    paragraphStyle.baseWritingDirection = _writingDirection;
-    CGFloat lineHeight = round(_lineHeight * fontSizeMultiplier);
-    if (heightOfTallestSubview > lineHeight) {
-      lineHeight = ceilf(heightOfTallestSubview);
-    }
-    paragraphStyle.minimumLineHeight = lineHeight;
-    paragraphStyle.maximumLineHeight = lineHeight;
-    [attributedString addAttribute:NSParagraphStyleAttributeName
-                             value:paragraphStyle
-                             range:(NSRange){0, attributedString.length}];
-
-    if (lineHeight > fontLineHeight) {
-      [attributedString addAttribute:NSBaselineOffsetAttributeName
-                               value:@(lineHeight / 2 - fontLineHeight / 2)
-                               range:(NSRange){0, attributedString.length}];
-    }
-  }
-
-  // Text decoration
-  if (_textDecorationLine == RCTTextDecorationLineTypeUnderline ||
-      _textDecorationLine == RCTTextDecorationLineTypeUnderlineStrikethrough) {
-    [self _addAttribute:NSUnderlineStyleAttributeName withValue:@(_textDecorationStyle)
-     toAttributedString:attributedString];
-  }
-  if (_textDecorationLine == RCTTextDecorationLineTypeStrikethrough ||
-      _textDecorationLine == RCTTextDecorationLineTypeUnderlineStrikethrough){
-    [self _addAttribute:NSStrikethroughStyleAttributeName withValue:@(_textDecorationStyle)
-     toAttributedString:attributedString];
-  }
-  if (_textDecorationColor) {
-    [self _addAttribute:NSStrikethroughColorAttributeName withValue:_textDecorationColor
-     toAttributedString:attributedString];
-    [self _addAttribute:NSUnderlineColorAttributeName withValue:_textDecorationColor
-     toAttributedString:attributedString];
-  }
-
-  // Text shadow
-  if (!CGSizeEqualToSize(_textShadowOffset, CGSizeZero)) {
-    NSShadow *shadow = [NSShadow new];
-    shadow.shadowOffset = _textShadowOffset;
-    shadow.shadowBlurRadius = _textShadowRadius;
-    shadow.shadowColor = _textShadowColor;
-    [self _addAttribute:NSShadowAttributeName withValue:shadow toAttributedString:attributedString];
   }
 }
 

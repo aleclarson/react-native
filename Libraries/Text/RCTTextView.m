@@ -17,6 +17,7 @@
 #import "RCTShadowText.h"
 #import "RCTText.h"
 #import "RCTTextSelection.h"
+#import "RCTTextAttributes.h"
 
 @interface RCTUITextView : UITextView
 
@@ -64,6 +65,8 @@
 {
   RCTEventDispatcher *_eventDispatcher;
 
+  BOOL _styleWasChanged;
+  NSMutableDictionary<NSString *, id> *_style;
   NSString *_placeholder;
   UITextView *_placeholderView;
   UITextView *_textView;
@@ -89,10 +92,7 @@
   RCTAssertParam(eventDispatcher);
 
   if ((self = [super initWithFrame:CGRectZero])) {
-    _contentInset = UIEdgeInsetsZero;
     _eventDispatcher = eventDispatcher;
-    _placeholderTextColor = [self defaultPlaceholderTextColor];
-    _blurOnSubmit = NO;
 
     _textView = [[RCTUITextView alloc] initWithFrame:CGRectZero];
     _textView.backgroundColor = [UIColor clearColor];
@@ -102,6 +102,12 @@
 #endif
     _textView.scrollEnabled = NO;
     _textView.delegate = self;
+
+    _blurOnSubmit = NO;
+    _contentInset = UIEdgeInsetsZero;
+    _letterSpacing = @0;
+    _lines = [RCTTextLines new];
+    _style = [_textView.typingAttributes mutableCopy];
 
     _scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
 #if !TARGET_OS_TV
@@ -117,6 +123,142 @@
 
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
+
+#pragma mark - Text attributes
+
+- (void)setFont:(UIFont *)font
+{
+  _font = font;
+  _styleWasChanged = YES;
+}
+
+- (void)setColor:(UIColor *)color
+{
+  _color = color;
+  _style[NSForegroundColorAttributeName] = color;
+  _styleWasChanged = YES;
+}
+
+- (void)setLineHeight:(CGFloat)lineHeight
+{
+  _lineHeight = lineHeight;
+  _styleWasChanged = YES;
+}
+
+- (void)setLetterSpacing:(NSNumber *)letterSpacing
+{
+  _letterSpacing = letterSpacing;
+  _styleWasChanged = YES;
+}
+
+- (void)setWritingDirection:(NSWritingDirection)writingDirection
+{
+  _writingDirection = writingDirection;
+  _styleWasChanged = YES;
+}
+
+- (void)setTextAlign:(NSTextAlignment)textAlign
+{
+  _textAlign = textAlign;
+  _styleWasChanged = YES;
+}
+
+- (void)setTextShadowOffset:(CGSize)textShadowOffset
+{
+  _textShadowOffset = textShadowOffset;
+  _styleWasChanged = YES;
+}
+
+- (void)setTextShadowRadius:(CGFloat)textShadowRadius
+{
+  _textShadowRadius = textShadowRadius;
+  _styleWasChanged = YES;
+}
+
+- (void)setTextShadowColor:(UIColor *)textShadowColor
+{
+  _textShadowColor = textShadowColor;
+  _styleWasChanged = YES;
+}
+
+- (void)didSetProps:(NSArray<NSString *> *)changedProps
+{
+  if (_styleWasChanged) {
+    _styleWasChanged = NO;
+
+    RCTSetFontAttribute(_font, _lineHeight, _letterSpacing, _textAlign, _writingDirection, _style);
+
+    // Text shadow
+    if (CGSizeEqualToSize(_textShadowOffset, CGSizeZero)) {
+      [_style removeObjectForKey:NSShadowAttributeName];
+    } else {
+      NSShadow *shadow = [NSShadow new];
+      shadow.shadowOffset = _textShadowOffset;
+      shadow.shadowBlurRadius = _textShadowRadius;
+      shadow.shadowColor = _textShadowColor;
+      _style[NSShadowAttributeName] = shadow;
+    }
+
+    _textView.typingAttributes = _style;
+    _textView.attributedText =
+      [[NSAttributedString alloc] initWithString:_textView.text attributes:_style];
+
+    if (_placeholderView) {
+      _placeholderView.attributedText =
+        [[NSAttributedString alloc] initWithString:_placeholder attributes:_style];
+
+      if (_placeholderTextColor) {
+        _placeholderView.textColor = _placeholderTextColor;
+      }
+    }
+  }
+}
+
+#pragma mark - Placeholder
+
+- (void)setPlaceholder:(NSString *)placeholder
+{
+  _placeholder = placeholder;
+  [self updatePlaceholder];
+}
+
+- (void)setPlaceholderTextColor:(UIColor *)placeholderTextColor
+{
+  _placeholderTextColor = placeholderTextColor;
+  [self updatePlaceholder];
+}
+
+- (void)updatePlaceholder
+{
+  if (_placeholder == nil) {
+    [_placeholderView removeFromSuperview];
+    _placeholderView = nil;
+    return;
+  }
+
+  if (_placeholderView == nil) {
+    _placeholderView = [[UITextView alloc] initWithFrame:self.bounds];
+    _placeholderView.userInteractionEnabled = NO;
+    _placeholderView.backgroundColor = [UIColor clearColor];
+    _placeholderView.scrollEnabled = NO;
+#if !TARGET_OS_TV
+    _placeholderView.editable = NO;
+    _placeholderView.scrollsToTop = NO;
+#endif
+
+    [self insertSubview:_placeholderView belowSubview:_textView];
+    [self updatePlaceholderVisibility];
+  }
+
+  _placeholderView.attributedText =
+    [[NSAttributedString alloc] initWithString:_placeholder attributes:_style];
+
+  if (_placeholderTextColor) {
+    _placeholderView.textColor = _placeholderTextColor;
+  }
+}
+
+#pragma mark - React subviews
 
 - (void)insertReactSubview:(UIView *)subview atIndex:(NSInteger)index
 {
@@ -161,6 +303,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 {
   // Do nothing, as we don't allow non-text subviews
 }
+
+#pragma mark - UITextView management
 
 - (void)setMostRecentEventCount:(NSInteger)mostRecentEventCount
 {
@@ -285,59 +429,6 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
       @"target": self.reactTag,
     });
   }
-}
-
-- (void)updatePlaceholder
-{
-  [_placeholderView removeFromSuperview];
-  _placeholderView = nil;
-
-  if (_placeholder) {
-    _placeholderView = [[UITextView alloc] initWithFrame:self.bounds];
-    _placeholderView.userInteractionEnabled = NO;
-    _placeholderView.backgroundColor = [UIColor clearColor];
-    _placeholderView.scrollEnabled = NO;
-#if !TARGET_OS_TV
-    _placeholderView.editable = NO;
-    _placeholderView.scrollsToTop = NO;
-#endif
-    _placeholderView.attributedText =
-    [[NSAttributedString alloc] initWithString:_placeholder attributes:@{
-      NSFontAttributeName : (_textView.font ? _textView.font : [self defaultPlaceholderFont]),
-      NSForegroundColorAttributeName : _placeholderTextColor
-    }];
-    _placeholderView.textAlignment = _textView.textAlignment;
-
-    [self insertSubview:_placeholderView belowSubview:_textView];
-    [self updatePlaceholderVisibility];
-  }
-}
-
-- (UIFont *)font
-{
-  return _textView.font;
-}
-
-- (void)setFont:(UIFont *)font
-{
-  _textView.font = font;
-  [self updatePlaceholder];
-}
-
-- (void)setPlaceholder:(NSString *)placeholder
-{
-  _placeholder = placeholder;
-  [self updatePlaceholder];
-}
-
-- (void)setPlaceholderTextColor:(UIColor *)placeholderTextColor
-{
-  if (placeholderTextColor) {
-    _placeholderTextColor = placeholderTextColor;
-  } else {
-    _placeholderTextColor = [self defaultPlaceholderTextColor];
-  }
-  [self updatePlaceholder];
 }
 
 - (void)setContentInset:(UIEdgeInsets)contentInset
@@ -659,6 +750,8 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
                                eventCount:_nativeEventCount];
 }
 
+#pragma mark - Touch handling
+
 - (BOOL)isFirstResponder
 {
   return [_textView isFirstResponder];
@@ -699,16 +792,6 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
   _viewDidCompleteInitialLayout = YES;
 
   [self updateFrames];
-}
-
-- (UIFont *)defaultPlaceholderFont
-{
-  return [UIFont systemFontOfSize:17];
-}
-
-- (UIColor *)defaultPlaceholderTextColor
-{
-  return [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.098/255.0 alpha:0.22];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
