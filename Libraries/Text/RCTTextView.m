@@ -179,6 +179,24 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   _styleWasChanged = YES;
 }
 
+- (void)setDropShadow:(NSDictionary *)dropShadow
+{
+  _dropShadow = dropShadow;
+
+  if (dropShadow && dropShadow[@"offset"]) {
+    RCTApplyDropShadow(dropShadow, _textView.layer);
+    if (_placeholderView) {
+      RCTApplyDropShadow(dropShadow, _placeholderView.layer);
+    }
+  }
+  else if (_textView.layer.shadowOpacity > 0) {
+    _textView.layer.shadowOpacity = 0;
+    if (_placeholderView) {
+      _placeholderView.layer.shadowOpacity = 0;
+    }
+  }
+}
+
 - (void)didSetProps:(NSArray<NSString *> *)changedProps
 {
   if (_styleWasChanged) {

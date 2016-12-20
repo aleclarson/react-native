@@ -9,6 +9,8 @@
 
 #import "RCTTextAttributes.h"
 
+#import "RCTConvert.h"
+
 void RCTAddAttribute(id attributeValue,
                      NSString *attribute,
                      NSMutableAttributedString *attributedString)
@@ -48,5 +50,28 @@ void RCTSetFontAttribute(UIFont *font,
     if (baselineOffset > 0) {
       attributes[NSBaselineOffsetAttributeName] = @(baselineOffset);
     }
+  }
+}
+
+void RCTApplyDropShadow(NSDictionary *dropShadow,
+                        CALayer *layer)
+{
+  CGSize offset = [RCTConvert CGSize:dropShadow[@"offset"]];
+  NSNumber *radius = dropShadow[@"radius"] ?: @0;
+  UIColor *color = [RCTConvert UIColor:dropShadow[@"color"]] ?: [UIColor blackColor];
+  NSNumber *opacity = dropShadow[@"opacity"] ?: @1;
+  BOOL shouldRasterize = [RCTConvert BOOL:dropShadow[@"shouldRasterizeIOS"]] ?: NO;
+
+  layer.masksToBounds = NO;
+  layer.shadowOffset = offset;
+  layer.shadowOpacity = opacity.doubleValue;
+  layer.shadowRadius = radius.doubleValue;
+  layer.shadowColor = color.CGColor;
+
+  if (shouldRasterize) {
+    layer.shouldRasterize = YES;
+    layer.rasterizationScale = [UIScreen mainScreen].scale;
+  } else {
+    layer.shouldRasterize = NO;
   }
 }

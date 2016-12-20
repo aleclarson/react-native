@@ -21,3 +21,6 @@ RCT_EXTERN void RCTSetFontAttribute(UIFont *font,
                                     NSTextAlignment textAlign,
                                     NSWritingDirection writingDirection,
                                     NSMutableDictionary<NSString *, id> *attributes);
+
+RCT_EXTERN void RCTApplyDropShadow(NSDictionary *dropShadow,
+                                   CALayer *layer);

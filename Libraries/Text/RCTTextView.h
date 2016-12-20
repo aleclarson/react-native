@@ -32,6 +32,7 @@
 @property (nonatomic, assign) CGSize textShadowOffset;
 @property (nonatomic, assign) CGFloat textShadowRadius;
 @property (nonatomic, strong) UIColor *textShadowColor;
+@property (nonatomic, strong) NSDictionary *dropShadow;
 @property (nonatomic, copy) NSString *placeholder;
 @property (nonatomic, strong) UIColor *placeholderTextColor;
 @property (nonatomic, assign) NSInteger mostRecentEventCount;

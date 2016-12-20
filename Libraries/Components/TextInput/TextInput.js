@@ -29,6 +29,7 @@ const warning = require('fbjs/lib/warning');
 
 const emptyFunction = require('fbjs/lib/emptyFunction');
 const invariant = require('fbjs/lib/invariant');
+const processColor = require('processColor');
 const requireNativeComponent = require('requireNativeComponent');
 
 const PropTypes = React.PropTypes;
@@ -598,6 +599,12 @@ const TextInput = React.createClass({
 
     if (props.selection && props.selection.end == null) {
       props.selection = {start: props.selection.start, end: props.selection.start};
+    }
+
+    if (props.dropShadow && props.dropShadow.color) {
+      props.dropShadow = Object.assign({}, props.dropShadow, {
+        color: processColor(props.dropShadow.color),
+      });
     }
 
     if (!props.multiline) {
