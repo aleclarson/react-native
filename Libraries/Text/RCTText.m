@@ -10,6 +10,7 @@
 #import "RCTText.h"
 
 #import "RCTShadowText.h"
+#import "RCTTextShadow.h"
 #import "RCTUtils.h"
 #import "UIView+React.h"
 
@@ -26,8 +27,10 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
 
 @implementation RCTText
 {
+  NSMutableArray<RCTTextShadow *> *_textShadows;
   NSTextStorage *_textStorage;
   CAShapeLayer *_highlightLayer;
+  UIImageView *_textBitmap;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -94,6 +97,57 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
   }
 }
 
+- (void)setTextShadows:(NSArray<NSDictionary *> *)textShadows
+{
+  if (textShadows == nil) {
+    if (_textShadows) {
+      for (RCTTextShadow *view in _textShadows) {
+        [view removeFromSuperview];
+      }
+      _textShadows = nil;
+    }
+    return;
+  }
+
+  if (_textShadows == nil) {
+    _textShadows = [NSMutableArray array];
+  }
+
+  NSUInteger viewCount = _textShadows.count;
+  NSUInteger maxIndex = textShadows.count - 1;
+
+  // Create a `RCTTextShadow` view for each NSDictionary. Reuse existing views.
+  [textShadows enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull options, NSUInteger index, BOOL * _Nonnull stop) {
+    if (index < viewCount) {
+      RCTTextShadow *view = _textShadows[index];
+      [view updateWithOptions:options];
+    } else {
+      RCTTextShadow *view = [[RCTTextShadow alloc] initWithOptions:options];
+      [view setTextFrame:_textFrame textBitmap:_textBitmap.image];
+      [_textShadows addObject:view];
+
+      // Display shadows in reverse order
+      [self insertSubview:view atIndex:maxIndex - index];
+    }
+  }];
+
+  // Remove `RCTTextShadow` views no longer in use.
+  NSInteger removedCount = _textShadows.count - textShadows.count;
+  if (removedCount > 0) {
+    NSInteger index = _textShadows.count;
+    NSUInteger stopIndex = index - removedCount;
+    while (--index >= stopIndex) {
+      RCTTextShadow *view = _textShadows[index];
+      [view removeFromSuperview];
+    }
+    [_textShadows removeObjectsInRange:(NSRange){stopIndex, removedCount}];
+  }
+
+  if (_textBitmap) {
+    [self bringSubviewToFront:_textBitmap];
+  }
+}
+
 - (void)drawRect:(CGRect)rect
 {
   NSLayoutManager *layoutManager = [_textStorage.layoutManagers firstObject];
@@ -101,8 +155,32 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
 
   NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
   CGRect textFrame = self.textFrame;
+
   [layoutManager drawBackgroundForGlyphRange:glyphRange atPoint:textFrame.origin];
+
+  if (_textShadows) {
+    UIGraphicsBeginImageContextWithOptions(textFrame.size, NO, RCTScreenScale());
+  }
+
   [layoutManager drawGlyphsForGlyphRange:glyphRange atPoint:textFrame.origin];
+
+  if (_textShadows) {
+    UIImage *textBitmap = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    if (_textBitmap == nil) {
+      _textBitmap = [UIImageView new];
+      [self addSubview:_textBitmap];
+    }
+
+    _textBitmap.image = textBitmap;
+    _textBitmap.frame = (CGRect){CGPointZero, textBitmap.size};
+
+    for (RCTTextShadow *shadow in _textShadows) {
+      [shadow setTextFrame:_textBitmap.frame
+                textBitmap:textBitmap];
+    }
+  }
 
   __block UIBezierPath *highlightPath = nil;
   NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];

@@ -47,6 +47,16 @@ var TextStylePropTypes = Object.assign(Object.create(ViewStylePropTypes), {
   ),
   textShadowRadius: ReactPropTypes.number,
   textShadowColor: ColorPropType,
+  textShadows: ReactPropTypes.arrayOf(
+    ReactPropTypes.shape({
+      color: ColorPropType,
+      opacity: ReactPropTypes.number,
+      radius: ReactPropTypes.number,
+      offset: ReactPropTypes.shape(
+        {width: ReactPropTypes.number, height: ReactPropTypes.number}
+      ),
+    })
+  ),
   /**
    * @platform ios
    */

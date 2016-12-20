@@ -15,5 +15,6 @@
 @property (nonatomic, strong) NSTextStorage *textStorage;
 @property (nonatomic, assign) CGRect textFrame;
 
+- (void)setTextShadows:(NSArray<NSDictionary *> *)textShadows;
 
 @end

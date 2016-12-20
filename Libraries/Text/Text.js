@@ -22,6 +22,7 @@ const Touchable = require('Touchable');
 const createReactNativeComponentClass =
   require('react/lib/createReactNativeComponentClass');
 const mergeFast = require('mergeFast');
+const processColor = require('processColor');
 
 const stylePropType = StyleSheetPropType(TextStylePropTypes);
 
@@ -312,6 +313,20 @@ const Text = React.createClass({
         style: [this.props.style, {color: 'magenta'}],
       };
     }
+
+    const style = flattenStyle(newProps.style);
+    if (style.textShadows) {
+      newProps = {
+        ...newProps,
+        style: [style, {
+          textShadows: style.textShadows.map(options => ({
+            ...options,
+            color: processColor(options.color),
+          })),
+        }],
+      };
+    }
+
     if (this.context.isInAParentText) {
       return <RCTVirtualText {...newProps} />;
     } else {

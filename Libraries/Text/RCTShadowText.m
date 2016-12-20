@@ -120,6 +120,7 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
     RCTText *view = (RCTText *)viewRegistry[self.reactTag];
     view.textFrame = textFrame;
     view.textStorage = textStorage;
+    view.textShadows = _textShadows;
 
     /**
      * NOTE: this logic is included to support rich text editing inside multiline
@@ -354,15 +355,6 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
   [self _addTextDecoration:attributedString];
 
   RCTSetFontAttribute(font, lineHeight, letterSpacing, _textAlign, _writingDirection, attributes);
-
-  // Text shadow
-  if (!CGSizeEqualToSize(_textShadowOffset, CGSizeZero)) {
-    NSShadow *shadow = [NSShadow new];
-    shadow.shadowOffset = _textShadowOffset;
-    shadow.shadowBlurRadius = _textShadowRadius;
-    shadow.shadowColor = _textShadowColor;
-    attributes[NSShadowAttributeName] = shadow;
-  }
 
   [attributedString addAttributes:attributes
                             range:(NSRange){0, attributedString.length}];
@@ -621,9 +613,7 @@ RCT_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, RCTTextDecorationLine
 RCT_TEXT_PROPERTY(TextDecorationStyle, _textDecorationStyle, NSUnderlineStyle);
 RCT_TEXT_PROPERTY(WritingDirection, _writingDirection, NSWritingDirection)
 RCT_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
-RCT_TEXT_PROPERTY(TextShadowOffset, _textShadowOffset, CGSize);
-RCT_TEXT_PROPERTY(TextShadowRadius, _textShadowRadius, CGFloat);
-RCT_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
+RCT_TEXT_PROPERTY(TextShadows, _textShadows, NSArray *)
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling
 {
