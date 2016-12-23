@@ -247,3 +247,37 @@ void _RCTLogJavaScriptInternal(RCTLogLevel level, NSString *message)
     }
   }
 }
+
+static NSMutableDictionary *activeTimers = nil;
+
+int RCTStartTimer(NSString *description)
+{
+  NSDate *startTime = [NSDate date];
+
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    activeTimers = [NSMutableDictionary dictionary];
+  });
+
+  static int nextTimerId = 1;
+  int timerId = nextTimerId++;
+
+  activeTimers[@(timerId)] = @{
+    @"start": startTime,
+    @"description": description,
+  };
+  return timerId;
+}
+
+void RCTStopTimer(int timerId)
+{
+  NSDate *endTime = [NSDate date];
+  NSDictionary *timer = activeTimers[@(timerId)];
+  if (timer) {
+    NSDate *startTime = timer[@"start"];
+    NSString *description = timer[@"description"];
+    NSTimeInterval duration = [endTime timeIntervalSinceDate:startTime];
+    NSLog(@"%@ in %lu ms", description, (long unsigned)(duration * 1000));
+    [activeTimers removeObjectForKey:@(timerId)];
+  }
+}

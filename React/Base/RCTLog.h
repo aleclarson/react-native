@@ -66,6 +66,9 @@ typedef void (^RCTLogFunction)(
   NSString *message
 );
 
+RCT_EXTERN int RCTStartTimer(NSString *description);
+RCT_EXTERN void RCTStopTimer(int timerId);
+
 /**
  * A method to generate a string from a collection of log data. To omit any
  * particular data from the log, just pass nil or zero for the argument.
