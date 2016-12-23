@@ -19,6 +19,8 @@
   CGSize _offset;
   UIColor *_color;
   CGFloat _radius;
+  BOOL _pendingRedraw;
+  int _redrawTimer;
 }
 
 - (instancetype)initWithOptions:(NSDictionary *)options
@@ -42,7 +44,7 @@
 {
   RCTAssertMainQueue();
 
-  BOOL willRedraw = NO;
+  BOOL needsRedraw = NO;
 
   CGSize offset = [RCTConvert CGSize:options[@"offset"]];
   if (CGSizeEqualToSize(offset, _offset) == NO) {
@@ -53,19 +55,19 @@
   UIColor *color = [RCTConvert UIColor:options[@"color"]] ?: [UIColor blackColor];
   if ([color isEqual:_color] == NO) {
     _color = color;
-    willRedraw = YES;
+    needsRedraw = YES;
   }
 
   NSNumber *radius = options[@"radius"] ?: @0;
   if (radius.doubleValue != _radius) {
     _radius = radius.doubleValue;
-    willRedraw = YES;
+    needsRedraw = YES;
   }
 
   NSNumber *opacity = options[@"opacity"] ?: @1;
   self.alpha = opacity.doubleValue;
 
-  if (willRedraw) {
+  if (needsRedraw) {
     [self redrawShadowBitmap];
   }
 }
@@ -81,32 +83,54 @@
 
 - (void)redrawShadowBitmap
 {
-  CGSize previousShadowSize = _shadowBitmap ? _shadowBitmap.size : CGSizeZero;
+  if (self.layer.needsDisplay) {
+    _pendingRedraw = YES;
+    _redrawTimer = RCTStartTimer(@"Performed pending redraw");
+    return;
+  }
 
   CGSize textSize = _textBitmap ? _textBitmap.size : CGSizeZero;
+  NSLog(@"RCTTextShadow.redrawShadowBitmap: (textSize = %@, blurRadius = %f)", NSStringFromCGSize(textSize), _radius);
+
   if (textSize.width == 0 || textSize.height == 0) {
-    _shadowBitmap = nil;
-  }
-  else {
-    CGRect textFrame = (CGRect){CGPointZero, textSize};
-    UIGraphicsBeginImageContextWithOptions(textSize, NO, RCTScreenScale());
-
-    // Tint the text shadow.
-    [_color setFill];
-    UIRectFill(textFrame);
-    [_textBitmap drawInRect:textFrame
-                  blendMode:kCGBlendModeDestinationIn
-                      alpha:1.0];
-
-    _shadowBitmap = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-
-    if (_radius > 0) {
-      _shadowBitmap = [self shadowBitmapFromImage:_shadowBitmap blurRadius:_radius];
-    }
+    return [self setShadowBitmap:nil];
   }
 
-  CGSize nextShadowSize = _shadowBitmap ? _shadowBitmap.size : CGSizeZero;
+  CGRect textFrame = (CGRect){CGPointZero, textSize};
+  UIGraphicsBeginImageContextWithOptions(textSize, NO, RCTScreenScale());
+
+  // Tint the text shadow.
+  [_color setFill];
+  UIRectFill(textFrame);
+  [_textBitmap drawInRect:textFrame
+                blendMode:kCGBlendModeDestinationIn
+                    alpha:1.0];
+
+  __block UIImage *shadowBitmap = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  CGFloat radius = _radius;
+  if (radius == 0) {
+    return [self setShadowBitmap:shadowBitmap];
+  }
+
+  int blurTimer = RCTStartTimer(@"Blurred the shadow bitmap");
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    shadowBitmap = [self shadowBitmapFromImage:shadowBitmap blurRadius:radius];
+    RCTExecuteOnMainQueue(^{
+      [self setShadowBitmap:shadowBitmap];
+      RCTStopTimer(blurTimer);
+    });
+  });
+}
+
+- (void)setShadowBitmap:(UIImage *)shadowBitmap
+{
+  CGSize previousShadowSize = _shadowBitmap ? _shadowBitmap.size : CGSizeZero;
+  CGSize nextShadowSize = shadowBitmap ? shadowBitmap.size : CGSizeZero;
+
+  _shadowBitmap = shadowBitmap;
+
   if (CGSizeEqualToSize(nextShadowSize, previousShadowSize) == NO) {
     [self recomputeFrame];
   }
@@ -135,23 +159,42 @@
 
 - (void)drawRect:(CGRect)rect
 {
+  int drawTimer = RCTStartTimer(@"[RCTTextShadow drawRect]");
+
   [_shadowBitmap drawInRect:rect
                   blendMode:kCGBlendModeNormal
                       alpha:1.0];
+
+  RCTStopTimer(drawTimer);
+
+  if (_pendingRedraw) {
+    _pendingRedraw = NO;
+
+    // Avoid calling `setNeedsDisplay` from inside `drawRect`.
+    dispatch_async(dispatch_get_main_queue(), ^{
+      RCTStopTimer(_redrawTimer);
+      NSLog(@"Redrawing shadow immediately...");
+      [self redrawShadowBitmap];
+    });
+  }
 }
 
 - (UIImage *)shadowBitmapFromImage:(UIImage *)textBitmap
                         blurRadius:(CGFloat)blurRadius
 {
+  RCTAssertNotMainQueue();
+
   if (_blurFilter) {
     NSNumber *previousRadius = [_blurFilter valueForKey:@"inputRadius"];
     if (blurRadius != previousRadius.doubleValue) {
       [_blurFilter setValue:@(blurRadius) forKey:@"inputRadius"];
     }
-  } else {
+  }
+  else {
     _blurFilter = [CIFilter filterWithName:@"CIGaussianBlur"];
     [_blurFilter setValue:@(blurRadius) forKey:@"inputRadius"];
   }
+
   CIImage *image = [CIImage imageWithCGImage:textBitmap.CGImage];
   [_blurFilter setValue:image forKey:kCIInputImageKey];
   image = [_blurFilter valueForKey:kCIOutputImageKey];
