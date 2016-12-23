@@ -421,6 +421,7 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
 
   _textView.textContainerInset = adjustedTextContainerInset;
   _placeholderView.textContainerInset = adjustedTextContainerInset;
+  [self updateMaxLineWidth];
 }
 
 - (void)updateContentSize
@@ -446,6 +447,12 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
 {
   _contentInset = contentInset;
   [self updateFrames];
+}
+
+- (void)updateMaxLineWidth
+{
+  CGFloat maxWidth = CGRectGetWidth(UIEdgeInsetsInsetRect(_textView.frame, _textView.textContainerInset));
+  _lines.maxWidth = maxWidth - 2.0 * _textView.textContainer.lineFragmentPadding;
 }
 
 - (BOOL)textView:(RCTUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
@@ -511,9 +518,7 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
     }
   }
 
-  // TODO: Update `_lines.maxWidth` on layout.
-  CGFloat maxWidth = CGRectGetWidth(UIEdgeInsetsInsetRect(textView.frame, textView.textContainerInset));
-  _lines.maxWidth = maxWidth - 2.0 * textView.textContainer.lineFragmentPadding;
+  [self updateMaxLineWidth];
 
   NSString *newText = [textView.text stringByReplacingCharactersInRange:range withString:text];
   NSNumber *letterSpacing = textView.typingAttributes[NSKernAttributeName] ?: @0;
