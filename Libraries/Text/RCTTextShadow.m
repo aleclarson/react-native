@@ -14,7 +14,7 @@
 @implementation RCTTextShadow
 {
   CIFilter *_blurFilter;
-  UIImage *_shadowBitmap;
+  CIImage *_shadowBitmap;
   UIImage *_textBitmap;
   CGSize _offset;
   UIColor *_color;
@@ -35,6 +35,11 @@
     NSNumber *opacity = options[@"opacity"] ?: @1;
     self.alpha = opacity.doubleValue;
     self.backgroundColor = [UIColor clearColor];
+    self.enableSetNeedsDisplay = YES;
+    self.context = RCTGetEAGLContext();
+
+    // Cache the CIContext before 'drawRect' is called.
+    RCTGetCIContext();
   }
 
   return self;
@@ -99,39 +104,31 @@
   CGRect textFrame = (CGRect){CGPointZero, textSize};
   UIGraphicsBeginImageContextWithOptions(textSize, NO, RCTScreenScale());
 
-  // Tint the text shadow.
   [_color setFill];
   UIRectFill(textFrame);
+
   [_textBitmap drawInRect:textFrame
                 blendMode:kCGBlendModeDestinationIn
                     alpha:1.0];
 
-  __block UIImage *shadowBitmap = UIGraphicsGetImageFromCurrentImageContext();
+  UIImage *textBitmap = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
-  CGFloat radius = _radius;
-  if (radius == 0) {
-    return [self setShadowBitmap:shadowBitmap];
+  CIImage *shadowBitmap = [CIImage imageWithCGImage:textBitmap.CGImage];
+  if (_radius > 0) {
+    shadowBitmap = [self blurImage:shadowBitmap radius:_radius];
   }
-
-  int blurTimer = RCTStartTimer(@"Blurred the shadow bitmap");
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-    shadowBitmap = [self shadowBitmapFromImage:shadowBitmap blurRadius:radius];
-    RCTExecuteOnMainQueue(^{
-      [self setShadowBitmap:shadowBitmap];
-      RCTStopTimer(blurTimer);
-    });
-  });
+  [self setShadowBitmap:shadowBitmap];
 }
 
-- (void)setShadowBitmap:(UIImage *)shadowBitmap
+- (void)setShadowBitmap:(CIImage *)shadowBitmap
 {
-  CGSize previousShadowSize = _shadowBitmap ? _shadowBitmap.size : CGSizeZero;
-  CGSize nextShadowSize = shadowBitmap ? shadowBitmap.size : CGSizeZero;
+  CGRect oldExtent = _shadowBitmap ? _shadowBitmap.extent : CGRectZero;
+  CGRect newExtent = shadowBitmap ? shadowBitmap.extent : CGRectZero;
 
   _shadowBitmap = shadowBitmap;
 
-  if (CGSizeEqualToSize(nextShadowSize, previousShadowSize) == NO) {
+  if (CGSizeEqualToSize(oldExtent.size, newExtent.size) == NO) {
     [self recomputeFrame];
   }
 
@@ -146,7 +143,7 @@
   };
 
   if (_shadowBitmap) {
-    CGSize shadowSize = _shadowBitmap.size;
+    CGSize shadowSize = _shadowBitmap.extent.size;
     if (_radius > 0) {
       shadowSize.width /= RCTScreenScale();
       shadowSize.height /= RCTScreenScale();
@@ -163,13 +160,12 @@
 
 - (void)drawRect:(CGRect)rect
 {
-  int drawTimer = RCTStartTimer(@"[RCTTextShadow drawRect]");
-
-  [_shadowBitmap drawInRect:rect
-                  blendMode:kCGBlendModeNormal
-                      alpha:1.0];
-
-  RCTStopTimer(drawTimer);
+  if (_shadowBitmap) {
+    CGAffineTransform scale = CGAffineTransformMakeScale(self.contentScaleFactor, self.contentScaleFactor);
+    [RCTGetCIContext() drawImage:_shadowBitmap
+                          inRect:CGRectApplyAffineTransform(rect, scale)
+                        fromRect:_shadowBitmap.extent];
+  }
 
   if (_pendingRedraw) {
     _pendingRedraw = NO;
@@ -183,11 +179,9 @@
   }
 }
 
-- (UIImage *)shadowBitmapFromImage:(UIImage *)textBitmap
-                        blurRadius:(CGFloat)blurRadius
+- (CIImage *)blurImage:(CIImage *)textBitmap
+                radius:(CGFloat)blurRadius
 {
-  RCTAssertNotMainQueue();
-
   if (_blurFilter) {
     NSNumber *previousRadius = [_blurFilter valueForKey:@"inputRadius"];
     if (blurRadius != previousRadius.doubleValue) {
@@ -199,10 +193,32 @@
     [_blurFilter setValue:@(blurRadius) forKey:@"inputRadius"];
   }
 
-  CIImage *image = [CIImage imageWithCGImage:textBitmap.CGImage];
-  [_blurFilter setValue:image forKey:kCIInputImageKey];
-  image = [_blurFilter valueForKey:kCIOutputImageKey];
-  return [UIImage imageWithCIImage:image];
+  [_blurFilter setValue:textBitmap forKey:kCIInputImageKey];
+  return [_blurFilter valueForKey:kCIOutputImageKey];
+}
+
+static EAGLContext *RCTGetEAGLContext()
+{
+  static EAGLContext *eaglContext;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    eaglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+  });
+  return eaglContext;
+}
+
+static CIContext *RCTGetCIContext()
+{
+  static CIContext *context;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    context =
+      [CIContext contextWithEAGLContext:RCTGetEAGLContext()
+                                options:@{
+                                  kCIContextWorkingColorSpace: [NSNull null],
+                                }];
+  });
+  return context;
 }
 
 @end

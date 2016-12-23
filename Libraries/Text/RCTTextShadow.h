@@ -6,9 +6,9 @@
 //  Copyright © 2016 Facebook. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 
-@interface RCTTextShadow : UIView
+@interface RCTTextShadow : GLKView
 
 - (instancetype)initWithOptions:(NSDictionary *)options;
 - (void)updateWithOptions:(NSDictionary *)options;
