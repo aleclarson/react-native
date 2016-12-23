@@ -19,8 +19,6 @@
   CGSize _offset;
   UIColor *_color;
   CGFloat _radius;
-  BOOL _pendingRedraw;
-  int _redrawTimer;
 }
 
 - (instancetype)initWithOptions:(NSDictionary *)options
@@ -88,12 +86,6 @@
 
 - (void)redrawShadowBitmap
 {
-  if (self.layer.needsDisplay) {
-    _pendingRedraw = YES;
-    _redrawTimer = RCTStartTimer(@"Performed pending redraw");
-    return;
-  }
-
   CGSize textSize = _textBitmap ? _textBitmap.size : CGSizeZero;
   NSLog(@"RCTTextShadow.redrawShadowBitmap: (textSize = %@, blurRadius = %f)", NSStringFromCGSize(textSize), _radius);
 
@@ -165,17 +157,6 @@
     [RCTGetCIContext() drawImage:_shadowBitmap
                           inRect:CGRectApplyAffineTransform(rect, scale)
                         fromRect:_shadowBitmap.extent];
-  }
-
-  if (_pendingRedraw) {
-    _pendingRedraw = NO;
-
-    // Avoid calling `setNeedsDisplay` from inside `drawRect`.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      RCTStopTimer(_redrawTimer);
-      NSLog(@"Redrawing shadow immediately...");
-      [self redrawShadowBitmap];
-    });
   }
 }
 
