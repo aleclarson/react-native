@@ -147,6 +147,10 @@
 
   if (_shadowBitmap) {
     CGSize shadowSize = _shadowBitmap.size;
+    if (_radius > 0) {
+      shadowSize.width /= RCTScreenScale();
+      shadowSize.height /= RCTScreenScale();
+    }
     frame = CGRectInset(
       frame,
       MIN(0, frame.size.width - shadowSize.width) / 2,
