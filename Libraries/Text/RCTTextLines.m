@@ -148,7 +148,6 @@ RCT_EXPORT_METHOD(computeLines:(NSString *)text
 
 - (void)setText:(NSString *)text withStyle:(NSDictionary *)style
 {
-  NSNumber *letterSpacing = style[@"letterSpacing"] ?: @0;
   UIFont *font =
     [RCTFont updateFont:nil
              withFamily:style[@"fontFamily"]
@@ -158,7 +157,9 @@ RCT_EXPORT_METHOD(computeLines:(NSString *)text
                 variant:style[@"fontVariant"]
         scaleMultiplier:1.0];
 
-  [self setText:text withFont:font letterSpacing:letterSpacing];
+  [self setText:text
+        withFont:font
+        letterSpacing:style[@"letterSpacing"]];
 }
 
 - (void)setText:(NSString *)text withFont:(UIFont *)font letterSpacing:(NSNumber *)letterSpacing
@@ -168,7 +169,7 @@ RCT_EXPORT_METHOD(computeLines:(NSString *)text
       initWithString:text
           attributes:@{
             NSFontAttributeName: font,
-            NSKernAttributeName: letterSpacing,
+            NSKernAttributeName: letterSpacing ?: @0,
           }];
 }
 
