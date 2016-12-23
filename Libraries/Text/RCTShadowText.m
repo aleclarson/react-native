@@ -118,9 +118,9 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
   CGRect textFrame = [self calculateTextFrame:textStorage];
   [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
     RCTText *view = (RCTText *)viewRegistry[self.reactTag];
+    view.textShadows = _textShadows;
     view.textFrame = textFrame;
     view.textStorage = textStorage;
-    view.textShadows = _textShadows;
 
     /**
      * NOTE: this logic is included to support rich text editing inside multiline
@@ -613,7 +613,14 @@ RCT_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, RCTTextDecorationLine
 RCT_TEXT_PROPERTY(TextDecorationStyle, _textDecorationStyle, NSUnderlineStyle);
 RCT_TEXT_PROPERTY(WritingDirection, _writingDirection, NSWritingDirection)
 RCT_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
-RCT_TEXT_PROPERTY(TextShadows, _textShadows, NSArray *)
+
+- (void)setTextShadows:(NSArray *)textShadows
+{
+  _textShadows = textShadows;
+
+  // Avoid destroying `_cachedTextStorage`
+  [super dirtyText];
+}
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling
 {

@@ -12,9 +12,8 @@
 @interface RCTText : UIView
 
 @property (nonatomic, assign) UIEdgeInsets contentInset;
+@property (nonatomic, strong) NSArray<NSDictionary *> *textShadows;
 @property (nonatomic, strong) NSTextStorage *textStorage;
 @property (nonatomic, assign) CGRect textFrame;
-
-- (void)setTextShadows:(NSArray<NSDictionary *> *)textShadows;
 
 @end
