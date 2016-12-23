@@ -13,13 +13,7 @@
 - (instancetype)initWithOptions:(NSDictionary *)options;
 - (void)updateWithOptions:(NSDictionary *)options;
 
-- (CGRect)textFrame;
-- (UIImage *)textBitmap;
-- (void)setTextFrame:(CGRect)textFrame textBitmap:(UIImage *)textBitmap;
-
-@property (nonatomic, assign) CGSize offset;
-@property (nonatomic, strong) UIColor *color;
-@property (nonatomic, strong) NSNumber *radius;
-@property (nonatomic, strong) NSNumber *opacity;
+// An image of rasterized text is used to generate the text shadow.
+@property (nonatomic, strong) UIImage *textBitmap;
 
 @end
