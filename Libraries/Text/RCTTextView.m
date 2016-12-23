@@ -521,8 +521,7 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   [self updateMaxLineWidth];
 
   NSString *newText = [textView.text stringByReplacingCharactersInRange:range withString:text];
-  NSNumber *letterSpacing = textView.typingAttributes[NSKernAttributeName] ?: @0;
-  [_lines setText:newText withFont:textView.font letterSpacing:letterSpacing];
+  [_lines setText:newText withFont:_font letterSpacing:_letterSpacing];
 
   NSUInteger lineCount = _lines.count;
   if (_maxLineCount && lineCount > _maxLineCount.integerValue) {
