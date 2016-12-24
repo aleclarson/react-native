@@ -19,6 +19,7 @@
   CGSize _offset;
   UIColor *_color;
   CGFloat _radius;
+  CIContext *_shadowContext;
 }
 
 - (instancetype)initWithOptions:(NSDictionary *)options
@@ -34,10 +35,10 @@
     self.alpha = opacity.doubleValue;
     self.backgroundColor = [UIColor clearColor];
     self.enableSetNeedsDisplay = YES;
-    self.context = RCTGetEAGLContext();
+    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
-    // Cache the CIContext before 'drawRect' is called.
-    RCTGetCIContext();
+    _shadowContext = [CIContext contextWithEAGLContext:self.context
+                                               options:@{kCIContextWorkingColorSpace: [NSNull null]}];
   }
 
   return self;
@@ -87,7 +88,6 @@
 - (void)redrawShadowBitmap
 {
   CGSize textSize = _textBitmap ? _textBitmap.size : CGSizeZero;
-  NSLog(@"RCTTextShadow.redrawShadowBitmap: (textSize = %@, blurRadius = %f)", NSStringFromCGSize(textSize), _radius);
 
   if (textSize.width == 0 || textSize.height == 0) {
     return [self setShadowBitmap:nil];
@@ -154,9 +154,9 @@
 {
   if (_shadowBitmap) {
     CGAffineTransform scale = CGAffineTransformMakeScale(self.contentScaleFactor, self.contentScaleFactor);
-    [RCTGetCIContext() drawImage:_shadowBitmap
-                          inRect:CGRectApplyAffineTransform(rect, scale)
-                        fromRect:_shadowBitmap.extent];
+    [_shadowContext drawImage:_shadowBitmap
+                       inRect:CGRectApplyAffineTransform(rect, scale)
+                     fromRect:_shadowBitmap.extent];
   }
 }
 
@@ -176,30 +176,6 @@
 
   [_blurFilter setValue:textBitmap forKey:kCIInputImageKey];
   return [_blurFilter valueForKey:kCIOutputImageKey];
-}
-
-static EAGLContext *RCTGetEAGLContext()
-{
-  static EAGLContext *eaglContext;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    eaglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-  });
-  return eaglContext;
-}
-
-static CIContext *RCTGetCIContext()
-{
-  static CIContext *context;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    context =
-      [CIContext contextWithEAGLContext:RCTGetEAGLContext()
-                                options:@{
-                                  kCIContextWorkingColorSpace: [NSNull null],
-                                }];
-  });
-  return context;
 }
 
 @end
