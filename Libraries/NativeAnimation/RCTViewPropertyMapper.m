@@ -47,7 +47,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
   NSNumber *opacity = [RCTConvert NSNumber:updates[@"opacity"]];
   if (opacity) {
-    view.alpha = opacity.floatValue;
+    view.layer.opacity = opacity.floatValue;
   }
 
   NSObject *transform = updates[@"transform"];
