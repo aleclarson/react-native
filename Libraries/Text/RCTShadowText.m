@@ -121,6 +121,7 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
     view.textShadows = _textShadows;
     view.textFrame = textFrame;
     view.textStorage = textStorage;
+    view.layer.opacity = _opacity;
 
     /**
      * NOTE: this logic is included to support rich text editing inside multiline
@@ -241,8 +242,7 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
                                  letterSpacing:nil
                             useBackgroundColor:NO
                                foregroundColor:self.color ?: [UIColor blackColor]
-                               backgroundColor:self.backgroundColor
-                                       opacity:self.opacity];
+                               backgroundColor:self.backgroundColor];
 }
 
 - (NSAttributedString *)_attributedStringWithFontFamily:(NSString *)fontFamily
@@ -253,7 +253,6 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
                                      useBackgroundColor:(BOOL)useBackgroundColor
                                         foregroundColor:(UIColor *)foregroundColor
                                         backgroundColor:(UIColor *)backgroundColor
-                                                opacity:(CGFloat)opacity
 {
   if (![self isTextDirty] && _cachedAttributedString) {
     return _cachedAttributedString;
@@ -299,8 +298,7 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
                                      letterSpacing:letterSpacing
                                 useBackgroundColor:YES
                                    foregroundColor:shadowText.color ?: foregroundColor
-                                   backgroundColor:shadowText.backgroundColor ?: backgroundColor
-                                           opacity:opacity * shadowText.opacity]];
+                                   backgroundColor:shadowText.backgroundColor ?: backgroundColor]];
       [child setTextComputed];
     } else if ([child isKindOfClass:[RCTShadowRawText class]]) {
       RCTShadowRawText *shadowRawText = (RCTShadowRawText *)child;
@@ -330,15 +328,13 @@ static CSSSize RCTMeasure(void *context, float width, CSSMeasureMode widthMode, 
 
   attributes[RCTReactTagAttributeName] = self.reactTag;
 
-  attributes[NSForegroundColorAttributeName] =
-    [foregroundColor colorWithAlphaComponent:CGColorGetAlpha(foregroundColor.CGColor) * opacity];
+  attributes[NSForegroundColorAttributeName] = foregroundColor;
 
   if (_isHighlighted) {
     attributes[RCTIsHighlightedAttributeName] = @YES;
   }
   if (useBackgroundColor && backgroundColor) {
-    attributes[NSBackgroundColorAttributeName] =
-      [backgroundColor colorWithAlphaComponent:CGColorGetAlpha(backgroundColor.CGColor) * opacity];
+    attributes[NSBackgroundColorAttributeName] = backgroundColor;
   }
 
   CGFloat lineHeight = [self _findMaximumLineHeight:attributedString];
@@ -612,7 +608,14 @@ RCT_TEXT_PROPERTY(TextDecorationColor, _textDecorationColor, UIColor *);
 RCT_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, RCTTextDecorationLineType);
 RCT_TEXT_PROPERTY(TextDecorationStyle, _textDecorationStyle, NSUnderlineStyle);
 RCT_TEXT_PROPERTY(WritingDirection, _writingDirection, NSWritingDirection)
-RCT_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
+
+- (void)setOpacity:(CGFloat)opacity
+{
+  _opacity = opacity;
+
+  // Avoid destroying `_cachedTextStorage`
+  [super dirtyText];
+}
 
 - (void)setTextShadows:(NSArray *)textShadows
 {
