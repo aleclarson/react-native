@@ -109,6 +109,7 @@
     _style = [_textView.typingAttributes mutableCopy];
 
     _scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
+    _scrollView.clipsToBounds = NO;
 #if !TARGET_OS_TV
     _scrollView.scrollsToTop = NO;
 #endif
