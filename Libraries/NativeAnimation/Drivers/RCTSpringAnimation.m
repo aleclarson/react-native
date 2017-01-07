@@ -29,12 +29,12 @@
 {
   CGFloat _toValue;
   CGFloat _fromValue;
-  BOOL _overshootClamping;
-  CGFloat _restDisplacementThreshold;
-  CGFloat _restSpeedThreshold;
+  BOOL _isClamped;
+  CGFloat _restDistance;
+  CGFloat _restVelocity;
   CGFloat _tension;
   CGFloat _friction;
-  CGFloat _initialVelocity;
+  CGFloat _startVelocity;
   NSTimeInterval _animationStartTime;
   NSTimeInterval _animationCurrentTime;
   RCTResponseSenderBlock _callback;
@@ -53,16 +53,16 @@
     _toValue = [RCTConvert CGFloat:config[@"toValue"]];
     _fromValue = valueNode.value;
     _valueNode = valueNode;
-    _overshootClamping = [RCTConvert BOOL:config[@"overshootClamping"]];
-    _restDisplacementThreshold = [RCTConvert CGFloat:config[@"restDisplacementThreshold"]];
-    _restSpeedThreshold = [RCTConvert CGFloat:config[@"restSpeedThreshold"]];
+    _isClamped = [RCTConvert BOOL:config[@"clamp"]];
+    _restDistance = [RCTConvert CGFloat:config[@"restDistance"]];
+    _restVelocity = [RCTConvert CGFloat:config[@"restVelocity"]];
     _tension = [RCTConvert CGFloat:config[@"tension"]];
     _friction = [RCTConvert CGFloat:config[@"friction"]];
-    _initialVelocity = [RCTConvert CGFloat:config[@"initialVelocity"]];
+    _startVelocity = [RCTConvert CGFloat:config[@"startVelocity"]];
     _callback = [callback copy];
 
     _lastPosition = _fromValue;
-    _lastVelocity = _initialVelocity;
+    _lastVelocity = _startVelocity;
   }
   return self;
 }
@@ -156,36 +156,47 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
   [self onUpdate:position];
 
-  if (_animationHasFinished) {
-    return;
-  }
-
-  // Conditions for stopping the spring animation
-  BOOL isOvershooting = NO;
-  if (_overshootClamping && _tension != 0) {
-    if (_fromValue < _toValue) {
-      isOvershooting = position > _toValue;
-    } else {
-      isOvershooting = position < _toValue;
-    }
-  }
-  BOOL isVelocity = ABS(velocity) <= _restSpeedThreshold;
-  BOOL isDisplacement = YES;
-  if (_tension != 0) {
-    isDisplacement = ABS(_toValue - position) <= _restDisplacementThreshold;
-  }
-
-  if (isOvershooting || (isVelocity && isDisplacement)) {
+  if (self.shouldFinish) {
     if (_tension != 0) {
       // Ensure that we end up with a round value
-      if (_animationHasFinished) {
-        return;
-      }
       [self onUpdate:_toValue];
     }
 
     [self stopAnimation];
   }
+}
+
+- (BOOL)shouldClamp:(CGFloat)position
+{
+  if (_isClamped && _tension != 0) {
+    if (_fromValue < _toValue) {
+      return position > _toValue;
+    } else {
+      return position < _toValue;
+    }
+  }
+  return NO;
+}
+
+- (BOOL)shouldFinish
+{
+  if (_animationHasFinished) {
+    return NO;
+  }
+
+  if ([self shouldClamp:_lastPosition]) {
+    return YES;
+  }
+
+  if (ABS(_lastVelocity) <= _restVelocity) {
+    if (_tension != 0) {
+      return ABS(_toValue - _lastPosition) <= _restDistance;
+    } else {
+      return YES;
+    }
+  }
+
+  return NO;
 }
 
 - (void)onUpdate:(CGFloat)outputValue
