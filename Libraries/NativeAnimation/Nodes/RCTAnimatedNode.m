@@ -44,7 +44,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   if (!_childNodes) {
     _childNodes = [NSMutableDictionary new];
   }
-  if (child) {
+  if (child && child != _childNodes[child.nodeTag]) {
     _childNodes[child.nodeTag] = child;
     [child onAttachedToNode:self];
   }
