@@ -277,7 +277,7 @@ void RCTStopTimer(int timerId)
     NSDate *startTime = timer[@"start"];
     NSString *description = timer[@"description"];
     NSTimeInterval duration = [endTime timeIntervalSinceDate:startTime];
-    NSLog(@"%@ in %lu ms", description, (long unsigned)(duration * 1000));
+    RCTLogInfo(@"%@ in %lu ms", description, (long unsigned)(duration * 1000));
     [activeTimers removeObjectForKey:@(timerId)];
   }
 }
