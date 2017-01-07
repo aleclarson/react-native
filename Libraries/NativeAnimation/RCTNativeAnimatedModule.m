@@ -97,19 +97,21 @@ RCT_EXPORT_METHOD(createAnimatedNode:(nonnull NSNumber *)tag
   }
 }
 
-RCT_EXPORT_METHOD(connectAnimatedNodes:(nonnull NSNumber *)parentTag
+RCT_EXPORT_METHOD(connectAnimatedNodes:(nonnull NSArray<NSNumber *> *)parentTags
                   childTag:(nonnull NSNumber *)childTag)
 {
-  RCTAssertParam(parentTag);
+  RCTAssertParam(parentTags);
   RCTAssertParam(childTag);
 
-  RCTAnimatedNode *parentNode = _animationNodes[parentTag];
   RCTAnimatedNode *childNode = _animationNodes[childTag];
-
-  RCTAssertParam(parentNode);
   RCTAssertParam(childNode);
 
-  [parentNode addChild:childNode];
+  for (NSNumber *parentTag in parentTags) {
+    RCTAnimatedNode *parentNode = _animationNodes[parentTag];
+    RCTAssertParam(parentNode);
+
+    [parentNode addChild:childNode];
+  }
 }
 
 RCT_EXPORT_METHOD(disconnectAnimatedNodes:(nonnull NSNumber *)parentTag
