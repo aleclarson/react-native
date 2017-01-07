@@ -24,7 +24,7 @@
 
 - (instancetype)initWithOptions:(NSDictionary *)options
 {
-  if (self = [super init]) {
+  if (self = [super initWithFrame:CGRectZero]) {
     _offset = [RCTConvert CGSize:options[@"offset"]];
     _color = [RCTConvert UIColor:options[@"color"]] ?: [UIColor blackColor];
 
@@ -34,7 +34,7 @@
     NSNumber *opacity = options[@"opacity"] ?: @1;
     self.alpha = opacity.doubleValue;
     self.backgroundColor = [UIColor clearColor];
-    self.enableSetNeedsDisplay = YES;
+    self.enableSetNeedsDisplay = NO;
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
     _shadowContext = [CIContext contextWithEAGLContext:self.context
@@ -124,7 +124,11 @@
     [self recomputeFrame];
   }
 
-  [self setNeedsDisplay];
+  if (self.enableSetNeedsDisplay) {
+    [self setNeedsDisplay];
+  } else {
+    [self display];
+  }
 }
 
 - (void)recomputeFrame
@@ -146,6 +150,9 @@
       MIN(0, frame.size.height - shadowSize.height) / 2
     );
   }
+
+  // 'setNeedsDisplay' will crash if the size is {0, 0}
+  self.enableSetNeedsDisplay = !CGSizeEqualToSize(frame.size, CGSizeZero);
 
   self.frame = frame;
 }
