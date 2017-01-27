@@ -132,6 +132,9 @@ if (cli) {
       init(commands[1], argv.verbose, rnPackage, argv.npm);
     }
     break;
+  case 'start':
+    require('./js/cli').run(); 
+    break;
   default:
     console.error(
       'Command `%s` unrecognized. ' +
