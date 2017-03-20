@@ -441,6 +441,20 @@ class Server {
     this._changeWatchers = [];
   }
 
+  _serveWebPage(reqUrl, res) {
+    const resolver = this._bundler.getResolver();
+
+    for (let root of this._projectRoots) {
+      let module = resolver.getModuleForPath(root + reqUrl);
+      if (module) {
+        return res.end(fs.readFileSync(module.path, 'utf8'));
+      }
+    }
+
+    res.writeHead('404');
+    res.end('Failed to resolve module: ' + reqUrl);
+  }
+
   _processDebugRequest(reqUrl, res) {
     let ret = '<!doctype html>';
     const pathname = url.parse(reqUrl).pathname;
@@ -649,6 +663,9 @@ class Server {
       requestType = 'map';
     } else if (pathname.match(/\.assets$/)) {
       requestType = 'assets';
+    } else if (pathname.match(/\.html$/)) {
+      this._serveWebPage(req.url, res);
+      return;
     } else if (pathname.match(/^\/debug/)) {
       this._processDebugRequest(req.url, res);
       return;
