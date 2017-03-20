@@ -27,6 +27,9 @@ const validateOpts = declareOpts({
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
+  redirectRequire: {
+    type: 'function',
+  },
   polyfillModuleNames: {
     type: 'array',
     default: [],
@@ -104,6 +107,7 @@ class Resolver {
       providesModuleNodeModules: defaults.providesModuleNodeModules,
       platforms: defaults.platforms,
       preferNativePlatform: true,
+      redirectRequire: opts.redirectRequire,
       fileWatcher: opts.fileWatcher,
       cache: opts.cache,
       shouldThrowOnUnresolvedErrors: (_, platform) => platform !== 'android',

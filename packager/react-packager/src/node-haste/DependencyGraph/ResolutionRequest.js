@@ -24,6 +24,7 @@ class ResolutionRequest {
     platform,
     platforms,
     preferNativePlatform,
+    redirectRequire,
     entryPath,
     hasteMap,
     deprecatedAssetMap,
@@ -37,6 +38,7 @@ class ResolutionRequest {
     this._platform = platform;
     this._platforms = platforms;
     this._preferNativePlatform = preferNativePlatform;
+    this._globalRedirect = redirectRequire || Function.prototype; // return undefined by default
     this._entryPath = entryPath;
     this._hasteMap = hasteMap;
     this._deprecatedAssetMap = deprecatedAssetMap;
@@ -261,6 +263,7 @@ class ResolutionRequest {
   _resolveHasteDependency(fromModule, toModuleName) {
     toModuleName = normalizePath(toModuleName);
 
+    // Package-specific redirection
     let p = fromModule.getPackage();
     if (p) {
       p = p.redirectRequire(toModuleName);
@@ -268,7 +271,15 @@ class ResolutionRequest {
       p = Promise.resolve(toModuleName);
     }
 
-    return p.then((realModuleName) => {
+    // Platform-specific and global redirection
+    return p.then(toModuleName =>
+      this._globalRedirect(fromModule, toModuleName, this._platform))
+
+    .then(realModuleName => {
+      if (realModuleName === false) {
+        return this._loadAsFile(emptyModule, fromModule, toModuleName);
+      }
+
       let dep = this._hasteMap.getModule(realModuleName, this._platform);
       if (dep && dep.type === 'Module') {
         return dep;

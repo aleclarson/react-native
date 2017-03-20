@@ -53,6 +53,9 @@ const validateOpts = declareOpts({
     type: 'string',
     default: 'haste',
   },
+  redirectRequire: {
+    type: 'function',
+  },
   polyfillModuleNames: {
     type: 'array',
     default: [],

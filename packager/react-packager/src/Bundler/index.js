@@ -41,6 +41,9 @@ const validateOpts = declareOpts({
     type: 'string',
     default: 'haste',
   },
+  redirectRequire: {
+    type: 'function',
+  },
   polyfillModuleNames: {
     type: 'array',
     default: [],
@@ -144,6 +147,7 @@ class Bundler {
       extraNodeModules: opts.extraNodeModules,
       fileWatcher: opts.fileWatcher,
       hasteRoots: opts.hasteRoots,
+      redirectRequire: opts.redirectRequire,
       minifyCode: this._transformer.minify,
       moduleFormat: opts.moduleFormat,
       polyfillModuleNames: opts.polyfillModuleNames,
