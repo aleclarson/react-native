@@ -320,7 +320,11 @@ class ResolutionRequest {
 
       if (dep && dep.type === 'Package') {
         return this._symlinkMap.resolve(dep.root).then(root => {
-          let searchPath = path.relative(packageName, realModuleName);
+          let searchPath = dep.root;
+          if (!path.isAbsolute(realModuleName)) {
+            searchPath = path.basename(searchPath);
+          }
+          searchPath = path.relative(searchPath, realModuleName);
           if (searchPath.length) {
             searchPath = path.join(root, searchPath);
             return this._tryResolve(
