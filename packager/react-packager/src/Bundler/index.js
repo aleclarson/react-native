@@ -420,7 +420,9 @@ class Bundler {
           getModuleId: response.getModuleId,
           dependencyPairs: response.getResolvedDependencyPairs(module),
         }).then(transformed => {
-          modulesByName[transformed.name] = module;
+          if (transformed.name) {
+            modulesByName[transformed.name] = module;
+          }
           onModuleTransformed({
             module,
             response,
