@@ -91,7 +91,77 @@ var config = {
       'node_modules/react-native-nodejs-api': ['lib', 'node_modules'],
     };
   },
+
+  // Each key must be a valid platform: web, ios, android, global
+  // Each value is the replacement mappings for its platform.
+  // The 'global' platform is trumped by all others.
+  getReplacements() {
+    return {
+      global: {
+        'ReactInstanceMap': 'react-native/lib/ReactInstanceMap',
+      },
+      web: {
+        'react-native': 'react-native-web',
+        'react-native-web/lib': 'react-dom/lib',
+        'react/lib/findNodeHandle': 'react-dom/lib/findDOMNode',
+        'ReactComponentTree': 'react-dom/lib/ReactDOMComponentTree',
+        'ReactTreeTraversal': 'react-dom/lib/ReactDOMTreeTraversal',
+      },
+      native: {
+        'react-native/lib': 'react-native-renderer/lib',
+        'ReactComponentTree': 'react-native/lib/ReactNativeComponentTree',
+        'ReactTreeTraversal': 'react-native/lib/ReactNativeTreeTraversal',
+      },
+    };
+  },
+
+  // Returns a function that can redirect every required Haste module.
+  // If no redirection is necessary, the function should return `toModuleName`.
+  getRedirectRequire() {
+    const platforms = this.getReplacements();
+    return function redirectRequire(fromModule, toModuleName, platform) {
+      if (toModuleName[0] !== '.' && !path.isAbsolute(toModuleName)) {
+
+        const replacement = getReplacement(
+          toModuleName,
+          platforms[platform] || {},
+          platforms.global || {}
+        );
+
+        if (replacement != null) {
+          // Perform more redirection if necessary.
+          return redirectRequire(fromModule, replacement, platform);
+        }
+      }
+
+      return toModuleName;
+    };
+  },
 };
 
-
 module.exports = config;
+
+function getReplacement(toModuleName, platformReplacements, globalReplacements) {
+  const parts = toModuleName.split('/');
+  toModuleName = parts.shift();
+
+  let replacement = platformReplacements[toModuleName];
+  if (replacement == null) {
+    replacement = globalReplacements[toModuleName];
+  }
+
+  while (replacement == null && parts.length) {
+    toModuleName += '/' + parts.shift();
+
+    replacement = platformReplacements[toModuleName];
+    if (replacement == null) {
+      replacement = globalReplacements[toModuleName];
+    }
+  }
+
+  if (replacement != null && parts.length) {
+    replacement += '/' + parts.join('/');
+  }
+
+  return replacement;
+}

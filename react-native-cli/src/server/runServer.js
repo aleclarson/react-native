@@ -85,6 +85,7 @@ function getPackagerServer(args, config) {
     projectRoots: args.projectRoots,
     hasteRoots: args.hasteRoots,
     blacklistRE: config.getBlacklistRE(),
+    redirectRequire: config.getRedirectRequire(),
     cacheVersion: '3',
     getTransformOptionsModulePath: config.getTransformOptionsModulePath,
     transformModulePath: transformModulePath,
