@@ -113,6 +113,7 @@ class ResolutionRequest {
   getOrderedDependencies({
     response,
     mocksPattern,
+    prependedModuleIds = [],
     transformOptions,
     onProgress,
     recursive = true,
@@ -121,8 +122,7 @@ class ResolutionRequest {
       const entry = this._moduleCache.getModule(this._entryPath);
       const mocks = Object.create(null);
 
-      response.pushDependency(entry);
-      let totalModules = 1;
+      let totalModules = 1 + prependedModuleIds.length;
       let finishedModules = 0;
 
       const resolveDependencies = module =>
@@ -214,22 +214,46 @@ class ResolutionRequest {
         return result;
       }
 
-      return Promise.all([
-        // kicks off recursive dependency discovery, but doesn't block until it's done
-        collectedDependencies.get(entry),
+      // each dependency must only be added once
+      const seen = new Set();
 
-        // resolves when there are no more modules resolving dependencies
-        collectionsInProgress.done,
-      ]).then(([rootDependencies]) => {
-        return Promise.all(
+      // gather root dependencies from the entry module and any prepended modules
+      const rootDependencies = [];
+      function getRootDependencies(module) {
+        seen.add(module);
+        return collectedDependencies
+          .get(module)
+          .then(dependencies =>
+            dependencies.forEach(dependency =>
+              rootDependencies.push(dependency)));
+      }
+
+      const prependedModules = prependedModuleIds
+        .map(moduleId => this.resolveDependency(entry, moduleId));
+
+      // Put prepended modules first, but put their dependencies
+      // after the entry module's dependencies.
+      return Promise.all(prependedModules).then(prependedModules => {
+        response.pushDependency(entry);
+        return getRootDependencies(entry).then(() =>
+          prependedModules.reverse().reduce((promise, module) => {
+            response.prependDependency(module);
+            return promise.then(() => getRootDependencies(module));
+          }, Promise.resolve()));
+      })
+
+      // Resolves when there are no more modules resolving dependencies.
+      .then(() => collectionsInProgress.done)
+
+      // Create a map of root dependencies for every dependency.
+      .then(() =>
+        Promise.all(
           Array.from(collectedDependencies, resolveKeyWithPromise)
         ).then(moduleToDependenciesPairs =>
-          [rootDependencies, new MapWithDefaults(() => [], moduleToDependenciesPairs)]
-        );
-      }).then(([rootDependencies, moduleDependencies]) => {
-        // serialize dependencies, and make sure that every single one is only
-        // included once
-        const seen = new Set([entry]);
+          new MapWithDefaults(() => [], moduleToDependenciesPairs)))
+
+      // Process the recursive dependencies.
+      .then(moduleDependencies => {
         function traverse(dependencies) {
           dependencies.forEach(dependency => {
             if (seen.has(dependency)) { return; }

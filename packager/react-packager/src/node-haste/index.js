@@ -246,6 +246,7 @@ class DependencyGraph {
   getDependencies({
     entryPath,
     platform,
+    prependedModuleIds,
     transformOptions,
     onProgress,
     recursive = true,
@@ -274,6 +275,7 @@ class DependencyGraph {
       return req.getOrderedDependencies({
         response,
         mocksPattern: this._opts.mocksPattern,
+        prependedModuleIds,
         transformOptions,
         onProgress,
         recursive,

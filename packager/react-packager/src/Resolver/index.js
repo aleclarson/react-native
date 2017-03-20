@@ -144,6 +144,7 @@ class Resolver {
     return this._depGraph.getDependencies({
       entryPath,
       platform,
+      prependedModuleIds: defaults.runBeforeMainModule,
       transformOptions,
       recursive,
       onProgress,
