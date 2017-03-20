@@ -37,17 +37,9 @@ var projectRoots = (function() {
  * to tweak.
  */
 var config = {
+
   getProjectRoots() {
     return projectRoots;
-  },
-
-  getHasteRoots() {
-    return [
-      path.resolve('node_modules/react/lib'),
-      path.resolve('node_modules/react-native/lib'),
-      path.resolve('node_modules/react-native/Libraries'),
-      path.resolve('node_modules/react-native/packager/react-packager/js/Resolver/polyfills'),
-    ];
   },
 
   getProjectConfig: rnpmConfig.getProjectConfig,
@@ -85,6 +77,19 @@ var config = {
    */
   getTransformModulePath() {
     return require.resolve('../../packager/transformer');
+  },
+
+  /**
+   * Specifies which directories should be crawled when looking for Haste modules.
+   * Any files with `@providesModule` at the top are added to the Haste map.
+   * The benefit of a Haste module is importing it by its Haste name.
+   */
+  getHasteRoots() {
+    return {
+      'node_modules/react-native': ['Libraries'],
+      'node_modules/react-native-web': ['src'],
+      'node_modules/react-native-nodejs-api': ['lib', 'node_modules'],
+    };
   },
 };
 

@@ -9,16 +9,18 @@
 'use strict';
 
 const chalk = require('chalk');
+const resolveSymlink = require('resolve-symlink');
 const formatBanner = require('./formatBanner');
-const path = require('path');
 const runServer = require('./runServer');
+const path = require('path');
+const fs = require('fs');
 
 /**
  * Starts the React Native Packager Server.
  */
 function server(argv, config, args) {
   args.projectRoots = args.projectRoots.concat(args.root);
-  args.hasteRoots = args.hasteRoots.concat(config.getHasteRoots());
+  args.hasteRoots = args.hasteRoots.concat(resolveHasteRoots(config));
 
   console.log(formatBanner(
     'Running packager on port ' + args.port + '.\n\n' +
@@ -119,3 +121,25 @@ module.exports = {
     description: 'Enables logging',
   }],
 };
+
+function resolveHasteRoots(config) {
+  const resolvedRoots = [];
+  const hasteRoots = config.getHasteRoots();
+  for (let modulePath in hasteRoots) {
+    let roots = hasteRoots[modulePath];
+    modulePath = resolveDir(modulePath);
+    if (modulePath && Array.isArray(roots)) {
+      roots.forEach(root => {
+        resolvedRoots.push(path.join(modulePath, root));
+      });
+    }
+  }
+  return resolvedRoots;
+
+  function resolveDir(dir) {
+    dir = path.resolve(dir);
+    if (fs.existsSync(dir)) {
+      return resolveSymlink(dir);
+    }
+  }
+}

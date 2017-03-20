@@ -202,6 +202,10 @@ class Server {
     const opts = this._opts = validateOpts(options);
 
     this._projectRoots = opts.projectRoots.map(resolveRoot);
+
+    // Crawl the Resolver polyfills.
+    this._projectRoots.push(path.resolve(__dirname, '..', '..'));
+
     if (opts.hasteRoots) {
       this._hasteRoots = opts.hasteRoots.map(resolveRoot);
     }
