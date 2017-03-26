@@ -115,6 +115,7 @@ class DependencyGraph {
     });
 
     this._loading = haste.build().then(hasteMap => {
+      printModuleMap(hasteMap);
       const {activity} = this._opts;
       const depGraphActivity = activity.startEvent(
         'Initializing Packager',
@@ -391,6 +392,7 @@ class DependencyGraph {
     });
 
     return hasteMap.build().then(hasteMap => {
+      printModuleMap(hasteMap);
       const hasteFiles = hasteMap.hasteFS.getAllFiles();
       hasteFiles.forEach(filePath => {
         if (fastfs._fastPaths[filePath] == null) {
@@ -451,6 +453,19 @@ function getMaxWorkers(defaultValue) {
     return Math.floor(3 / 8 * cores + 3);
   }
   return cores / 2;
+}
+
+function printModuleMap(hasteMap) {
+  const log = require('log');
+  log.moat(1);
+  log.green('moduleMap = ');
+  log.plusIndent(2);
+  const moduleMap = hasteMap.moduleMap._map;
+  for (let name in moduleMap) {
+    log.it(name + ' = ' + log.color.gray(Object.keys(moduleMap[name]).toString()));
+  }
+  log.popIndent();
+  log.moat(1);
 }
 
 module.exports = DependencyGraph;

@@ -42,9 +42,6 @@ var config = {
     return projectRoots;
   },
 
-  getProjectConfig: rnpmConfig.getProjectConfig,
-  getDependencyConfig: rnpmConfig.getDependencyConfig,
-
   /**
    * Specify where to look for assets that are referenced using
    * `image!<image_name>`. Asset directories for images referenced using
@@ -78,6 +75,9 @@ var config = {
   getTransformModulePath() {
     return require.resolve('../../packager/transformer');
   },
+
+  getProjectConfig: rnpmConfig.getProjectConfig,
+  getDependencyConfig: rnpmConfig.getDependencyConfig,
 
   /**
    * Specifies which directories should be crawled when looking for Haste modules.

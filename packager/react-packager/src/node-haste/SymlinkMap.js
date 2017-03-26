@@ -115,7 +115,6 @@ class SymlinkMap {
   }
 
   _crawl(rootPath) {
-    const startTime = Date.now();
     this._crawling = rootPath;
     return this._createHasteMap({
       roots: [rootPath],
@@ -123,9 +122,9 @@ class SymlinkMap {
     })
     .build()
     .then(hasteMap => {
-
       const fastfs = this._fastfs;
-      hasteMap.hasteFS.getAllFiles().forEach(filePath => {
+      const hasteFiles = hasteMap.hasteFS.getAllFiles();
+      hasteFiles.forEach(filePath => {
         if (fastfs._fastPaths[filePath] == null) {
           fastfs.addFile(filePath);
         }
@@ -136,7 +135,6 @@ class SymlinkMap {
         globs: this._extensions.map(ext => '**/*.' + ext),
       });
 
-      console.log('Crawled: ' + rootPath + ' (' + (Date.now() - startTime) + ' ms)');
       this._crawlers[rootPath].resolve();
 
       if (this._crawlerQueue.length) {

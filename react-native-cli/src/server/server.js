@@ -36,7 +36,7 @@ function server(argv, config, args) {
 
   console.log(
     'Looking for JS files in\n  ',
-    chalk.dim(args.projectRoots.join('\n   ')),
+    chalk.dim(args.projectRoots.join('\n  ')),
     '\n'
   );
 

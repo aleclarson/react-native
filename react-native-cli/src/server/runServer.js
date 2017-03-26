@@ -52,6 +52,9 @@ function runServer(args, config, readyCallback) {
   app.use(connect.logger())
     .use(connect.errorHandler());
 
+  const ip = require('ip');
+  console.log(ip.address() + ':' + args.port);
+
   const serverInstance = http.createServer(app).listen(
     args.port,
     args.host,

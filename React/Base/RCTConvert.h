@@ -171,8 +171,8 @@ RCT_EXTERN SEL RCTConvertSelectorForType(NSString *type);
  * avoid repeating the same boilerplate for every error message.
  */
 #define RCTLogConvertError(json, typeName) \
-RCTLogError(@"JSON value '%@' of type %@ cannot be converted to %@", \
-json, [json classForCoder], typeName)
+NSString *message = [NSString stringWithFormat:@"JSON value '%@' of type %@ cannot be converted to %@", json, [json classForCoder], typeName]; \
+RCTAssert(NO, message);
 
 /**
  * This macro is used for creating simple converter functions that just call

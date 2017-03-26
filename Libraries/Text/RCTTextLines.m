@@ -249,7 +249,6 @@ RCT_EXPORT_METHOD(computeLines:(NSString *)text
   NSString *lastChar = [_textStorage.string substringWithRange:NSMakeRange(lastCharIndex, 1)];
   if ([lastChar isEqual:@"\n"]) {
     length += 1;
-    NSLog(@"TRAILING LINE BREAK FOUND");
   }
 
   return NSMakeRange(location, length);

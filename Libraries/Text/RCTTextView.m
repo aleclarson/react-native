@@ -389,6 +389,7 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
     NSInteger newOffset = _textView.attributedText.length - offsetFromEnd;
     UITextPosition *position = [_textView positionFromPosition:_textView.beginningOfDocument offset:newOffset];
     _textView.selectedTextRange = [_textView textRangeFromPosition:position toPosition:position];
+    NSLog(@"RCTTextView.cursorPosition = %lu", (long unsigned)newOffset);
   }
 
   [_textView layoutIfNeeded];
@@ -521,6 +522,12 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
 
   [self updateMaxLineWidth];
 
+  NSInteger maxRange = NSMaxRange(range);
+  if (textView.text.length < maxRange) {
+    RCTLogInfo(@"Invalid text range: %@", NSStringFromRange(range));
+    return NO;
+  }
+
   NSString *newText = [textView.text stringByReplacingCharactersInRange:range withString:text];
   [_lines setText:newText withFont:_font letterSpacing:_letterSpacing];
 
@@ -538,6 +545,10 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   }
 
   if (_predictedText) {
+    if (_predictedText.length < maxRange) {
+      RCTLogInfo(@"Invalid text range: %@", NSStringFromRange(range));
+      return NO;
+    }
     _predictedText = [_predictedText stringByReplacingCharactersInRange:range withString:text];
   } else {
     _predictedText = text;
@@ -596,6 +607,7 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   if (eventLag == 0 && ![currentSelection isEqual:selectedTextRange]) {
     _previousSelectionRange = selectedTextRange;
     _textView.selectedTextRange = selectedTextRange;
+    NSLog(@"RCTTextView.cursorPosition = %lu", (long unsigned)selection.start);
   } else if (eventLag > RCTTextUpdateLagWarningThreshold) {
     RCTLogWarn(@"Native TextInput(%@) is %zd events ahead of JS - try to make your JS faster.", self.text, eventLag);
   }
@@ -618,6 +630,7 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
       NSInteger newOffset = text.length - offsetFromEnd;
       UITextPosition *position = [_textView positionFromPosition:_textView.beginningOfDocument offset:newOffset];
       _textView.selectedTextRange = [_textView textRangeFromPosition:position toPosition:position];
+      NSLog(@"RCTTextView.cursorPosition = %lu", (long unsigned)newOffset);
     }
 
     [self updatePlaceholderVisibility];
