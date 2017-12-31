@@ -14,7 +14,7 @@
 
 var AppContainer = require('AppContainer');
 var React = require('React');
-var ReactNative = require('ReactNative');
+var ReactNative = require('react-native-renderer');
 
 var invariant = require('fbjs/lib/invariant');
 

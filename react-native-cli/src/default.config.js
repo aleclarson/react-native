@@ -119,6 +119,18 @@ var config = {
   // If no redirection is necessary, the function should return `toModuleName`.
   getRedirectRequire() {
     const platforms = this.getReplacements();
+    if (platforms.native) {
+      if (platforms.ios) {
+        Object.assign(platforms.ios, platforms.native);
+      } else {
+        platforms.ios = platforms.native;
+      }
+      if (platforms.android) {
+        Object.assign(platforms.android, platforms.native);
+      } else {
+        platforms.android = platforms.native;
+      }
+    }
     return function redirectRequire(fromModule, toModuleName, platform) {
       if (toModuleName[0] !== '.' && !path.isAbsolute(toModuleName)) {
 

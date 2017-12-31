@@ -17,7 +17,6 @@ const EventEmitter = require('EventEmitter');
 const NativeMethodsMixin = require('react/lib/NativeMethodsMixin');
 const Platform = require('Platform');
 const React = require('React');
-const ReactNative = require('ReactNative');
 const StyleSheet = require('StyleSheet');
 const Text = require('Text');
 const TextInputState = require('TextInputState');
@@ -28,6 +27,7 @@ const View = require('View');
 const warning = require('fbjs/lib/warning');
 
 const emptyFunction = require('fbjs/lib/emptyFunction');
+const findNodeHandle = require('react/lib/findNodeHandle');
 const invariant = require('fbjs/lib/invariant');
 const processColor = require('processColor');
 const requireNativeComponent = require('requireNativeComponent');
@@ -511,7 +511,7 @@ const TextInput = React.createClass({
    */
   isFocused: function(): boolean {
     return TextInputState.currentlyFocusedField() ===
-      ReactNative.findNodeHandle(this._inputRef);
+      findNodeHandle(this._inputRef);
   },
 
   contextTypes: {

@@ -13,7 +13,7 @@
 
 var BatchedBridge = require('BatchedBridge');
 var BugReporting = require('BugReporting');
-var ReactNative = require('ReactNative');
+var ReactNative = require('react-native-renderer');
 
 const infoLog = require('infoLog');
 var invariant = require('fbjs/lib/invariant');

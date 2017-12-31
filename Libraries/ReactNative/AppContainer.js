@@ -14,10 +14,11 @@
 
 var RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
 var React = require('React');
-var ReactNative = require('ReactNative');
 var StyleSheet = require('StyleSheet');
 var Subscribable = require('Subscribable');
 var View = require('View');
+
+var findNodeHandle = require('react/lib/findNodeHandle');
 
 var Inspector = __DEV__ ? require('Inspector') : null;
 var YellowBox = __DEV__ ? require('YellowBox') : null;
@@ -33,11 +34,11 @@ var AppContainer = React.createClass({
     var inspector = !__DEV__ || this.state.inspector
       ? null
       : <Inspector
-          inspectedViewTag={ReactNative.findNodeHandle(this.refs.main)}
+          inspectedViewTag={findNodeHandle(this.refs.main)}
           onRequestRerenderApp={(updateInspectedViewTag) => {
             this.setState(
               (s) => ({mainKey: s.mainKey + 1}),
-              () => updateInspectedViewTag(ReactNative.findNodeHandle(this.refs.main))
+              () => updateInspectedViewTag(findNodeHandle(this.refs.main))
             );
           }}
         />;

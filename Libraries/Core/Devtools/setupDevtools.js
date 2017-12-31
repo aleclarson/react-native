@@ -72,11 +72,11 @@ function setupDevtools() {
       return;
     }
     // This is breaking encapsulation of the React package. Move plz.
-    var ReactNativeComponentTree = require('react/lib/ReactNativeComponentTree');
+    var ReactComponentTree = require('ReactComponentTree');
     window.__REACT_DEVTOOLS_GLOBAL_HOOK__.inject({
       ComponentTree: {
         getClosestInstanceFromNode: function (node) {
-          return ReactNativeComponentTree.getClosestInstanceFromNode(node);
+          return ReactComponentTree.getClosestInstanceFromNode(node);
         },
         getNodeFromInstance: function (inst) {
           // inst is an internal instance (but could be a composite)
@@ -84,14 +84,14 @@ function setupDevtools() {
             inst = inst._renderedComponent;
           }
           if (inst) {
-            return ReactNativeComponentTree.getNodeFromInstance(inst);
+            return ReactComponentTree.getNodeFromInstance(inst);
           } else {
             return null;
           }
         }
       },
-      Mount: require('react/lib/ReactNativeMount'),
-      Reconciler: require('react/lib/ReactReconciler')
+      Mount: require('react-native/lib/ReactNativeMount'),
+      Reconciler: require('react-native/lib/ReactReconciler')
     });
     ws.onmessage = handleMessage;
   }
