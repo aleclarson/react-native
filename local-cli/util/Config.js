@@ -12,6 +12,7 @@
 const findSymlinkedModules = require('./findSymlinkedModules');
 const getPolyfills = require('../../rn-get-polyfills');
 const path = require('path');
+const fs = require('fs');
 
 const {createBlacklist} = require('metro');
 const {loadConfig} = require('metro-config');
@@ -31,8 +32,14 @@ function getProjectRoot() {
   } else if (__dirname.match(/Pods[\/\\]React[\/\\]packager$/)) {
     // React Native was installed using CocoaPods.
     return path.resolve(__dirname, '../../../..');
+  } else {
+    // Check if the working directory depends on react-native.
+    const cwd = process.cwd();
+    if (fs.existsSync(path.join(cwd, 'node_modules/react-native'))) {
+      return cwd;
+    }
+    throw Error('Failed to resolve the project root');
   }
-  return path.resolve(__dirname, '../..');
 }
 
 const resolveSymlinksForRoots = roots =>
