@@ -39,9 +39,7 @@ esac
 
 # Path to react-native folder inside node_modules
 REACT_NATIVE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-# Xcode project file for React Native apps is located in ios/ subfolder
-cd "${REACT_NATIVE_DIR}"/../..
+cd -
 
 # Define NVM_DIR and source the nvm.sh setup script
 [ -z "$NVM_DIR" ] && export NVM_DIR="$HOME/.nvm"
