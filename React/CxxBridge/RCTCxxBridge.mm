@@ -872,6 +872,11 @@ struct RCTInstanceCallback : public InstanceCallback {
     // Perform the state update and notification on the main thread, so we can't run into
     // timing issues with RCTRootView
     dispatch_async(dispatch_get_main_queue(), ^{
+      if (!self.valid) {
+        // The bridge can be invalidated before JS is loaded, because RCTDevSettings waits
+        // for the bridge to be initialized before enabling the websocket executor.
+        return;
+      }
       [[NSNotificationCenter defaultCenter]
        postNotificationName:RCTJavaScriptDidLoadNotification
        object:self->_parentBridge userInfo:@{@"bridge": self}];
