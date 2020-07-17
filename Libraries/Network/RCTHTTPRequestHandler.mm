@@ -108,6 +108,15 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - NSURLSession delegate
 
+#if DEBUG
+- (void)URLSession:(NSURLSession *)session
+didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
+{
+  completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+}
+#endif
+
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
    didSendBodyData:(int64_t)bytesSent
