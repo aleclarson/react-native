@@ -1,0 +1,8 @@
+{
+  "packages": {
+    "vendor/@react-native-community/cli": {
+      "url": "https://github.com/aleclarson/react-native-cli.git",
+      "head": "master"
+    }
+  }
+}
